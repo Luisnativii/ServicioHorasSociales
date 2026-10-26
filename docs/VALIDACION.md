@@ -1,5 +1,7 @@
 > Registro histórico de la inicialización local, anterior a publicar GitFlow. Las referencias `0.1.0-dev` y la ausencia de commits describen esa fase. La base publicada se normaliza a `V0.0.1`; consulta [GitFlow](GITFLOW.md) y las ejecuciones de [Actions](https://github.com/Luisnativii/ServicioHorasSociales/actions) para el estado actual.
 
+La aceptación manual de la base se registra al final de este documento, en «Validación manual registrada — issue #2». El informe original y sus pendientes se conservan como evidencia histórica.
+
 # Evidencia de inicialización local
 
 Fecha de ejecución: 25 de octubre de 2026, America/El_Salvador. Los logs de contenedores usan UTC y pueden mostrar 26 de octubre.
@@ -67,3 +69,31 @@ Ejecutarlas en secuencia: la prueba de integración detiene servicios temporalme
 - Revisar estructura, decisiones y resumen del primer commit.
 
 No quedan bloqueos de ejecución local. El commit inicial y el tag `v0.1.0`, las etiquetas definitivas `0.1.0` y cualquier despliegue externo siguen pendientes de tu validación. No hay autenticación, tablas de negocio, formularios administrativos ni dashboard.
+
+## Validación manual registrada — issue #2
+
+Fecha de recepción de la confirmación: **26 de octubre de 2026**, America/Guatemala. Objeto: aceptación de la base **V0.0.1**, publicada en el commit `c446443258f1061783d57e15101a757ca20ba370`.
+
+El propietario respondió a la pregunta de si había abierto `http://localhost:8080`, revisado la pantalla y pulsado «Volver a comprobar», viendo Backend y PostgreSQL disponibles:
+
+> Sí, lo comprobé y ambos aparecen disponibles.
+
+Esta es la fuente de la aceptación de la prueba manual. El propietario no indicó equipo ni fecha exacta de ejecución; no se atribuye la confirmación a la Mac del informe histórico ni al Windows donde se prepara esta documentación. La fecha anterior es la de registro de su respuesta.
+
+### Resultado y evidencia
+
+| Criterio del [issue #2](https://github.com/Luisnativii/ServicioHorasSociales/issues/2) | Resultado | Fuente |
+| --- | --- | --- |
+| Propietario revisa el portal y vuelve a comprobar ambos servicios | **Cumplido:** Backend y PostgreSQL disponibles tras la comprobación manual | Confirmación directa anterior. |
+| `main` contiene únicamente README; `develop` contiene el proyecto en la raíz | **Comprobado:** árbol de `origin/main` con solo `README.md`; `origin/develop` con `apps/`, `api/`, `deploy/`, `scripts/`, `docs/`, `tests/`, `.github/` y configuración en la raíz | Revisión Git realizada el 26 de octubre; `develop` en `35dc5b21a7c0e92aa2c71fef7212b0b3d44a0cc4`. |
+| Revisar GitFlow y evidencia de GitHub Actions | **Comprobado:** issue y rama propios, PR a `develop`, título convencional, `Closes #2`, una etiqueta `version:patch`, squash y checks requeridos | [GITFLOW.md](GITFLOW.md) y [CI de la base V0.0.1 aprobada](https://github.com/Luisnativii/ServicioHorasSociales/actions/runs/40256522139). |
+| Registrar la aceptación y preparar el PR | Aceptación documentada aquí; se entrega mediante el PR vinculado al issue #2 | Este apartado y la sección Development del issue. El issue se cierra al integrar el PR. |
+
+La comparación de V0.0.1 con el `develop` revisado muestra cambios únicamente en `docs/Planeacion/`. No hubo cambios en aplicación, API, contenedores, scripts, pruebas, workflows o Compose entre ambos commits. Esto permite identificar la base aceptada aunque las versiones documentales hayan avanzado; no se afirma conocer la versión mostrada en el equipo del propietario.
+
+### Límites del registro
+
+- Se acepta la pantalla base y la comprobación de disponibilidad confirmadas por el propietario. No se atribuye una prueba de vista móvil, caída de base, persistencia o recarga a esta confirmación; esos ensayos conservan sus fuentes históricas propias.
+- La evidencia automática anterior queda intacta. La nueva aceptación no afirma una ejecución local adicional de Docker ni una repetición de aquellas pruebas durante esta sesión.
+- Este registro no crea autenticación, tablas, módulos de negocio, imágenes definitivas ni despliegues. Las referencias antiguas `v0.1.0` del informe histórico no autorizan a crear o mover tags.
+- La CI de este PR es una comprobación independiente de la aceptación manual. Debe aprobar los checks requeridos antes de integrar; se respeta la publicación automática de versiones establecida en GitFlow.
