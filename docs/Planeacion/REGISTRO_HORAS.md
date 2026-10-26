@@ -7,7 +7,7 @@ Este registro contabiliza trabajo de desarrollo del proyecto. Las metas estudian
 ## Presupuesto e información disponible
 
 - Presupuesto orientativo del proyecto completo: **300 horas**, ya incluidas las etapas iniciales y su validación. No comienza otro presupuesto al abrir el backlog.
-- Histórico anterior: existen entregas y evidencia, pero no se dispone aquí de duraciones reales confirmadas. Se solicitó al propietario si conserva un registro.
+- Histórico anterior: existen entregas y evidencia, pero no hay duraciones reales de desarrollo confirmadas. El propietario aclaró en #6 que el registro que conserva corresponde a horas sociales de estudiantes, con actividades, fechas y proyectos; no a tiempos de desarrollo. Ese detalle se tratará en #10/#95 y no se copia en este documento.
 - Total real confirmado y saldo global: **no calculables todavía**. Un dato desconocido no equivale a cero ni se reemplaza por la estimación de su etapa.
 - La duración de CI, fechas de commits, tiempo del chat o tiempo de respuesta de la IA no acreditan tiempo trabajado por el propietario.
 
