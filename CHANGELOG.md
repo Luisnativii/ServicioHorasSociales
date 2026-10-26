@@ -1,0 +1,17 @@
+# Changelog
+
+## V0.0.1 — 2026-10-25
+
+- Entorno local Docker validado en macOS ARM64 con proyecto `hs-dev`.
+- API Go con chi, pgxpool, configuración validada, salud JSON y apagado ordenado.
+- React, TypeScript, Vite y Tailwind con conexión real, carga, errores y reintento.
+- PostgreSQL 18, migración Goose idempotente y persistencia con volumen nombrado.
+- Imágenes de desarrollo y etapas runtime sin root; proxy Nginx y redes separadas.
+- Corregidos GO-2026-6629 y GO-2026-5970 con x/text 0.41.0; revisión npm y Go reproducible.
+- Versiones y lockfiles fijados; scripts operativos y pruebas de recuperación/persistencia.
+
+- Publicación de la base en `develop`; `main` reservada con README.
+- GitFlow basado en issues, ramas automáticas, PR, squash y checks obligatorios.
+- CI y tags SemVer automáticos después de integraciones verificadas.
+
+La numeración de preparación `0.1.0-dev` se normaliza a `V0.0.1` por decisión del propietario. Sin autenticación, tablas de negocio ni despliegue externo.

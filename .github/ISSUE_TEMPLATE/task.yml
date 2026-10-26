@@ -1,0 +1,22 @@
+name: Tarea técnica
+description: Mantenimiento, infraestructura o ajustes técnicos.
+title: "chore: "
+labels: ["type:chore", "status:backlog"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objetivo y contexto
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceptación
+      value: "- [ ] Cambio revisable\n- [ ] Comprobaciones adecuadas\n- [ ] Documentación actualizada"
+    validations:
+      required: true
+  - type: textarea
+    id: exclusions
+    attributes:
+      label: Fuera de alcance

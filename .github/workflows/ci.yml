@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop, main]
+    types: [opened, synchronize, reopened, ready_for_review, edited, labeled, unlabeled]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  policy:
+    name: GitFlow
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      tag: ${{ steps.plan.outputs.tag }}
+      previous: ${{ steps.plan.outputs.previous }}
+      release: ${{ steps.plan.outputs.release }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validar GitFlow y proponer versión
+        id: plan
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const { planVersion } = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/gitflow.cjs`);
+            const plan = await planVersion({ github, context });
+            for (const [key, value] of Object.entries(plan)) core.setOutput(key, String(value));
+            await core.summary.addHeading('GitFlow').addRaw(`Versión propuesta: ${plan.tag}. Etiquetado: ${plan.release ? 'después de validar' : 'no aplica a este evento'}.`).write();
+
+  quality:
+    name: Docker
+    needs: policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      APP_VERSION: ${{ needs.policy.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Construir y verificar dentro de Docker
+        run: bash scripts/ci.sh
+
+  version:
+    name: Versionado
+    needs: [policy, quality]
+    if: github.ref == 'refs/heads/develop' && github.event_name != 'pull_request' && needs.policy.outputs.release == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Crear tag inmutable del commit validado
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          RELEASE_TAG: ${{ needs.policy.outputs.tag }}
+          PREVIOUS_TAG: ${{ needs.policy.outputs.previous }}
+        with:
+          script: |
+            const { publishVersion } = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/gitflow.cjs`);
+            await publishVersion({ github, context, core, plan: { release: true, tag: process.env.RELEASE_TAG, previous: process.env.PREVIOUS_TAG } });

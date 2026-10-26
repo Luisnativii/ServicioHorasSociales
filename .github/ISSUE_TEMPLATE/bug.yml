@@ -1,0 +1,31 @@
+name: Error
+description: Registrar un fallo reproducible.
+title: "fix: "
+labels: ["type:fix", "status:backlog"]
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      description: Incluye la versión/tag y el entorno; evita credenciales o datos personales.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Resultado esperado
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Resultado observado
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceptación
+      value: "- [ ] El caso deja de fallar\n- [ ] Una prueba útil evita la regresión"
+    validations:
+      required: true

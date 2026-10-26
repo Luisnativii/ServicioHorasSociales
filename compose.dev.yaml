@@ -1,0 +1,27 @@
+services:
+  api:
+    build: {target: dev}
+    init: true
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    environment:
+      HOME: /tmp
+      GOCACHE: /tmp/go-cache
+      GOPATH: /tmp/go
+      GOMODCACHE: /go/pkg/mod
+    volumes:
+      - ./apps/api:/workspace/apps/api:ro
+      - ./scripts:/workspace/scripts:ro
+    healthcheck:
+      test: [CMD, /tmp/hs-api, healthcheck]
+  web:
+    environment:
+      VITE_APP_VERSION: ${APP_VERSION:-0.0.1}
+    build: {target: dev}
+    init: true
+    ports: ['127.0.0.1:8080:8080']
+    volumes:
+      - ./apps/web/src:/workspace/apps/web/src:ro
+      - ./apps/web/index.html:/workspace/apps/web/index.html:ro
+      - ./apps/web/vite.config.ts:/workspace/apps/web/vite.config.ts:ro
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8080/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]

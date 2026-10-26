@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Guía del flujo de trabajo
+    url: https://github.com/Luisnativii/ServicioHorasSociales/blob/develop/docs/GITFLOW.md
+    about: Consulta cómo crear issues, iniciar ramas, abrir PR y elegir el incremento de versión.

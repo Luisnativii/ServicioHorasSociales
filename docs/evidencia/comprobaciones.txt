@@ -1,0 +1,121 @@
+Validación local — 2026-10-25 (America/El_Salvador)
+Comandos: bash scripts/check.sh; bash scripts/check-integration.sh
+
+ Container hs-dev-api-run-76ce95e07a05 Creating
+ Container hs-dev-api-run-76ce95e07a05 Created
+all modules verified
+?   	horas-sociales/api/cmd/api	[no test files]
+ok  	horas-sociales/api/internal/config	1.017s
+?   	horas-sociales/api/internal/platform/database	[no test files]
+ok  	horas-sociales/api/internal/platform/http	1.017s
+ Container hs-dev-web-run-a0e45fdd3d09 Creating
+ Container hs-dev-web-run-a0e45fdd3d09 Created
+
+> horas-sociales-web@0.1.0-dev build
+> tsc --noEmit && vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 30 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.46 kB │ gzip:  0.29 kB
+dist/assets/index-CaE7srb0.css    9.94 kB │ gzip:  2.98 kB
+dist/assets/index-SiyOkD6R.js   225.63 kB │ gzip: 70.74 kB
+✓ built in 959ms
+/: 200
+/api/health/live: 200
+/api/health/ready: 200
+ Container hs-dev-db-1 Running
+ Container hs-dev-api-1 Running
+ Container hs-dev-web-1 Running
+ Container hs-dev-db-1 Waiting
+ Container hs-dev-db-1 Healthy
+ Container hs-dev-api-1 Waiting
+ Container hs-dev-api-1 Healthy
+ Container hs-dev-db-1 Waiting
+ Container hs-dev-api-1 Waiting
+ Container hs-dev-web-1 Waiting
+ Container hs-dev-db-1 Healthy
+ Container hs-dev-api-1 Healthy
+ Container hs-dev-web-1 Healthy
+ Container hs-dev-db-1 Running
+ Container hs-dev-db-1 Waiting
+ Container hs-dev-db-1 Healthy
+ Container hs-dev-migrator-run-cb753da51fcc Creating
+ Container hs-dev-migrator-run-cb753da51fcc Created
+2026/10/26 01:28:42 goose: no migrations to run. current version: 1
+live: 200 ok
+ready: 200 ok
+ Container hs-dev-db-1 Stopping
+ Container hs-dev-db-1 Stopped
+live: 200 ok
+ready: 503 unavailable
+ Container hs-dev-db-1 Starting
+ Container hs-dev-db-1 Started
+ Container hs-dev-db-1 Waiting
+ Container hs-dev-db-1 Healthy
+ready: 200 ok
+ Container hs-dev-web-1 Stopping
+ Container hs-dev-web-1 Stopped
+ Container hs-dev-web-1 Removing
+ Container hs-dev-web-1 Removed
+ Container hs-dev-api-1 Stopping
+ Container hs-dev-api-1 Stopped
+ Container hs-dev-api-1 Removing
+ Container hs-dev-api-1 Removed
+ Container hs-dev-db-1 Stopping
+ Container hs-dev-db-1 Stopped
+ Container hs-dev-db-1 Removing
+ Container hs-dev-db-1 Removed
+ Network hs-dev_data Removing
+ Network hs-dev_app Removing
+ Network hs-dev_app Removed
+ Network hs-dev_data Removed
+ Network hs-dev_app Creating
+ Network hs-dev_data Creating
+ Network hs-dev_app Creating
+ Network hs-dev_data Creating
+ Network hs-dev_app Created
+ Network hs-dev_app Created
+ Network hs-dev_data Created
+ Network hs-dev_data Created
+ Container hs-dev-db-1 Creating
+ Container hs-dev-db-1 Created
+ Container hs-dev-api-1 Creating
+ Container hs-dev-api-1 Created
+ Container hs-dev-web-1 Creating
+ Container hs-dev-web-1 Created
+ Container hs-dev-db-1 Starting
+ Container hs-dev-db-1 Started
+ Container hs-dev-db-1 Waiting
+ Container hs-dev-db-1 Healthy
+ Container hs-dev-api-1 Starting
+ Container hs-dev-api-1 Started
+ Container hs-dev-api-1 Waiting
+ Container hs-dev-api-1 Healthy
+ Container hs-dev-web-1 Starting
+ Container hs-dev-web-1 Started
+ Container hs-dev-web-1 Waiting
+ Container hs-dev-db-1 Waiting
+ Container hs-dev-api-1 Waiting
+ Container hs-dev-db-1 Healthy
+ Container hs-dev-api-1 Healthy
+ Container hs-dev-web-1 Healthy
+live: 200 ok
+ready: 200 ok
+Recuperación, migración y persistencia verificadas sin eliminar el volumen.
+ Container hs-dev-api-1 Running
+ Container hs-dev-web-1 Running
+ Container hs-dev-db-1 Running
+ Container hs-dev-db-1 Waiting
+ Container hs-dev-db-1 Healthy
+ Container hs-dev-api-1 Waiting
+ Container hs-dev-api-1 Healthy
+ Container hs-dev-api-1 Waiting
+ Container hs-dev-web-1 Waiting
+ Container hs-dev-db-1 Waiting
+ Container hs-dev-api-1 Healthy
+ Container hs-dev-db-1 Healthy
+ Container hs-dev-web-1 Healthy
+NOTICE:  drop cascades to table hs_validation_1792978119_39746.probe

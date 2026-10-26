@@ -1,0 +1,17 @@
+.git
+.env
+.secrets
+**/node_modules
+**/dist
+modelo_horas_sociales
+plan_programacion
+.*helpers
+upload
+.env.*
+!.env.example
+docs
+tests
+artifacts
+.DS_Store
+
+.github

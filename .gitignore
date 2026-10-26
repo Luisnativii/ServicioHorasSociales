@@ -1,0 +1,13 @@
+.env
+.secrets/
+node_modules/
+dist/
+*.zip
+.plan_helpers/
+.db_v02_helpers/
+.erd_library_helpers/
+upload/
+.DS_Store
+*.log
+playwright-report/
+test-results/

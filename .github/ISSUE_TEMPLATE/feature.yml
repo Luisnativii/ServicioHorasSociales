@@ -1,0 +1,31 @@
+name: Funcionalidad
+description: Proponer una capacidad concreta y sus criterios de aceptación.
+title: "feat: "
+labels: ["type:feature", "status:backlog"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objetivo
+      description: Quién lo necesita y qué resultado debe obtener.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Alcance y límites
+      description: Qué incluye y qué queda fuera; adjuntar reglas o modelo aprobado cuando corresponda.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceptación
+      value: "- [ ] Resultado observable\n- [ ] Verificación dentro de Docker\n- [ ] Documentación actualizada"
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencias y referencias
+      description: Issues, decisiones y documentos necesarios para empezar.
