@@ -4,7 +4,7 @@ Fecha: 25 de octubre de 2026. [Hoja de ruta en GitHub](https://github.com/Luisna
 
 El plan se desglosa en **95 tareas pequeñas y 10 hitos**. Se reutilizan #1 (base implementada) y #2 (aceptación manual pendiente). La documentación actual se prepara en #3. Cada tarea tiene prompt, criterios y límites propios.
 
-**Estado de fuentes:** el modelo v0.2 y la lógica completa del otro chat están pendientes de incorporar y validar. Su consolidación corresponde al issue #5. Los datos o decisiones no disponibles bloquean exclusivamente las tareas dependientes.
+**Estado de fuentes (26 de octubre de 2026):** #3 ya está integrado en V0.0.2. El propietario confirmó la lógica del contexto y autorizó omitir otra exportación. #5 consolida [fuentes y decisiones](FUENTES_Y_TRAZABILIDAD.md), [reglas](REGLAS_CONSOLIDADAS.md) y un [modelo nuevo propuesto](MODELO_DATOS_PROPUESTO.md); el v0.2 no se recuperó. La propuesta aún requiere revisión y no desbloquea por sí sola migraciones ni decisiones abiertas.
 
 **Aclaración vigente:** múltiples cuentas administradoras, un único rol ADMIN con acceso completo y autenticación JWT. Las frases del plan original que limitan a una cuenta están sustituidas.
 

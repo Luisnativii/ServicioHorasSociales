@@ -6,8 +6,11 @@ Este directorio conserva el plan original y organiza su ejecución en tareas peq
 
 - [Plan original de 20 etapas](Plan_Programacion_IA_Horas_Sociales.md): fuente recibida; se conserva sin reescritura.
 - [Aclaraciones vigentes](DECISIONES_VIGENTES.md): un rol ADMIN, múltiples cuentas y prioridad de las decisiones recientes.
+- [Fuentes y trazabilidad](FUENTES_Y_TRAZABILIDAD.md): procedencia, confirmación de la lógica, sustituciones y bloqueos por issue.
+- [Reglas consolidadas](REGLAS_CONSOLIDADAS.md): reglas confirmadas y decisiones pendientes, con referencias y ejemplos sintéticos.
+- [Modelo de datos nuevo propuesto](MODELO_DATOS_PROPUESTO.md): diccionario, claves y relaciones para revisión por bloques; no es una migración aprobada.
 - [Contexto breve para la IA](CONTEXTO_IA.md): reglas comunes que evitan repetir el plan completo en cada prompt.
-- [Prompt para exportar el otro chat](PROMPT_EXPORTAR_CONTEXTO.md): permite traer entrevistas, reglas y modelo sin convertir propuestas en requisitos.
+- [Prompt para exportar el otro chat](PROMPT_EXPORTAR_CONTEXTO.md): referencia histórica opcional; el propietario autorizó omitir otra exportación en #5.
 - [Índice de issues](INDICE_ISSUES.md): orden, hitos, dependencias y enlaces reales del backlog.
 
 ## Orden de construcción
@@ -21,7 +24,7 @@ PostgreSQL y el esquema inicial ya funcionan en V0.0.1. No se reinicializa el pr
 5. Proyectos → participaciones y cierres → libro de horas/saldos → reportes y Excel.
 6. Pruebas integrales, recuperación y releases aprobados; servidor y producción se ejecutan únicamente en su etapa autorizada.
 
-La autenticación no necesita que se creen de golpe todas las tablas de negocio. El modelo completo pendiente bloquea solamente los cambios que realmente lo requieren.
+La autenticación no necesita que se creen de golpe todas las tablas de negocio. El v0.2 no se recuperó y se propone un modelo nuevo. La lógica disponible está confirmada por el propietario; la aprobación de campos y relaciones y las decisiones abiertas bloquean los cambios que realmente las requieren.
 
 ## Uso del backlog
 

@@ -1,6 +1,6 @@
 # Aclaraciones vigentes de la planeación
 
-Fecha: 25 de octubre de 2026, America/El_Salvador.
+Actualización: 26 de octubre de 2026, America/Guatemala. Conserva las decisiones registradas el 25 de octubre y sus aclaraciones posteriores.
 
 ## Identidad y acceso — confirmado por el propietario en este chat
 
@@ -13,15 +13,20 @@ Consecuencias para el backlog:
 - JWT y sesiones revocables protegen las operaciones; registrar el actor cuando la regla exija trazabilidad.
 - No crear una restricción de cuenta única ni rechazar el segundo ADMIN por ese motivo.
 - No añadir roles de estudiantes/coordinadores ni acceso público por deducción.
-- Alta inicial, gestión posterior, identificador de login y recuperación requieren el contrato técnico y funcional previsto en su issue, sin inventar políticas del último administrador.
+- Inicio de sesión mediante correo electrónico y contraseña.
+- Creación de cuentas exclusivamente mediante herramienta de administración ejecutada en Docker; sin formulario ni endpoint web de alta.
+- Se permite desactivar la última cuenta ADMIN activa y recuperar acceso mediante esa herramienta. No imponer un mínimo de una cuenta activa.
+- La gestión restante, normalización del correo, política de contraseñas, expiraciones, rotación y efectos de desactivación/reset requieren el contrato de #20. Las decisiones anteriores están registradas en el issue #5; no aprobar otros detalles por deducción.
 
 Esta aclaración sustituye las frases de una sola cuenta ADMIN del plan de programación original. El documento original se conserva como fuente histórica sin reescribirlo.
 
-## Fuentes faltantes
+## Fuentes y confirmación de la lógica
 
-El propietario indicó que el modelo v0.2 y el contexto funcional completo están en otro chat y que compartirá una exportación Markdown. Todavía no se ha incorporado una especificación completa aprobada en este repositorio.
+El modelo v0.2 y las entrevistas originales citados en el plan no se recuperaron. El propietario autorizó diseñar y revisar juntos un modelo nuevo; no se intenta reconstruir las supuestas 19 tablas del documento ausente.
 
-Las reglas que el plan declara confirmadas se usan para estructurar el backlog, pero no autorizan a inventar el diccionario ausente. Las cardinalidades, columnas y decisiones pendientes deben contrastarse con la fuente completa antes de sus migraciones. Las tareas afectadas tienen dependencias y quedan en backlog.
+El 26 de octubre, al trabajar #5, el propietario confirmó que la lógica de negocio ya se revisó y coincide con el contexto disponible; autorizó omitir la recuperación de `Logica_Negocio.md`. Se consolida en [REGLAS_CONSOLIDADAS.md](REGLAS_CONSOLIDADAS.md), con [procedencia y sustituciones](FUENTES_Y_TRAZABILIDAD.md). No se afirma haber incorporado ni vuelto a leer aquella exportación.
+
+El [modelo nuevo](MODELO_DATOS_PROPUESTO.md) es una propuesta para revisión: campos, tipos, claves, cardinalidades y restricciones todavía no están aprobados. Las decisiones que el contexto mantiene abiertas conservan sus issues. No generar SQL ni desbloquear dependientes por la sola existencia de estos documentos.
 
 Se encontró además el chat local «Organiza ideas de Horas Sociales», que contiene la lluvia de ideas inicial y preguntas; no equivale a la consolidación final de decisiones ni al modelo v0.2.
 
