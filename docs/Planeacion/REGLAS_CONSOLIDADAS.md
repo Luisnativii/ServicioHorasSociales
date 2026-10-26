@@ -61,7 +61,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | --- | --- | --- | --- |
 | R32 | CONFIRMADO | Modelo nuevo para revisión; no recuperar por suposición el v0.2 ni exigir 19 tablas. | F02 y F03. |
 | R33 | CONFIRMADO | La base Docker, esquema vacío y CI existentes se reutilizan. Las 300 horas estimadas de desarrollo no son horas ya trabajadas ni las metas estudiantiles. | F01 etapa 00, F04 y V0.0.2. |
-| R34 | PENDIENTE | Ratificar exclusiones y cualquier ampliación (PDF, adjuntos, importación o nuevas funciones) en #6; no incluirlas por deducción en el modelo. | F02 D03, D23 y D26–D28. |
+| R34 | CONFIRMADO | Carga inicial por consultas SQL a cargo del propietario; operación posterior mediante formularios ADMIN. Excel exporta los datos de dashboards con sus filtros. PDF, adjuntos e importador web quedan fuera del alcance solicitado; ampliar funciones requiere decisión e issue específico. El corte, la procedencia y la conciliación siguen en #10/#95. | F07, decisión del propietario en #6; [alcance vigente](ALCANCE_VIGENTE.md). |
 
 ## Ejemplos de revisión derivados del contexto confirmado
 

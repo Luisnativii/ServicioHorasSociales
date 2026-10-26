@@ -20,6 +20,7 @@ Revisión 1 · 26 de octubre de 2026 · America/Guatemala · Issue [#5](https://
 | F04 | [GitFlow](../GITFLOW.md), `AGENTS.md` y [decisiones de inicialización](../DECISIONES.md) | Disponibles. Regulan trabajo, versiones y avance técnico existente. No definen nuevas reglas funcionales. |
 | F05 | Modelo v0.2 e entrevistas originales citados por el plan | No recuperados. No se atribuyen columnas ni cardinalidades a esos documentos. El modelo propuesto se identifica como nuevo. |
 | F06 | Exportación `Logica_Negocio.md`, mencionada en la revisión histórica del issue #5 | No incorporada a esta copia. Su recuperación se omite por F03. No se recrea un supuesto original ni se afirma haber verificado su contenido en esta sesión. |
+| F07 | Aclaración directa del propietario al trabajar [#6](https://github.com/Luisnativii/ServicioHorasSociales/issues/6), 26 de octubre de 2026 | La carga inicial se hará por consultas SQL; el administrador podrá introducir datos desde la aplicación y exportar a Excel los datos de los dashboards. Se distingue esa carga de la operación diaria y del registro de tiempo de desarrollo. |
 
 El issue #5 registra para F06 un SHA-256 histórico `b3336e532201781859f835da6ad888a75a865be1b867cb6e4cd1b8030d334f3b`. Se conserva como referencia atribuida al issue, sin declararlo verificado aquí. No es el hash de ninguno de los documentos nuevos.
 
@@ -75,7 +76,7 @@ El mapa siguiente procede del resumen de pendientes publicado en F02. Los identi
 - [x] Confirmación F03 registrada sin exigir recuperar F06.
 - [x] Fuentes originales conservadas; modelo ausente identificado.
 - [x] Reglas y propuestas diferenciadas y vinculadas a fuentes.
-- [ ] Propietario revisa la consolidación y el modelo nuevo de esta entrega.
+- [x] Propietario acepta la consolidación documental y el modelo como propuesta inicial; criterio final de #5 marcado e integración por PR #101 en V0.0.3. Las columnas y decisiones técnicas conservan su aprobación independiente.
 - [ ] Aprobaciones por bloque registradas con referencia a las propuestas concretas.
 
-El PR de documentación puede revisarse mientras estas aprobaciones están pendientes. No cerrar #5 ni habilitar sus dependientes como si el modelo ya estuviera aceptado. Las implementaciones posteriores deben verificar también sus propios issues de decisiones.
+La consolidación de #5 ya está integrada. Las implementaciones posteriores deben verificar las aprobaciones de su bloque y sus propios issues de decisiones; cerrar #5 no autoriza por arrastre todo el SQL del modelo propuesto.
