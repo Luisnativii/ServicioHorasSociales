@@ -6,6 +6,8 @@ Este directorio conserva el plan original y organiza su ejecución en tareas peq
 
 - [Plan original de 20 etapas](Plan_Programacion_IA_Horas_Sociales.md): fuente recibida; se conserva sin reescritura.
 - [Aclaraciones vigentes](DECISIONES_VIGENTES.md): un rol ADMIN, múltiples cuentas y prioridad de las decisiones recientes.
+- [Alcance vigente](ALCANCE_VIGENTE.md): usuarios, funciones previstas, avance existente, exclusiones y responsables de decisiones abiertas.
+- [Registro de horas de desarrollo](REGISTRO_HORAS.md): presupuesto de 300 horas separado de las metas estudiantiles; sesiones reales solo cuando se confirmen.
 - [Fuentes y trazabilidad](FUENTES_Y_TRAZABILIDAD.md): procedencia, confirmación de la lógica, sustituciones y bloqueos por issue.
 - [Reglas consolidadas](REGLAS_CONSOLIDADAS.md): reglas confirmadas y decisiones pendientes, con referencias y ejemplos sintéticos.
 - [Modelo de datos nuevo propuesto](MODELO_DATOS_PROPUESTO.md): diccionario, claves y relaciones para revisión por bloques; no es una migración aprobada.

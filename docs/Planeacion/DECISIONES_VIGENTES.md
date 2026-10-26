@@ -30,6 +30,12 @@ El [modelo nuevo](MODELO_DATOS_PROPUESTO.md) es una propuesta para revisión: ca
 
 Se encontró además el chat local «Organiza ideas de Horas Sociales», que contiene la lluvia de ideas inicial y preguntas; no equivale a la consolidación final de decisiones ni al modelo v0.2.
 
+## Alcance de carga y operación — issue #6
+
+El 26 de octubre el propietario aclaró que introducirá los datos iniciales mediante consultas SQL. El administrador podrá introducir y editar datos por la interfaz conforme a los contratos de cada módulo; la carga inicial no sustituye esas pantallas. Excel exportará los datos de los dashboards con los mismos filtros y cifras. PDF, adjuntos e importador web no forman parte del alcance solicitado.
+
+La carga inicial se concreta en #95, con la procedencia, corte y prevención de duplicados de #10. Las fechas históricas reales y el instante de incorporación se distinguen. Este acuerdo no autoriza ejecutar SQL ni inventar datos históricos en #6. El detalle está en [ALCANCE_VIGENTE.md](ALCANCE_VIGENTE.md); las horas de desarrollo se registran aparte en [REGISTRO_HORAS.md](REGISTRO_HORAS.md).
+
 ## Flujo de trabajo y versiones
 
 La configuración existente en `docs/GITFLOW.md` prevalece sobre los ejemplos anteriores del plan: `main` conserva solo README; trabajo e integración en `develop`; rama por issue; PR y checks; tags automáticos `VMAJOR.MINOR.PATCH`.
