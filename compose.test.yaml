@@ -29,3 +29,15 @@ services:
       test: [CMD, node, -e, "fetch('http://127.0.0.1:8080/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
   migrator:
     image: hs-migrator:${APP_VERSION:-0.0.1}-test
+  db-role-probe:
+    image: hs-migrator:${APP_VERSION:-0.0.1}-test
+    profiles: [tools]
+    command: [-table, horas_sociales.hs_role_probe, up]
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: postgres://${HS_MIGRATOR_DB_USER:-${POSTGRES_USER}}:${HS_MIGRATOR_DB_PASSWORD:-${POSTGRES_PASSWORD}}@db:5432/${POSTGRES_DB}?sslmode=disable&connect_timeout=3
+    depends_on:
+      db: {condition: service_healthy}
+    networks: [data]
+    volumes:
+      - ./tests/db-roles/migrations:/migrations:ro

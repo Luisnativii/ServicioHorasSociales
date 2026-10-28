@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 fail() { echo "hs-test: $1" >&2; exit 1; }
-for key in COMPOSE_FILE COMPOSE_PROJECT_NAME COMPOSE_ENV_FILES COMPOSE_PROFILES POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD LOCAL_UID LOCAL_GID DB_MAX_CONNS DATABASE_URL GOOSE_DBSTRING; do
+for key in COMPOSE_FILE COMPOSE_PROJECT_NAME COMPOSE_ENV_FILES COMPOSE_PROFILES POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD LOCAL_UID LOCAL_GID DB_MAX_CONNS DATABASE_URL GOOSE_DBSTRING HS_APP_DB_USER HS_APP_DB_PASSWORD HS_MIGRATOR_DB_USER HS_MIGRATOR_DB_PASSWORD; do
   [ -z "${!key:-}" ] || fail "retira la variable exportada $key; se exige configuración de pruebas explícita."
 done
 [ -f .secrets/hs-test.env ] && [ ! -L .secrets/hs-test.env ] || fail 'ejecuta scripts/init-test.sh; falta un archivo de secretos regular.'
@@ -42,5 +42,7 @@ for arg in "$@"; do
 done
 APP_VERSION=$(bash scripts/version.sh)
 export APP_VERSION
+source scripts/db-roles-env.sh
+db_roles_env_args hs-test
 exec docker compose --project-directory "$PWD" --env-file .secrets/hs-test.env \
-  -p "$project" "${files[@]}" "$@"
+  ${db_roles_args[@]+"${db_roles_args[@]}"} -p "$project" "${files[@]}" "$@"
