@@ -41,15 +41,35 @@ bash scripts/check-runtime.sh
 bash scripts/check-security.sh
 ```
 
-`check.sh` ejecuta dentro de Docker verificación de módulos, formato Go, `go vet`, pruebas con detector de carreras, compilación Go, TypeScript, build de Vite y respuestas HTTP a través del proxy. Requiere el entorno iniciado y PostgreSQL disponible. `Ctrl+C` termina el seguimiento de logs. `check-runtime.sh` valida las etapas runtime sin root en un proyecto temporal sin puertos. `check-security.sh` consulta npm audit y la base oficial de vulnerabilidades Go mediante govulncheck 1.9.0; requiere acceso a Internet y no modifica los lockfiles.
+Los scripts `check*.sh` de aplicación usan exclusivamente **hs-test**. Antes de ejecutarlos, prepara ese entorno con los comandos de la sección siguiente. `check.sh` verifica módulos, formato Go, `go vet`, carreras, compilación Go/TypeScript/Vite y HTTP por el proxy de pruebas. `check-runtime.sh` comprueba API/Nginx sin root con PostgreSQL de pruebas; `check-security.sh` consulta npm audit y govulncheck 1.9.0, sin modificar lockfiles. `Ctrl+C` termina el seguimiento de logs de desarrollo.
 
-Para repetir las pruebas de migración, caída, recuperación y persistencia:
+## Pruebas aisladas de desarrollo
+
+No necesitas arrancar `hs-dev` ni crear su `.env` para probar. Desde la raíz:
 
 ```bash
+bash scripts/init-test.sh
+bash scripts/dc-test.sh build api web migrator
+bash scripts/dc-test.sh up -d --wait --wait-timeout 180 db api web
+bash scripts/dc-test.sh run --rm migrator up
+bash scripts/check-test-isolation.sh
+bash scripts/check.sh
 bash scripts/check-integration.sh
+bash scripts/check-runtime.sh
+bash scripts/check-security.sh
+# Detener o retirar exclusivamente los contenedores de pruebas; conserva datos.
+bash scripts/dc-test.sh stop
+bash scripts/dc-test.sh --runtime down
+bash scripts/dc-test.sh down
 ```
 
-Esta prueba interrumpe temporalmente el portal, detiene PostgreSQL y recrea los contenedores de `hs-dev`. Crea un esquema exclusivo de prueba, verifica que su dato sobrevive y retira únicamente ese esquema al terminar. Conserva el volumen y vuelve a dejar web/API/db iniciados. No ejecutarla mientras otra persona trabaja en el portal local.
+`init-test.sh` genera una sola vez `.secrets/hs-test.env` con permisos 600 y contraseña aleatoria propia; conserva los secretos existentes y no lee ni modifica `.env`. `dc-test.sh` fija proyecto `hs-test`, base `horas_sociales_test`, redes `hs-test_app`/`hs-test_data` y volumen `hs-test_pgdata`. No publica puertos; el HTTP se comprueba desde el contenedor web. Las imágenes de herramientas llevan sufijo `-test`, distinto de `-dev`; los montajes de fuentes son de solo lectura y Go usa el UID/GID registrados al inicializar.
+
+`check-integration.sh` detiene/recrea **solo hs-test**, comprueba caída, recuperación, migración y persistencia y elimina únicamente su esquema temporal. `check-runtime.sh` usa `hs-test-runtime` conectado a `hs-test_data`; retira API/Nginx al terminar. Ejecuta las comprobaciones en secuencia, sin dos sesiones simultáneas sobre el mismo entorno de pruebas.
+
+El wrapper rechaza variables exportadas de Compose/base de datos, claves ausentes o duplicadas, destinos inesperados y opciones que sustituyan proyecto, archivos o secretos. Si informa una configuración ambigua, retira las variables indicadas en esa terminal; no cambies credenciales existentes ni borres volúmenes. Los comandos de limpieza conservan `hs-test_pgdata` y nunca actúan sobre `hs-dev_pgdata`.
+
+`bash scripts/ci.sh` ejecuta la secuencia completa anterior, incluidas reglas GitFlow y comprobación de aislamiento, y retira al terminar solo los contenedores/redes de pruebas. Puede ejecutarse junto al portal de desarrollo; no inicia ni detiene `hs-dev`.
 
 ## Migraciones
 

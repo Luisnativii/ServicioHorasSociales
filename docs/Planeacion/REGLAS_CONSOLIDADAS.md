@@ -11,9 +11,9 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R01 | CONFIRMADO | Un único rol ADMIN, varias cuentas con acceso completo. Estudiantes, coordinadores y contactos no obtienen una cuenta por estar registrados. | F02; F01 «Acceso y sesiones» con la sustitución vigente; F03. |
 | R02 | CONFIRMADO | Inicio de sesión mediante correo electrónico y contraseña. | F02. |
 | R03 | CONFIRMADO | Creación de cuentas solo mediante herramienta de administración ejecutada en Docker. Sin alta de cuentas mediante formulario ni endpoint web; sin registro público. | F02. |
-| R04 | CONFIRMADO | Se puede desactivar la última cuenta ADMIN activa. El acceso se recupera mediante la herramienta de administración. | F02. |
-| R05 | CONFIRMADO | Operaciones privadas protegidas por JWT y sesiones revocables. No hay catálogo público ni acceso Google/Gmail en este alcance. | F02; F01 «Acceso y sesiones»; F03. |
-| R06 | PENDIENTE | Acordar normalización/unicidad del correo, política de contraseñas, duración, rotación, revocación, recuperación y operaciones de cuentas del panel. Las duraciones 15 minutos / 8 horas son una propuesta del plan, no una aprobación. | F02; #20, antes de #21–#33. |
+| R04 | CONFIRMADO | Se puede desactivar la última cuenta ADMIN activa; las altas siguen por herramienta. El 28 de octubre se excluye recuperación/reset de contraseña por el momento. | F02, sustituido parcialmente por F08. |
+| R05 | CONFIRMADO | Operaciones privadas protegidas por JWT; sin revocación por el momento según F08. No hay catálogo público ni acceso Google/Gmail. | F02/F03, sustituidos en revocación por F08. |
+| R06 | PENDIENTE PARCIAL | Contraseña sencilla hasheada y sesión de al menos dos horas confirmadas. Interpretación de seis caracteres, normalización, plazo fijo, cookies/CSRF, efectos del logout/desactivación y bloque M10 propuestos en [CONTRATO_ACCESO.md](CONTRATO_ACCESO.md). Las duraciones antiguas y la recuperación/revocación ya no son el objetivo vigente. | F08; #20, antes de #21–#33. |
 
 ## Catálogos, instituciones y proyectos
 

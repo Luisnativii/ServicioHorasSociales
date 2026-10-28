@@ -21,6 +21,7 @@ Revisión 1 · 26 de octubre de 2026 · America/Guatemala · Issue [#5](https://
 | F05 | Modelo v0.2 e entrevistas originales citados por el plan | No recuperados. No se atribuyen columnas ni cardinalidades a esos documentos. El modelo propuesto se identifica como nuevo. |
 | F06 | Exportación `Logica_Negocio.md`, mencionada en la revisión histórica del issue #5 | No incorporada a esta copia. Su recuperación se omite por F03. No se recrea un supuesto original ni se afirma haber verificado su contenido en esta sesión. |
 | F07 | Aclaraciones directas del propietario al trabajar [#6](https://github.com/Luisnativii/ServicioHorasSociales/issues/6), 26 de octubre de 2026 | Carga inicial por consultas SQL; operación posterior por ADMIN y Excel de dashboards. Dispone de actividades estudiantiles con fechas y proyectos. Aclaró que son horas sociales de estudiantes y que el desarrollo no tiene registro confirmado; no se mezclan ambos registros. |
+| F08 | Instrucciones directas del propietario al iniciar programación, 28 de octubre de 2026, registradas en [#20](https://github.com/Luisnativii/ServicioHorasSociales/issues/20) | Contraseña sencilla hasheada, sesión de al menos dos horas, sin recuperación ni revocación por el momento. Sustituye las propuestas de identidad anteriores; la representación técnica y M10 se revisan en [CONTRATO_ACCESO.md](CONTRATO_ACCESO.md). |
 
 El issue #5 registra para F06 un SHA-256 histórico `b3336e532201781859f835da6ad888a75a865be1b867cb6e4cd1b8030d334f3b`. Se conserva como referencia atribuida al issue, sin declararlo verificado aquí. No es el hash de ninguno de los documentos nuevos.
 
@@ -41,6 +42,7 @@ Las [reglas consolidadas](REGLAS_CONSOLIDADAS.md) asignan identificadores para v
 | Referencia anterior | Aclaración que prevalece | Efecto |
 | --- | --- | --- |
 | F01: una sola cuenta ADMIN | F02: múltiples cuentas con un único rol ADMIN | No crear restricción de cuenta única ni roles adicionales. |
+| Sesiones revocables, reset y renovación del plan anterior | F08: sin revocación ni recuperación por el momento, sesión mínima de dos horas y contraseña hasheada sencilla | Concretar #20; no construir la tabla de sesiones/refresh por inercia. El ajuste de dependencias se acepta antes de ejecutar los módulos afectados. |
 | Identificador de acceso y alta todavía abiertos | F02: correo y contraseña; creación exclusivamente por herramienta en Docker | No crear formulario ni endpoint web de alta de cuentas. Los detalles de validación corresponden a #20. |
 | Posible protección de la última cuenta activa | F02: se permite desactivarla y recuperar por herramienta | No imponer un mínimo de una cuenta activa. El efecto sobre sesiones se acuerda en #20. |
 | Recuperar el modelo v0.2 como condición de diseño | F02: diseñar y revisar un modelo nuevo | No llamar «v0.2 recuperado» a la propuesta ni fijar un número de 19 tablas. |

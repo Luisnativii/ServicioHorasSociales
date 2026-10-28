@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Prueba local con interrupción temporal de hs-dev; conserva el volumen.
+# Prueba con interrupción exclusiva de hs-test; conserva ambos volúmenes.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-dc() { bash scripts/dc.sh "$@"; }
+dc() { bash scripts/dc-test.sh "$@"; }
 sql() { dc exec -T db sh -c 'exec psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -At' <<< "$1"; }
 probe() {
   dc exec -T web node --input-type=module - "$1" "$2" <<'JS'
@@ -24,6 +24,9 @@ JS
 }
 validation_schema="hs_validation_$(date +%s)_$$"
 created=0
+# Validar antes de instalar la limpieza: una configuración rechazada no debe
+# arrancar ni detener servicios como efecto secundario de EXIT.
+dc config --quiet
 cleanup() {
   result=$?
   trap - EXIT
@@ -34,7 +37,7 @@ cleanup() {
 trap cleanup EXIT
 
 dc up -d --wait --wait-timeout 180 db api web
-dc --profile tools run --rm migrator up
+dc run --rm migrator up
 probe live 200
 probe ready 200
 
@@ -44,15 +47,15 @@ probe ready 503
 dc up -d --wait --wait-timeout 90 db
 probe ready 200
 
-volume_created=$(docker volume inspect hs-dev_pgdata --format '{{.CreatedAt}}')
+volume_created=$(docker volume inspect hs-test_pgdata --format '{{.CreatedAt}}')
 sql "CREATE SCHEMA $validation_schema; CREATE TABLE $validation_schema.probe (value text PRIMARY KEY); INSERT INTO $validation_schema.probe VALUES ('persistencia-verificada');" >/dev/null
 created=1
 dc down
-dc up -d --wait --wait-timeout 180
+dc up -d --wait --wait-timeout 180 db api web
 [ "$(sql "SELECT value FROM $validation_schema.probe;")" = 'persistencia-verificada' ]
-[ "$(docker volume inspect hs-dev_pgdata --format '{{.CreatedAt}}')" = "$volume_created" ]
+[ "$(docker volume inspect hs-test_pgdata --format '{{.CreatedAt}}')" = "$volume_created" ]
 [ "$(sql "SELECT count(*) FROM public.goose_db_version WHERE version_id = 1 AND is_applied;")" = '1' ]
 [ "$(sql "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'horas_sociales';")" = '1' ]
 probe live 200
 probe ready 200
-printf 'Recuperación, migración y persistencia verificadas sin eliminar el volumen.\n'
+printf 'hs-test: recuperación, migración y persistencia verificadas en horas_sociales_test.\n'
