@@ -2,7 +2,7 @@
 
 Revisión 0.1 · 28 de octubre de 2026 · Issue [#20](https://github.com/Luisnativii/ServicioHorasSociales/issues/20).
 
-**Estado: propuesta concreta para aprobación.** Las decisiones humanas de la sección siguiente ya están confirmadas; los detalles técnicos y el bloque de datos se proponen para su aceptación antes de #21. Este documento no implementa autenticación ni aprueba otros bloques del modelo.
+**Estado: revisión 0.1 y M10 revisión 0.2 aceptados por el propietario el 28 de octubre de 2026.** Respondió «sí lo apruebo» a la propuesta concreta y autorizó integrar #108; la confirmación consta en [#20](https://github.com/Luisnativii/ServicioHorasSociales/issues/20#issuecomment-6483287093). Los títulos de propuesta conservan la procedencia del texto revisado; no son un bloqueo pendiente. Este contrato no aprueba otros bloques del modelo ni afirma que el login ya esté implementado.
 
 ## Decisiones humanas que se conservan
 
@@ -108,4 +108,4 @@ Las exclusiones deben registrarse también en las dependencias de cualquier otro
 9. Reiniciar contenedores con la misma clave: no invalida JWT vigentes ni cambia hashes. No se crean cuentas/secretos de ejemplo.
 10. Hash persistido es PHC Argon2id y se comprueba dentro de Docker; no hay columna de contraseña en claro ni tabla de sesiones.
 
-**Aprobación pendiente:** aceptar o solicitar cambios a esta revisión, en especial la interpretación de seis caracteres, el plazo fijo de dos horas, el comportamiento sin revocación y el bloque M10. La aprobación documental de la lógica general no sustituye esta aceptación concreta. No se generan migraciones ni endpoints de autenticación en #20.
+**Aprobación registrada:** se aceptaron la interpretación de seis caracteres con número, el plazo fijo de dos horas, los efectos de logout/desactivación sin revocación y M10 revisión 0.2. La implementación de identidad corresponde a #21; no se crean sesiones/refresh/reset excluidos. Los demás módulos conservan sus aprobaciones propias.

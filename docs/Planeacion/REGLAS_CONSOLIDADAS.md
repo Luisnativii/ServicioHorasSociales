@@ -13,7 +13,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R03 | CONFIRMADO | Creación de cuentas solo mediante herramienta de administración ejecutada en Docker. Sin alta de cuentas mediante formulario ni endpoint web; sin registro público. | F02. |
 | R04 | CONFIRMADO | Se puede desactivar la última cuenta ADMIN activa; las altas siguen por herramienta. El 28 de octubre se excluye recuperación/reset de contraseña por el momento. | F02, sustituido parcialmente por F08. |
 | R05 | CONFIRMADO | Operaciones privadas protegidas por JWT; sin revocación por el momento según F08. No hay catálogo público ni acceso Google/Gmail. | F02/F03, sustituidos en revocación por F08. |
-| R06 | PENDIENTE PARCIAL | Contraseña sencilla hasheada y sesión de al menos dos horas confirmadas. Interpretación de seis caracteres, normalización, plazo fijo, cookies/CSRF, efectos del logout/desactivación y bloque M10 propuestos en [CONTRATO_ACCESO.md](CONTRATO_ACCESO.md). Las duraciones antiguas y la recuperación/revocación ya no son el objetivo vigente. | F08; #20, antes de #21–#33. |
+| R06 | CONFIRMADO | [Contrato aceptado](CONTRATO_ACCESO.md), revisión 0.1 y M10 revisión 0.2: mínimo seis caracteres con número, Argon2id, correo canónico, dos horas fijas, cookies/CSRF, sin recuperación/refresh/revocación. Implementar por sus issues sin crear sesiones excluidas; otros modelos conservan aprobación propia. | F08; aceptación en #20 del 28 de octubre. |
 
 ## Catálogos, instituciones y proyectos
 

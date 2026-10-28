@@ -8,7 +8,7 @@ Este documento delimita el trabajo administrativo previsto y distingue lo que ya
 
 | Elemento | Alcance confirmado y referencia |
 | --- | --- |
-| Administradores | Varias cuentas con un único rol ADMIN y acceso completo. Login por correo/contraseña y JWT. Actualización del 28 de octubre: sin recuperación ni revocación por el momento; [contrato técnico propuesto](CONTRATO_ACCESO.md) pendiente de aceptación en #20. |
+| Administradores | Varias cuentas con un único rol ADMIN y acceso completo. Login por correo/contraseña y JWT. El 28 de octubre se aceptó [el contrato técnico](CONTRATO_ACCESO.md) y M10 revisión 0.2, sin recuperación/refresh/revocación. La aceptación no declara el login implementado. |
 | Alta de cuentas | Herramienta de administración ejecutada en Docker; sin alta web. Se permite desactivar la última cuenta activa. El 28 de octubre se excluyó recuperación/reset de contraseña por el momento. R03–R04. |
 | Estudiantes | Expedientes administrados por ADMIN; no son cuentas de acceso ni disponen de portal propio. R01 y R16. |
 | Coordinadores y contactos | Personas y vínculos del negocio; no obtienen acceso por estar registrados. Campos y asociaciones pendientes de #11. |

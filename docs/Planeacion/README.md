@@ -6,7 +6,7 @@ Este directorio conserva el plan original y organiza su ejecución en tareas peq
 
 - [Plan original de 20 etapas](Plan_Programacion_IA_Horas_Sociales.md): fuente recibida; se conserva sin reescritura.
 - [Aclaraciones vigentes](DECISIONES_VIGENTES.md): un rol ADMIN, múltiples cuentas y prioridad de las decisiones recientes.
-- [Contrato de acceso para revisión](CONTRATO_ACCESO.md): propuesta de dos horas, contraseña sencilla hasheada, JWT sin recuperación/revocación y bloque mínimo de identidad; aprobación pendiente antes de migrar.
+- [Contrato de acceso aceptado](CONTRATO_ACCESO.md): dos horas, contraseña sencilla hasheada, JWT sin recuperación/revocación y bloque mínimo de identidad aprobado para #21.
 - [Alcance vigente](ALCANCE_VIGENTE.md): usuarios, funciones previstas, avance existente, exclusiones y responsables de decisiones abiertas.
 - [Registro de horas de desarrollo](REGISTRO_HORAS.md): presupuesto de 300 horas separado de las metas estudiantiles; sesiones reales solo cuando se confirmen.
 - [Fuentes y trazabilidad](FUENTES_Y_TRAZABILIDAD.md): procedencia, confirmación de la lógica, sustituciones y bloqueos por issue.
