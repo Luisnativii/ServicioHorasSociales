@@ -18,24 +18,24 @@ docker compose version
 git --version
 bash scripts/init-local.sh
 export APP_VERSION="$(bash scripts/version.sh)"
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml --profile tools build api web migrator
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml up -d --wait --wait-timeout 180
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml --profile tools run --rm migrator up
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml --profile tools run --rm migrator status
+bash scripts/dc.sh --profile tools build api web migrator
+bash scripts/dc.sh up -d --wait --wait-timeout 180
+bash scripts/dc.sh --profile tools run --rm migrator up
+bash scripts/dc.sh --profile tools run --rm migrator status
 ```
 
 Abre [http://localhost:8080](http://localhost:8080). Backend y PostgreSQL deben indicar «Disponible». Solo la web publica `127.0.0.1:8080`; la API y la base no publican puertos en el anfitrión.
 
 `init-local.sh` genera `.env` con permisos 600 y contraseña aleatoria, sin imprimirla ni sobrescribir secretos existentes. Genera los lockfiles solo si faltan; ambos están incluidos para instalaciones reproducibles. No copies la contraseña de ejemplo. Si Docker no responde, el script informa el bloqueo antes de cambiar archivos.
 
-En cada terminal nueva, ejecuta `export APP_VERSION="$(bash scripts/version.sh)"` antes de usar los comandos Compose completos para tomar la versión del tag actual. El atajo `bash scripts/dc.sh` obtiene y exporta esa versión automáticamente y equivale a `docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml`. Los comandos siguientes muestran la forma completa.
+Usa `bash scripts/dc.sh` para operar el desarrollo: obtiene la versión y, después de provisionar roles, incorpora las credenciales dedicadas. Así las recreaciones conservan la cuenta limitada de la API. Para que tome un tag nuevo, retira cualquier `APP_VERSION` exportada manualmente en la terminal.
 
 ## Estado, logs y comprobaciones
 
 ```bash
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml ps
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml logs --tail=100 api web db
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml logs -f api
+bash scripts/dc.sh ps
+bash scripts/dc.sh logs --tail=100 api web db
+bash scripts/dc.sh logs -f api
 bash scripts/check.sh
 bash scripts/check-runtime.sh
 bash scripts/check-security.sh
@@ -74,23 +74,43 @@ El wrapper rechaza variables exportadas de Compose/base de datos, claves ausente
 ## Migraciones
 
 ```bash
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml --profile tools run --rm migrator up
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml --profile tools run --rm migrator status
+bash scripts/dc.sh --profile tools run --rm migrator up
+bash scripts/dc.sh --profile tools run --rm migrator status
 ```
 
 Repetir `up` no duplica el esquema ni la versión aplicada. Solo se crea el esquema `horas_sociales`; Goose registra su versión en `public.goose_db_version`. La migración fundacional rechaza retrocesos para conservar datos. No existen tablas de estudiantes, proyectos o movimientos de horas.
+
+## Separar cuentas de aplicación y migraciones
+
+Después del primer arranque y de aplicar la migración inicial, prepara cuentas dedicadas sin reemplazar `.env` ni reiniciar el clúster:
+
+```bash
+bash scripts/provision-db-roles.sh dev
+bash scripts/dc.sh up -d --wait --wait-timeout 180 db api web
+bash scripts/dc.sh run --rm migrator status
+```
+
+`hs_app` permite consultar y modificar filas de `horas_sociales`, sin crear/alterar tablas ni acceder al registro de Goose. `hs_migrator` es propietario del esquema y del registro de migraciones, sin privilegios de superusuario, creación de bases o administración de roles. Los privilegios por defecto se aplican a las tablas/secuencias que cree el migrator; las migraciones deben usar esa cuenta. La cuenta original se conserva para provisión y recuperación técnica, y PostgreSQL sigue sin publicar puertos.
+
+El script genera una sola vez `.secrets/hs-dev-db-roles.env` (permisos 600). Tras verificar las dos conexiones crea su marcador `.ready`; `scripts/dc.sh` carga entonces esas credenciales. El siguiente `up` recrea la API con la cuenta limitada. Antes de la primera provisión, las conexiones originales se usan únicamente para el arranque fundacional; no desarrollar negocio sin completar este paso. Para operar usa el wrapper, que incorpora ambos archivos de configuración; los comandos Compose completos de arranque inicial no cargan el archivo adicional de roles.
+
+La provisión es repetible: no modifica contraseñas de roles ya existentes, no borra tablas y no crea tablas de negocio. Si una cuenta existente tiene privilegios incompatibles o no coincide con el archivo conservado, se detiene. No regeneres ese archivo ni borres el volumen: conserva `.env`, los archivos de roles y sus marcadores al mover el entorno; restaura su copia original por un canal seguro. Si falta el marcador pero los roles y secretos originales existen, repite la provisión. Para diagnosticar errores usa la cuenta original dentro del contenedor PostgreSQL, sin publicar contraseñas, cadenas de conexión ni logs de consultas sensibles. Una corrección de privilegios fuera del contrato requiere revisión explícita.
+
+Puedes abrir la consola técnica local sin mostrar su contraseña con `docker exec -it hs-dev-db-1 sh -c 'exec psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'`. No ejecutes cambios de contraseña o permisos hasta identificar la discrepancia y conservar una copia protegida de la configuración original.
+
+En pruebas se usa `bash scripts/provision-db-roles.sh test`, con un archivo distinto y las cuentas del clúster `hs-test`. `bash scripts/check-db-roles.sh` crea una migración sintética en ese clúster, verifica permisos y API real y retira únicamente sus tablas de prueba. CI ejecuta esta comprobación antes de las pruebas habituales. Nunca la dirige a desarrollo.
 
 ## Detener, iniciar y conservar datos
 
 ```bash
 # Detener sin eliminar contenedores ni datos.
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml stop
+bash scripts/dc.sh stop
 # Iniciar y esperar comprobaciones reales de disponibilidad.
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml up -d --wait --wait-timeout 180
+bash scripts/dc.sh up -d --wait --wait-timeout 180
 # Retirar contenedores y redes, conservando el volumen.
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml down
+bash scripts/dc.sh down
 # Recrear con los mismos datos.
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml up -d --wait --wait-timeout 180
+bash scripts/dc.sh up -d --wait --wait-timeout 180
 ```
 
 El volumen `hs-dev_pgdata` está montado en `/var/lib/postgresql`, como requiere PostgreSQL 18. Eliminar volúmenes es una operación distinta que destruye datos y no forma parte del procedimiento normal. Mantén el nombre `hs-dev`. Cambiar `.env` no cambia las credenciales de un clúster ya creado: no borres el volumen para resolver una contraseña incorrecta.
@@ -106,8 +126,8 @@ El volumen `hs-dev_pgdata` está montado en `/var/lib/postgresql`, como requiere
 docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e GOPATH=/tmp/go -e GOCACHE=/tmp/cache -v "$PWD/apps/api:/src" -w /src golang:1.27.3-bookworm go mod tidy
 # Actualizar el lockfile web solo tras editar package.json intencionalmente.
 docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD/apps/web:/src" -w /src node:22.23.4-bookworm-slim npm install --package-lock-only --ignore-scripts
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml --profile tools build api web migrator
-docker compose -p hs-dev -f compose.yaml -f compose.dev.yaml up -d --wait --wait-timeout 180
+bash scripts/dc.sh --profile tools build api web migrator
+bash scripts/dc.sh up -d --wait --wait-timeout 180
 ```
 
 ## Estructura
