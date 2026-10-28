@@ -8,8 +8,8 @@ Este documento delimita el trabajo administrativo previsto y distingue lo que ya
 
 | Elemento | Alcance confirmado y referencia |
 | --- | --- |
-| Administradores | Varias cuentas con un único rol ADMIN y acceso completo. Login por correo y contraseña; JWT y sesiones revocables. R01–R05; contrato restante en #20. |
-| Alta y recuperación de cuentas | Herramienta de administración ejecutada en Docker. No hay formulario ni endpoint web para crear cuentas. Se permite desactivar la última cuenta activa. R03–R04. |
+| Administradores | Varias cuentas con un único rol ADMIN y acceso completo. Login por correo/contraseña y JWT. Actualización del 28 de octubre: sin recuperación ni revocación por el momento; [contrato técnico propuesto](CONTRATO_ACCESO.md) pendiente de aceptación en #20. |
+| Alta de cuentas | Herramienta de administración ejecutada en Docker; sin alta web. Se permite desactivar la última cuenta activa. El 28 de octubre se excluyó recuperación/reset de contraseña por el momento. R03–R04. |
 | Estudiantes | Expedientes administrados por ADMIN; no son cuentas de acceso ni disponen de portal propio. R01 y R16. |
 | Coordinadores y contactos | Personas y vínculos del negocio; no obtienen acceso por estar registrados. Campos y asociaciones pendientes de #11. |
 | Institución / organización | Dos nombres del mismo módulo de instituciones, según el alcance solicitado en #6. No crear dos catálogos o módulos duplicados. La sede institucional y la ubicación de ejecución de cada proyecto se distinguen. R09–R10. |
