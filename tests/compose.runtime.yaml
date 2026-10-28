@@ -1,4 +1,4 @@
-name: hs-runtime-check
+name: hs-test-runtime
 services:
   api:
     image: hs-api:${APP_VERSION:-0.0.1}-runtime-check
@@ -36,4 +36,4 @@ networks:
   app: {}
   data:
     external: true
-    name: hs-dev_data
+    name: hs-test_data

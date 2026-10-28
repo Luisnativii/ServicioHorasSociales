@@ -1,0 +1,31 @@
+# Herramientas de desarrollo reutilizadas sin publicar el portal de pruebas.
+services:
+  api:
+    image: hs-api:${APP_VERSION:-0.0.1}-test
+    build: {target: dev}
+    init: true
+    user: "${LOCAL_UID:?}:${LOCAL_GID:?}"
+    environment:
+      HOME: /tmp
+      GOCACHE: /tmp/go-cache
+      GOPATH: /tmp/go
+      GOMODCACHE: /go/pkg/mod
+    volumes:
+      - ./apps/api:/workspace/apps/api:ro
+      - ./scripts:/workspace/scripts:ro
+    healthcheck:
+      test: [CMD, /tmp/hs-api, healthcheck]
+  web:
+    image: hs-web:${APP_VERSION:-0.0.1}-test
+    build: {target: dev}
+    init: true
+    environment:
+      VITE_APP_VERSION: ${APP_VERSION:-0.0.1}
+    volumes:
+      - ./apps/web/src:/workspace/apps/web/src:ro
+      - ./apps/web/index.html:/workspace/apps/web/index.html:ro
+      - ./apps/web/vite.config.ts:/workspace/apps/web/vite.config.ts:ro
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8080/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+  migrator:
+    image: hs-migrator:${APP_VERSION:-0.0.1}-test

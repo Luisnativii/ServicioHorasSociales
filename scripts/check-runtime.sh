@@ -2,9 +2,8 @@
 # Prueba local sin puertos publicados ni despliegue externo.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-APP_VERSION=$(bash scripts/version.sh)
-export APP_VERSION
-runtime() { docker compose --project-directory "$PWD" --env-file .env -p hs-runtime-check -f tests/compose.runtime.yaml "$@"; }
+runtime() { bash scripts/dc-test.sh --runtime "$@"; }
+runtime config --quiet
 cleanup() { result=$?; trap - EXIT; runtime down >/dev/null; exit "$result"; }
 trap cleanup EXIT
 runtime build api web

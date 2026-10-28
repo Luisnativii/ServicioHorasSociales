@@ -111,7 +111,7 @@ Las imágenes locales serán `hs-api:VERSION-dev`, `hs-web:VERSION-dev` y `hs-mi
 ## Pipeline y comprobaciones
 
 - **GitFlow**: valida issue, rama, título, destino, etiqueta de versión y procedencia de las integraciones; propone la versión.
-- **Docker**: ejecuta `scripts/ci.sh`, que inicializa credenciales temporales, construye imágenes, comprueba Go/TypeScript/Vite, migraciones, recuperación, persistencia, runtime sin root y vulnerabilidades conocidas.
+- **Docker**: ejecuta `scripts/ci.sh` exclusivamente en `hs-test`, con credenciales, redes y volumen propios; construye imágenes y comprueba aislamiento, Go/TypeScript/Vite, migraciones, recuperación, persistencia, runtime sin root y vulnerabilidades conocidas.
 - **Versionado**: crea el tag si los checks pasaron, hay un PR integrado y el commit sigue siendo el vigente de `develop`.
 - **Issues**: crea ramas y mantiene los estados al iniciar, cerrar o reabrir issues.
 
@@ -120,10 +120,12 @@ Las acciones oficiales están fijadas por SHA. No hay token personal ni secreto 
 ```bash
 # Pruebas de las reglas de GitFlow, dentro de Node en Docker.
 bash scripts/check-gitflow.sh
-# Comprobaciones habituales del proyecto ya iniciado.
+# Secuencia completa en hs-test, independiente del portal local.
+bash scripts/ci.sh
+# Comprobaciones habituales con hs-test ya preparado e iniciado.
 bash scripts/check.sh
 ```
 
-`scripts/ci.sh` está pensado para el runner temporal de GitHub Actions: detiene sus contenedores al terminar, conservando el volumen. No hace falta ejecutarlo en tu sesión de trabajo local.
+`scripts/ci.sh` funciona en el runner temporal de GitHub Actions y localmente: detiene únicamente los contenedores de pruebas al terminar y conserva su volumen. No usa `.env` ni modifica o detiene `hs-dev`. Preparación y limpieza en [README](../README.md#pruebas-aisladas-de-desarrollo).
 
 Antes de promover código a `main` o publicar producción, definiremos una etapa de release independiente y ajustaremos su protección; por ahora `main` queda reservada.
