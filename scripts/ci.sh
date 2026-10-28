@@ -15,8 +15,12 @@ bash scripts/check-gitflow.sh
 bash scripts/check-test-isolation.sh
 bash scripts/dc-test.sh build api web migrator
 bash scripts/dc-test.sh up -d --wait --wait-timeout 180 db api web
-bash scripts/dc-test.sh run --rm migrator up
+bash scripts/migrate.sh test
+bash scripts/sqlc.sh generate
+bash scripts/sqlc.sh vet
+git diff --exit-code -- apps/api/internal/modules/admin/db
 bash scripts/check-db-roles.sh
+bash scripts/check-admin.sh
 bash scripts/check.sh
 bash scripts/check-integration.sh
 bash scripts/check-runtime.sh

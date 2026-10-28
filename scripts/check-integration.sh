@@ -56,6 +56,7 @@ dc up -d --wait --wait-timeout 180 db api web
 [ "$(docker volume inspect hs-test_pgdata --format '{{.CreatedAt}}')" = "$volume_created" ]
 [ "$(sql "SELECT count(*) FROM public.goose_db_version WHERE version_id = 1 AND is_applied;")" = '1' ]
 [ "$(sql "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'horas_sociales';")" = '1' ]
+[ "$(sql "SELECT count(*) FROM public.goose_db_version WHERE version_id = 2 AND is_applied;")" = '1' ]
 probe live 200
 probe ready 200
 printf 'hs-test: recuperación, migración y persistencia verificadas en horas_sociales_test.\n'

@@ -20,7 +20,8 @@ bash scripts/init-local.sh
 export APP_VERSION="$(bash scripts/version.sh)"
 bash scripts/dc.sh --profile tools build api web migrator
 bash scripts/dc.sh up -d --wait --wait-timeout 180
-bash scripts/dc.sh --profile tools run --rm migrator up
+bash scripts/migrate.sh dev
+bash scripts/dc.sh up -d --wait --wait-timeout 180 db api web
 bash scripts/dc.sh --profile tools run --rm migrator status
 ```
 
@@ -51,7 +52,8 @@ No necesitas arrancar `hs-dev` ni crear su `.env` para probar. Desde la raíz:
 bash scripts/init-test.sh
 bash scripts/dc-test.sh build api web migrator
 bash scripts/dc-test.sh up -d --wait --wait-timeout 180 db api web
-bash scripts/dc-test.sh run --rm migrator up
+bash scripts/migrate.sh test
+bash scripts/dc-test.sh up -d --wait --wait-timeout 180 db api web
 bash scripts/check-test-isolation.sh
 bash scripts/check.sh
 bash scripts/check-integration.sh
@@ -74,11 +76,16 @@ El wrapper rechaza variables exportadas de Compose/base de datos, claves ausente
 ## Migraciones
 
 ```bash
-bash scripts/dc.sh --profile tools run --rm migrator up
+bash scripts/migrate.sh dev
+bash scripts/dc.sh up -d --wait --wait-timeout 180 db api web
 bash scripts/dc.sh --profile tools run --rm migrator status
 ```
 
-Repetir `up` no duplica el esquema ni la versión aplicada. Solo se crea el esquema `horas_sociales`; Goose registra su versión en `public.goose_db_version`. La migración fundacional rechaza retrocesos para conservar datos. No existen tablas de estudiantes, proyectos o movimientos de horas.
+`migrate.sh dev` reconstruye el migrator, aplica solo la migración fundacional con la cuenta original cuando hace falta, provisiona roles dedicados y ejecuta las demás migraciones como `hs_migrator`. Repetirlo conserva versiones y cuentas. Goose registra su versión en `public.goose_db_version`; las migraciones fundacional/de identidad rechazan retrocesos para conservar datos.
+
+La migración 2 crea únicamente `horas_sociales.administrador` del contrato aceptado: UUID, correo canónico único, hash Argon2id, estado y fechas técnicas. No crea cuentas, credenciales de ejemplo, sesiones ni tablas de estudiantes/proyectos/horas. La comprobación de prefijo PHC evita guardar texto de contraseña ordinario; el cálculo y verificación criptográfica del hash corresponden a #23. Todavía no existen CLI de cuentas ni login.
+
+Las consultas se generan desde SQL mediante `bash scripts/sqlc.sh generate` (sqlc 1.31.1 fijado por digest, sin instalar Go/Node en el anfitrión). `bash scripts/sqlc.sh vet` valida las consultas; CI comprueba que regenerar no cambia los archivos versionados. El repositorio de administradores usa esas consultas y no incluye endpoints públicos.
 
 ## Separar cuentas de aplicación y migraciones
 

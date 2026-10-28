@@ -2,7 +2,7 @@
 
 Revisión 0.1 · 26 de octubre de 2026 · Issue [#5](https://github.com/Luisnativii/ServicioHorasSociales/issues/5).
 
-**Estado de todo este diccionario: PROPUESTA.** No es el modelo v0.2 recuperado ni una migración aprobada. Todas las entidades, nombres, tipos, obligatoriedades, PK, FK, restricciones e índices de abajo requieren revisión; una regla funcional confirmada no aprueba automáticamente su representación física. No se fija una cantidad objetivo de tablas.
+**Estado: PROPUESTA por bloques, salvo M10 revisión 0.2 aceptado el 28 de octubre mediante el contrato de acceso.** No es el modelo v0.2 recuperado. Los demás bloques, nombres, tipos, obligatoriedades, claves y restricciones requieren revisión; una regla funcional confirmada no aprueba automáticamente su representación física. No se fija una cantidad objetivo de tablas.
 
 Origen: [fuentes F01–F04](FUENTES_Y_TRAZABILIDAD.md) y [reglas R01–R34](REGLAS_CONSOLIDADAS.md). Las alternativas abiertas se señalan como **PENDIENTE**, con su issue responsable. El esquema de negocio actual continúa vacío.
 
@@ -20,7 +20,7 @@ En las tablas siguientes «sí» o «no» expresa obligatoriedad **propuesta**, 
 
 ## M10 · Identidad administrativa
 
-Actualización del 28 de octubre: el [contrato de acceso propuesto](CONTRATO_ACCESO.md) presenta M10 revisión 0.2, con una sola tabla de administradores y sin sesiones/refresh, conforme a la exclusión humana de revocación/recuperación. El bloque siguiente conserva el antecedente de revisión 0.1 y no debe implementarse por encima de ese contrato. La revisión nueva también requiere aceptación antes de migrar.
+Actualización del 28 de octubre: el propietario aceptó [CONTRATO_ACCESO.md](CONTRATO_ACCESO.md), revisión 0.1, y M10 revisión 0.2: una sola tabla de administradores, sin sesiones/refresh. El bloque siguiente conserva el antecedente de revisión 0.1 y no debe implementarse por encima del contrato aceptado. Los demás bloques de este modelo continúan como propuesta.
 
 Base funcional: R01–R06. Aprobación de contrato en #20 antes de #21–#29.
 

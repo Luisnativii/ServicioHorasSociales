@@ -16,9 +16,9 @@ Consecuencias para el backlog:
 - Inicio de sesión mediante correo electrónico y contraseña.
 - Creación de cuentas exclusivamente mediante herramienta de administración ejecutada en Docker; sin formulario ni endpoint web de alta.
 - Se permite desactivar la última cuenta ADMIN activa. No imponer un mínimo de una cuenta activa; las altas siguen disponibles por herramienta, sin una función de recuperación/reset de contraseña.
-- Contraseña almacenada hasheada, con la sencillez solicitada («6 dígitos con un número»), y sesión de al menos dos horas. La interpretación exacta y los detalles técnicos se presentan en el [contrato de acceso propuesto](CONTRATO_ACCESO.md), revisión 0.1, para aceptación antes de #21. No convertir esa propuesta en SQL aprobado.
+- El propietario aceptó el [contrato de acceso](CONTRATO_ACCESO.md), revisión 0.1, y M10 revisión 0.2 el 28 de octubre: mínimo seis caracteres con número, hash Argon2id, dos horas fijas y una sola tabla de administradores. La aceptación está registrada en #20; no aprueba los demás bloques de negocio.
 
-Las decisiones del 28 de octubre constan en [#20](https://github.com/Luisnativii/ServicioHorasSociales/issues/20). La propuesta concreta usa mínimo seis caracteres con un número, dos horas fijas sin renovación y logout de cookies sin invalidación remota. La exclusión de revocación/recuperación ya está confirmada; estos detalles de representación, el efecto sobre tokens previos y el bloque M10 requieren aceptar la revisión. Ajustar los issues de sesiones/refresh y sus dependencias después de esa aceptación, sin marcarlos como implementados.
+Las decisiones y aceptación constan en [#20](https://github.com/Luisnativii/ServicioHorasSociales/issues/20). El logout elimina cookies sin invalidación remota; desactivar impide nuevos logins sin revocar JWT emitidos. #22/#27 se cerraron como no planificados y sus dependientes se ajustaron al contrato aceptado, sin afirmar que esas funciones se implementaron. #21 puede ejecutar únicamente el bloque M10, después de integrar sus dependencias.
 
 Esta aclaración sustituye las frases de una sola cuenta ADMIN del plan de programación original. El documento original se conserva como fuente histórica sin reescribirlo.
 
