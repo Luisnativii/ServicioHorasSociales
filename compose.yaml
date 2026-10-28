@@ -1,8 +1,19 @@
 name: hs-dev
 
+x-logging: &bounded-logging
+  driver: json-file
+  options:
+    max-size: "${HS_LOG_MAX_SIZE:-10m}"
+    max-file: "${HS_LOG_MAX_FILES:-3}"
+
 services:
   db:
     image: postgres:18.6-bookworm
+    cpus: "${HS_DB_CPUS:-1.0}"
+    mem_limit: "${HS_DB_MEMORY:-512m}"
+    pids_limit: ${HS_DB_PIDS:-256}
+    logging: *bounded-logging
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?Ejecuta scripts/init-local.sh}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Ejecuta scripts/init-local.sh}
@@ -19,6 +30,11 @@ services:
     stop_grace_period: 30s
   api:
     image: hs-api:${APP_VERSION:-0.0.1}-dev
+    cpus: "${HS_API_CPUS:-2.0}"
+    mem_limit: "${HS_API_MEMORY:-1g}"
+    pids_limit: ${HS_API_PIDS:-512}
+    logging: *bounded-logging
+    restart: unless-stopped
     build:
       context: .
       dockerfile: deploy/docker/api.Dockerfile
@@ -39,6 +55,12 @@ services:
     stop_grace_period: 15s
   web:
     image: hs-web:${APP_VERSION:-0.0.1}-dev
+    cpus: "${HS_WEB_CPUS:-1.0}"
+    mem_limit: "${HS_WEB_MEMORY:-512m}"
+    pids_limit: ${HS_WEB_PIDS:-256}
+    logging: *bounded-logging
+    restart: unless-stopped
+    stop_grace_period: 15s
     build:
       context: .
       dockerfile: deploy/docker/web.Dockerfile
@@ -54,6 +76,12 @@ services:
       retries: 12
   migrator:
     image: hs-migrator:${APP_VERSION:-0.0.1}-dev
+    cpus: "${HS_MIGRATOR_CPUS:-0.5}"
+    mem_limit: "${HS_MIGRATOR_MEMORY:-256m}"
+    pids_limit: ${HS_MIGRATOR_PIDS:-128}
+    logging: *bounded-logging
+    restart: "no"
+    stop_grace_period: 15s
     build:
       context: .
       dockerfile: deploy/docker/migrator.Dockerfile

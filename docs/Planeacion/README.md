@@ -6,6 +6,7 @@ Este directorio conserva el plan original y organiza su ejecución en tareas peq
 
 - [Plan original de 20 etapas](Plan_Programacion_IA_Horas_Sociales.md): fuente recibida; se conserva sin reescritura.
 - [Aclaraciones vigentes](DECISIONES_VIGENTES.md): un rol ADMIN, múltiples cuentas y prioridad de las decisiones recientes.
+- [Contrato de acceso para revisión](CONTRATO_ACCESO.md): propuesta de dos horas, contraseña sencilla hasheada, JWT sin recuperación/revocación y bloque mínimo de identidad; aprobación pendiente antes de migrar.
 - [Alcance vigente](ALCANCE_VIGENTE.md): usuarios, funciones previstas, avance existente, exclusiones y responsables de decisiones abiertas.
 - [Registro de horas de desarrollo](REGISTRO_HORAS.md): presupuesto de 300 horas separado de las metas estudiantiles; sesiones reales solo cuando se confirmen.
 - [Fuentes y trazabilidad](FUENTES_Y_TRAZABILIDAD.md): procedencia, confirmación de la lógica, sustituciones y bloqueos por issue.
@@ -21,7 +22,7 @@ PostgreSQL y el esquema inicial ya funcionan en V0.0.1. No se reinicializa el pr
 
 1. Publicar y aceptar la planeación; consolidar fuentes y resolver las decisiones que realmente afecten a cada módulo.
 2. Completar pruebas aisladas, contrato HTTP y privilegios de base que aún faltan.
-3. Acordar contrato de cuentas ADMIN y crear únicamente la persistencia de identidad/sesiones necesaria. Sobre esa base implementar Argon2id, JWT, CSRF, login, renovación y logout.
+3. Acordar contrato de cuentas ADMIN y crear únicamente la identidad aceptada. Sobre esa base implementar Argon2id, JWT, CSRF, login y logout. El propietario excluyó recuperación/revocación; el contrato propone prescindir de sesiones persistidas y refresh, con ajuste de dependencias después de su aprobación.
 4. Proteger el acceso real y el layout; después desarrollar catálogos, instituciones y estudiantes. Estos últimos no necesitan esperar todo el ciclo de proyectos cuando sus dependencias reales ya están resueltas.
 5. Proyectos → participaciones y cierres → libro de horas/saldos → reportes y Excel.
 6. Pruebas integrales, recuperación y releases aprobados; servidor y producción se ejecutan únicamente en su etapa autorizada.

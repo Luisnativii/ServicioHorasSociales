@@ -115,6 +115,31 @@ bash scripts/dc.sh up -d --wait --wait-timeout 180
 
 El volumen `hs-dev_pgdata` está montado en `/var/lib/postgresql`, como requiere PostgreSQL 18. Eliminar volúmenes es una operación distinta que destruye datos y no forma parte del procedimiento normal. Mantén el nombre `hs-dev`. Cambiar `.env` no cambia las credenciales de un clúster ya creado: no borres el volumen para resolver una contraseña incorrecta.
 
+## Recursos y operación local
+
+Los contenedores tienen límites de CPU, memoria y procesos y rotación de logs. Son valores iniciales para desarrollo, comprobados en Docker Desktop con aproximadamente 4 GiB de memoria y 8 CPU disponibles; no constituyen metas de rendimiento ni requisitos aprobados del servidor institucional.
+
+| Servicio | CPU máxima | Memoria máxima | Procesos máximos |
+| --- | --- | --- | --- |
+| PostgreSQL | 1 | 512 MiB | 256 |
+| API y herramientas Go | 2 | 1 GiB | 512 |
+| Web y herramientas Node | 1 | 512 MiB | 256 |
+| Migrator | 0.5 | 256 MiB | 128 |
+
+Los límites no reservan esa memoria. API conserva margen para compilar con recarga y ejecutar pruebas; web incluye Vite/TypeScript; PostgreSQL mantiene el pool reducido existente. Un build de imagen usa BuildKit y no queda limitado por los valores de ejecución del servicio. Con varios entornos simultáneos hay que considerar su consumo conjunto.
+
+Para ajustar un servicio utiliza `HS_DB_CPUS`, `HS_DB_MEMORY`, `HS_DB_PIDS` y los equivalentes `HS_API_*`, `HS_WEB_*` o `HS_MIGRATOR_*`. No es necesario cambiar credenciales ni regenerar `.env`. Por ejemplo:
+
+```bash
+HS_API_MEMORY=1536m bash scripts/dc.sh up -d --wait api
+```
+
+Mantén el mismo valor en las siguientes recreaciones, exportándolo en tu terminal o agregándolo intencionalmente a la configuración local. Los logs usan `json-file`, archivos de hasta 10 MiB y tres archivos por contenedor; se ajustan con `HS_LOG_MAX_SIZE` y `HS_LOG_MAX_FILES`. Los logs no son un respaldo de datos.
+
+PostgreSQL, API y web usan `restart: unless-stopped`: Docker los reinicia si terminan inesperadamente, pero respeta una parada manual. El migrator no se reinicia automáticamente. Un estado `unhealthy` por sí solo no reinicia un contenedor; consulta sus logs y readiness para diagnosticarlo.
+
+El apagado permite 30 s a PostgreSQL y 15 s a API/web; la API dispone de 10 s internos para terminar peticiones. Usa `stop`, `up` y `down` como se indica arriba: conserva el volumen, sin eliminar datos. API y PostgreSQL siguen sin publicar puertos. Parámetros según la [referencia oficial de servicios Compose](https://docs.docker.com/reference/compose-file/services/).
+
 ## Desarrollo con recarga
 
 - React y estilos: edita `apps/web/src/`; Vite actualiza el navegador automáticamente. También están montados `index.html` y `vite.config.ts`.

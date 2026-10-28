@@ -1,0 +1,209 @@
+openapi: 3.1.0
+info:
+  title: Portal de Horas Sociales
+  version: 0.0.1
+  description: |
+    Revisión inicial del contrato HTTP, independiente de la versión de la aplicación.
+    Solo las rutas de salud están implementadas. Los componentes de /api/v1
+    preparan los módulos posteriores; no representan CRUD ni autenticación existentes.
+    Todas las respuestas JSON usan Cache-Control no-store y X-Request-ID.
+paths:
+  /api/health/live:
+    get:
+      operationId: getLiveness
+      summary: Comprobar el proceso HTTP sin depender de PostgreSQL
+      responses:
+        '200':
+          description: Proceso disponible
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthOK'
+        '500':
+          $ref: '#/components/responses/LegacyInternalError'
+  /api/health/ready:
+    get:
+      operationId: getReadiness
+      summary: Comprobar conexión PostgreSQL con plazo máximo de dos segundos
+      description: No comprueba tablas ni versión de migración. Respeta cancelación del cliente.
+      responses:
+        '200':
+          description: PostgreSQL disponible
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthOK'
+        '503':
+          description: PostgreSQL no disponible
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [status]
+                properties:
+                  status:
+                    const: unavailable
+        '500':
+          $ref: '#/components/responses/LegacyInternalError'
+components:
+  headers:
+    RequestID:
+      description: Identificador de correlación de la petición
+      schema:
+        type: string
+  schemas:
+    HealthOK:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          const: ok
+    LegacyError:
+      description: Rutas fuera de /api/v1 conservan el formato inicial.
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [not_found, method_not_allowed, error]
+    Error:
+      description: |
+        Formato común de /api/v1. Los errores no exponen mensajes originales,
+        SQL, credenciales ni trazas. Una ruta /api/v1 desconocida ya usa este formato.
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [code, message, request_id]
+          properties:
+            code:
+              type: string
+              enum: [invalid_json, invalid_pagination, bad_request, unauthorized, forbidden, not_found, method_not_allowed, conflict, payload_too_large, unsupported_media_type, internal_error]
+            message:
+              type: string
+            request_id:
+              type: string
+    PageMetadata:
+      description: Esquema reutilizable para listados futuros; no existe un endpoint de listado todavía.
+      type: object
+      additionalProperties: false
+      required: [page, page_size, total]
+      properties:
+        page:
+          type: integer
+          format: int64
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          format: int64
+          minimum: 0
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Una sola ocurrencia; el offset calculado debe caber en int64.
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+        default: 1
+    PageSize:
+      name: page_size
+      in: query
+      description: Una sola ocurrencia; valores vacíos o fuera de rango se rechazan.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    Sort:
+      name: sort
+      in: query
+      description: Nombre público de la lista permitida por el módulo; nunca SQL recibido del cliente.
+      schema:
+        type: string
+        minLength: 1
+    Order:
+      name: order
+      in: query
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: asc
+  responses:
+    LegacyInternalError:
+      description: Error interno genérico en salud
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyError'
+    BadRequest:
+      description: 400; JSON inválido, campos desconocidos o parámetros fuera de rango
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: 401; contrato reservado para autenticación posterior
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: 403; operación no permitida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: 404; recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    MethodNotAllowed:
+      description: 405; método no permitido
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: 409; conflicto con el estado actual
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    PayloadTooLarge:
+      description: 413; cuerpo superior a 1 MiB (incluido espacio al final)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnsupportedMediaType:
+      description: 415; se requiere application/json, con charset opcional
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: 500; error interno genérico
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

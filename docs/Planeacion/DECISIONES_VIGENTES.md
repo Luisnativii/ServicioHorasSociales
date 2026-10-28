@@ -1,6 +1,6 @@
 # Aclaraciones vigentes de la planeación
 
-Actualización: 26 de octubre de 2026, America/Guatemala. Conserva las decisiones registradas el 25 de octubre y sus aclaraciones posteriores.
+Actualización de identidad: 28 de octubre de 2026, America/El_Salvador. Conserva las decisiones anteriores y señala sus sustituciones.
 
 ## Identidad y acceso — confirmado por el propietario en este chat
 
@@ -10,13 +10,15 @@ Consecuencias para el backlog:
 
 - Un único rol ADMIN y varias cuentas administradoras.
 - Cada cuenta tiene identidad propia y acceso completo al ámbito de la aplicación.
-- JWT y sesiones revocables protegen las operaciones; registrar el actor cuando la regla exija trazabilidad.
+- JWT protege las operaciones; registrar el actor cuando la regla exija trazabilidad. El 28 de octubre el propietario excluyó revocación y recuperación de contraseña por el momento; no implementar sesiones revocables por el texto antiguo del plan.
 - No crear una restricción de cuenta única ni rechazar el segundo ADMIN por ese motivo.
 - No añadir roles de estudiantes/coordinadores ni acceso público por deducción.
 - Inicio de sesión mediante correo electrónico y contraseña.
 - Creación de cuentas exclusivamente mediante herramienta de administración ejecutada en Docker; sin formulario ni endpoint web de alta.
-- Se permite desactivar la última cuenta ADMIN activa y recuperar acceso mediante esa herramienta. No imponer un mínimo de una cuenta activa.
-- La gestión restante, normalización del correo, política de contraseñas, expiraciones, rotación y efectos de desactivación/reset requieren el contrato de #20. Las decisiones anteriores están registradas en el issue #5; no aprobar otros detalles por deducción.
+- Se permite desactivar la última cuenta ADMIN activa. No imponer un mínimo de una cuenta activa; las altas siguen disponibles por herramienta, sin una función de recuperación/reset de contraseña.
+- Contraseña almacenada hasheada, con la sencillez solicitada («6 dígitos con un número»), y sesión de al menos dos horas. La interpretación exacta y los detalles técnicos se presentan en el [contrato de acceso propuesto](CONTRATO_ACCESO.md), revisión 0.1, para aceptación antes de #21. No convertir esa propuesta en SQL aprobado.
+
+Las decisiones del 28 de octubre constan en [#20](https://github.com/Luisnativii/ServicioHorasSociales/issues/20). La propuesta concreta usa mínimo seis caracteres con un número, dos horas fijas sin renovación y logout de cookies sin invalidación remota. La exclusión de revocación/recuperación ya está confirmada; estos detalles de representación, el efecto sobre tokens previos y el bloque M10 requieren aceptar la revisión. Ajustar los issues de sesiones/refresh y sus dependencias después de esa aceptación, sin marcarlos como implementados.
 
 Esta aclaración sustituye las frases de una sola cuenta ADMIN del plan de programación original. El documento original se conserva como fuente histórica sin reescribirlo.
 
