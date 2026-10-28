@@ -20,6 +20,8 @@ En las tablas siguientes «sí» o «no» expresa obligatoriedad **propuesta**, 
 
 ## M10 · Identidad administrativa
 
+Actualización del 28 de octubre: el [contrato de acceso propuesto](CONTRATO_ACCESO.md) presenta M10 revisión 0.2, con una sola tabla de administradores y sin sesiones/refresh, conforme a la exclusión humana de revocación/recuperación. El bloque siguiente conserva el antecedente de revisión 0.1 y no debe implementarse por encima de ese contrato. La revisión nueva también requiere aceptación antes de migrar.
+
 Base funcional: R01–R06. Aprobación de contrato en #20 antes de #21–#29.
 
 | Entidad.campo | Tipo | Obligatorio | Clave/restricción propuesta y propósito |
