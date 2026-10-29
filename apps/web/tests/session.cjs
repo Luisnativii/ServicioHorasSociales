@@ -75,7 +75,7 @@ test('login and logout prepare CSRF, rotate identity and clear private caches', 
   queries.setQueryData(['private'], 'fixture');
   await session.logout(); assert.equal(session.getSnapshot().status, 'anonymous');
   assert.equal(queries.getQueryCache().getAll().length, 0);
-  assert.deepEqual(paths, ['/api/v1/auth/csrf', '/api/v1/auth/login', '/api/v1/auth/csrf', '/api/v1/auth/logout']);
+  assert.deepEqual(paths, ['/api/v1/auth/csrf', '/api/v1/auth/login', '/api/v1/auth/me', '/api/v1/auth/csrf', '/api/v1/auth/logout']);
 });
 
 test('session validation deduplicates requests and keeps network failure distinct from anonymous', async () => {
@@ -110,4 +110,31 @@ test('uncertain logout clears local data without retrying the mutation', async (
   await assert.rejects(session.logout(), NetworkError);
   assert.equal(writes, 1); assert.equal(session.getSnapshot().status, 'anonymous');
   assert.equal(queries.getQueryCache().getAll().length, 0);
+});
+
+test('login confirms me for two distinct accounts before exposing identity', async () => {
+  for (const id of ['first', 'second']) {
+    const gate = deferred();
+    const client = new ApiClient(async path => {
+      if (path.endsWith('/csrf')) return new Response(null, { status: 204 });
+      if (path.endsWith('/login')) return json(200, { id, correo: `${id}@example.test` });
+      return gate.promise;
+    }, () => 'proof');
+    const queries = createQueryClient(); const session = new SessionController(queries, client);
+    const pending = session.login(`${id}@example.test`, 'synthetic1');
+    assert.equal(session.getSnapshot().status, 'loading');
+    gate.resolve(json(200, { id, correo: `${id}@example.test` })); await pending;
+    assert.equal(session.getSnapshot().user.id, id); queries.clear();
+  }
+});
+
+test('successful login response without a usable cookie does not authenticate', async () => {
+  const client = new ApiClient(async path => {
+    if (path.endsWith('/csrf')) return new Response(null, { status: 204 });
+    if (path.endsWith('/login')) return json(200, { id: 'fixture', correo: 'fixture@example.test' });
+    return error(401);
+  }, () => 'proof');
+  const queries = createQueryClient(); const session = new SessionController(queries, client);
+  await assert.rejects(session.login('fixture@example.test', 'synthetic1'), ApiError);
+  assert.equal(session.getSnapshot().status, 'anonymous'); queries.clear();
 });

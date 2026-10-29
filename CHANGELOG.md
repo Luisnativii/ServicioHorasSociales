@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(web): pantalla de acceso Archivo conectada a login y comprobación de identidad (#31), con errores genéricos, protección contra doble envío y rutas de entrada; salud local disponible en /estado.
+
 - feat(web): cliente central de sesión/CSRF, React Router y TanStack Query (#30), sin refresh ni reintentos automáticos; limpieza de datos privados al cambiar o vencer la sesión.
 
 - feat(auth): administrar cuentas ADMIN (#29): GET /api/v1/admin/cuentas (listado con paginación) y POST /api/v1/admin/cuentas/{id}/activar y /desactivar, con JWT y CSRF en mutaciones, registro de actor en logs sin secretos, y rutas documentadas en OpenAPI.

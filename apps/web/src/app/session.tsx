@@ -78,9 +78,11 @@ export class SessionController {
     this.set({ status: 'loading', user: null, error: null });
     try {
       await this.client.prepareCSRF();
-      const user = identity(await this.client.request<Administrator>('/api/v1/auth/login', {
+      await this.client.request<Administrator>('/api/v1/auth/login', {
         method: 'POST', body: { correo, contrasena }, authenticated: false,
-      }));
+      });
+      // Verify that the browser accepted the access cookie before navigating.
+      const user = identity(await this.client.request<Administrator>('/api/v1/auth/me'));
       this.queries.setQueryData(['session'], user);
       this.set({ status: 'authenticated', user, error: null });
     } catch (error) {
