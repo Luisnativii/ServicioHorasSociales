@@ -42,6 +42,7 @@ var publicErrors = map[string]struct {
 	"payload_too_large":      {413, "El cuerpo supera el límite de 1 MiB."},
 	"unsupported_media_type": {415, "Usa Content-Type application/json."},
 	"internal_error":         {500, "Ocurrió un error interno."},
+	"service_unavailable":    {503, "El servicio no está disponible."},
 }
 
 // WriteError uses a closed vocabulary so raw SQL/errors never reach clients.

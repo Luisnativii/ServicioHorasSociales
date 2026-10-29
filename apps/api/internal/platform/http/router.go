@@ -30,7 +30,8 @@ func routeError(w http.ResponseWriter, r *http.Request, status int, code string)
 }
 
 type Options struct {
-	Tokens *auth.Tokens
+	Tokens  *auth.Tokens
+	Browser *auth.Browser
 	// RegisterPrivate mounts future business handlers inside the protected group.
 	RegisterPrivate func(chi.Router)
 }
@@ -73,10 +74,25 @@ func Router(db Pinger, options ...Options) http.Handler {
 		reply(w, q, http.StatusOK, "ok")
 	})
 	r.Route("/api/v1", func(private chi.Router) {
-		private.Use(RequireAdmin(config.Tokens))
-		if config.RegisterPrivate != nil {
-			config.RegisterPrivate(private)
-		}
+		// CSRF preparation is public; all business routes inherit JWT and CSRF.
+		private.Get("/auth/csrf", func(w http.ResponseWriter, q *http.Request) {
+			w.Header().Set("Cache-Control", "no-store")
+			if config.Browser == nil {
+				WriteError(w, q, "service_unavailable")
+				return
+			}
+			if config.Browser.PrepareCSRF(w, q) != nil {
+				WriteError(w, q, "forbidden")
+				return
+			}
+			w.WriteHeader(http.StatusNoContent)
+		})
+		private.Group(func(protected chi.Router) {
+			protected.Use(RequireAdmin(config.Tokens), RequireCSRF(config.Browser))
+			if config.RegisterPrivate != nil {
+				config.RegisterPrivate(protected)
+			}
+		})
 		// Chi's fallback handlers can run before route middleware when there is
 		// no matching endpoint. Protect those explicitly as well.
 		private.NotFound(RequireAdmin(config.Tokens)(http.HandlerFunc(func(w http.ResponseWriter, q *http.Request) { WriteError(w, q, "not_found") })).ServeHTTP)

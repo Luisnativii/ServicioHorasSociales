@@ -40,9 +40,14 @@ func main() {
 
 func run() error {
 	var tokens *auth.Tokens
+	var browser *auth.Browser
 	if path := os.Getenv("JWT_KEY_FILE"); path != "" {
 		var err error
 		tokens, err = auth.LoadKey(path)
+		if err != nil {
+			return err
+		}
+		browser, err = auth.NewBrowser(tokens, os.Getenv("APP_ORIGIN"))
 		if err != nil {
 			return err
 		}
@@ -59,7 +64,7 @@ func run() error {
 	}
 	defer pool.Close()
 	srv := &http.Server{
-		Addr: ":8080", Handler: httpserver.Router(pool, httpserver.Options{Tokens: tokens}),
+		Addr: ":8080", Handler: httpserver.Router(pool, httpserver.Options{Tokens: tokens, Browser: browser}),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second,
 		WriteTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second,
 	}
