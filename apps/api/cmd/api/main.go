@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"horas-sociales/api/internal/config"
+	"horas-sociales/api/internal/modules/admin"
 	"horas-sociales/api/internal/platform/auth"
 	"horas-sociales/api/internal/platform/database"
 	httpserver "horas-sociales/api/internal/platform/http"
@@ -64,7 +65,11 @@ func run() error {
 	}
 	defer pool.Close()
 	srv := &http.Server{
-		Addr: ":8080", Handler: httpserver.Router(pool, httpserver.Options{Tokens: tokens, Browser: browser}),
+		Addr: ":8080", Handler: httpserver.Router(pool, httpserver.Options{
+			Tokens:   tokens,
+			Browser:  browser,
+			Buscador: admin.NewRepository(pool),
+		}),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second,
 		WriteTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second,
 	}

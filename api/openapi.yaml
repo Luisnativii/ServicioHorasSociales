@@ -42,6 +42,78 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /api/v1/auth/login:
+    post:
+      operationId: postLogin
+      summary: Iniciar sesión de administrador con cookie de acceso
+      description: |
+        Valida correo y contraseña con Argon2id sin revelar si la cuenta existe.
+        Al autenticar emite hs_access (JWT de dos horas, HttpOnly) y rota hs_csrf.
+        Ningún token viaja en el cuerpo. Requiere Origin exacto y prueba CSRF
+        firmada; exceder el límite de intentos devuelve 429 con Retry-After.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [correo, contrasena]
+              properties:
+                correo:
+                  type: string
+                  format: email
+                  description: Correo canónico de la cuenta de administrador.
+                contrasena:
+                  type: string
+                  minLength: 6
+                  maxLength: 128
+                  description: Contraseña sin verificar; nunca se devuelve.
+      responses:
+        '200':
+          description: Sesión iniciada; cookies hs_access y hs_csrf emitidas.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: hs_access (Path=/api, HttpOnly, Secure con HTTPS) y hs_csrf (Path=/).
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identidad'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/auth/me:
+    get:
+      operationId: getMe
+      summary: Consultar la identidad de la sesión vigente
+      description: |
+        Devuelve id y correo del actor autenticado por la cookie hs_access.
+        Consultar la identidad no extiende el vencimiento de dos horas y no
+        revoca nada.
+      security:
+        - AdminCookie: []
+      responses:
+        '200':
+          description: Identidad del actor de la sesión.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identidad'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /api/health/live:
     get:
       operationId: getLiveness
@@ -104,6 +176,19 @@ components:
       schema:
         type: string
   schemas:
+    Identidad:
+      type: object
+      additionalProperties: false
+      required: [id, correo]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identificador de la cuenta de administrador (sub del JWT).
+        correo:
+          type: string
+          format: email
+          description: Correo canónico de la cuenta autenticada.
     HealthOK:
       type: object
       additionalProperties: false
@@ -135,7 +220,7 @@ components:
           properties:
             code:
               type: string
-              enum: [invalid_json, invalid_pagination, bad_request, unauthorized, forbidden, not_found, method_not_allowed, conflict, payload_too_large, unsupported_media_type, internal_error, service_unavailable]
+              enum: [invalid_json, invalid_pagination, bad_request, unauthorized, forbidden, not_found, method_not_allowed, conflict, too_many_requests, payload_too_large, unsupported_media_type, internal_error, service_unavailable]
             message:
               type: string
             request_id:
@@ -205,7 +290,19 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
     Unauthorized:
-      description: 401; contrato reservado para autenticación posterior
+      description: 401; credenciales ausentes, inválidas, vencidas o cuenta inexistente/inactiva, sin revelar cuál
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TooManyRequests:
+      description: 429; límite de intentos de inicio de sesión excedido
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+            minimum: 0
+          description: Segundos restantes antes de reintentar.
       content:
         application/json:
           schema:

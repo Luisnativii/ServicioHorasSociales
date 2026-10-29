@@ -1,5 +1,9 @@
 # Changelog
 
+## Pendiente de integración
+
+- feat(auth): login y consulta de identidad (#26): POST /api/v1/auth/login y GET /api/v1/auth/me con cookies reales hs_access y hs_csrf, verificación Argon2id, errores genéricos, control de intentos por IP con 429 y Retry-After, y rutas documentadas en OpenAPI.
+
 ## V0.0.1 — 2026-10-25
 
 - Entorno local Docker validado en macOS ARM64 con proyecto `hs-dev`.

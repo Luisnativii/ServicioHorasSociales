@@ -38,6 +38,7 @@ var publicErrors = map[string]struct {
 	"forbidden":              {403, "La operación no está permitida."},
 	"not_found":              {404, "No se encontró el recurso."},
 	"method_not_allowed":     {405, "El método no está permitido."},
+	"too_many_requests":      {429, "Demasiados intentos de inicio de sesión. Vuelve a intentar más tarde."},
 	"conflict":               {409, "La operación entra en conflicto con el estado actual."},
 	"payload_too_large":      {413, "El cuerpo supera el límite de 1 MiB."},
 	"unsupported_media_type": {415, "Usa Content-Type application/json."},
