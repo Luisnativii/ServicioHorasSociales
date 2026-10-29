@@ -37,7 +37,8 @@ for arg in "$@"; do
   case "$arg" in
     -p|--project-name|--project-name=*|-p?*|-f|--file|--file=*|-f?*|--env-file|--env-file=*|--project-directory|--project-directory=*|--profile|--profile=*)
       fail 'no se permite sustituir proyecto, archivos, secretos o perfiles.';;
-    -v|--volumes) fail 'la limpieza de pruebas conserva los volúmenes.';;
+    -v|--volumes)
+      case "${1:-}" in down|rm) fail 'la limpieza de pruebas conserva los volúmenes.';; esac;;
   esac
 done
 APP_VERSION=$(bash scripts/version.sh)

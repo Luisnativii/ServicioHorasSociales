@@ -83,7 +83,7 @@ bash scripts/dc.sh --profile tools run --rm migrator status
 
 `migrate.sh dev` reconstruye el migrator, aplica solo la migración fundacional con la cuenta original cuando hace falta, provisiona roles dedicados y ejecuta las demás migraciones como `hs_migrator`. Repetirlo conserva versiones y cuentas. Goose registra su versión en `public.goose_db_version`; las migraciones fundacional/de identidad rechazan retrocesos para conservar datos.
 
-La migración 2 crea únicamente `horas_sociales.administrador` del contrato aceptado: UUID, correo canónico único, hash Argon2id, estado y fechas técnicas. No crea cuentas, credenciales de ejemplo, sesiones ni tablas de estudiantes/proyectos/horas. La comprobación de prefijo PHC evita guardar texto de contraseña ordinario; el cálculo y verificación criptográfica del hash corresponden a #23. Todavía no existen CLI de cuentas ni login.
+La migración 2 crea únicamente `horas_sociales.administrador` del contrato aceptado: UUID, correo canónico único, hash Argon2id, estado y fechas técnicas. No crea cuentas, credenciales de ejemplo, sesiones ni tablas de estudiantes/proyectos/horas. La herramienta de #23 calcula hashes reales; todavía no existe login web.
 
 Las consultas se generan desde SQL mediante `bash scripts/sqlc.sh generate` (sqlc 1.31.1 fijado por digest, sin instalar Go/Node en el anfitrión). `bash scripts/sqlc.sh vet` valida las consultas; CI comprueba que regenerar no cambia los archivos versionados. El repositorio de administradores usa esas consultas y no incluye endpoints públicos.
 
@@ -106,6 +106,27 @@ La provisión es repetible: no modifica contraseñas de roles ya existentes, no 
 Puedes abrir la consola técnica local sin mostrar su contraseña con `docker exec -it hs-dev-db-1 sh -c 'exec psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'`. No ejecutes cambios de contraseña o permisos hasta identificar la discrepancia y conservar una copia protegida de la configuración original.
 
 En pruebas se usa `bash scripts/provision-db-roles.sh test`, con un archivo distinto y las cuentas del clúster `hs-test`. `bash scripts/check-db-roles.sh` crea una migración sintética en ese clúster, verifica permisos y API real y retira únicamente sus tablas de prueba. CI ejecuta esta comprobación antes de las pruebas habituales. Nunca la dirige a desarrollo.
+
+## Crear cuentas administradoras desde Docker
+
+Después de preparar la configuración y migraciones, ejecuta desde una terminal interactiva:
+
+```bash
+bash scripts/migrate.sh dev
+bash scripts/admin.sh create --email tu-correo@tu-dominio
+```
+
+Sustituye el correo por el de la cuenta que quieres crear. La contraseña se pide dos veces **sin mostrarla**. Requiere al menos seis caracteres y un número, máximo 128 bytes; no exige mayúsculas ni símbolos ni recorta espacios. No hay contraseña predeterminada ni cuenta creada automáticamente. El correo se normaliza; repetirlo produce conflicto y conserva su contraseña y estado. La misma operación crea la primera cuenta y las adicionales, incluso cuando no hay ninguna activa.
+
+La herramienta construye `hs-admin:VERSION-dev`, un runtime Distroless sin root, sin puertos y conectado solo a la red de datos. Usa la cuenta PostgreSQL limitada `hs_app`; no admite la cuenta propietaria del arranque. El hashing usa Argon2id v19: 64 MiB, tres iteraciones, paralelismo cuatro, salt aleatorio de 16 bytes y resultado de 32 bytes en formato PHC. Las verificaciones comparan el resultado en tiempo constante y rechazan parámetros no admitidos antes de asignar memoria; se acotan a dos operaciones simultáneas por proceso. Referencias: [Argon2 de Go](https://pkg.go.dev/golang.org/x/crypto/argon2), [entrada de terminal de Go](https://pkg.go.dev/golang.org/x/term), [RFC 9106](https://www.rfc-editor.org/rfc/rfc9106.html#section-4).
+
+Para una automatización local, prepara por un medio seguro un archivo bajo `.secrets/` con la contraseña exacta, sin salto de línea, y permisos 0400 o 0600. El wrapper lo monta en solo lectura y usa el UID/GID del operador para leerlo. Se admiten archivos del usuario o de root que el proceso pueda abrir (Docker Desktop puede informar el montaje como root); se rechazan enlaces, archivos públicos, directorios y contenido excesivo. Nunca se imprime el secreto ni se copia a la imagen:
+
+```bash
+bash scripts/admin.sh create --email tu-correo@tu-dominio --password-file .secrets/admin-password
+```
+
+No se admite contraseña por argumento, variable de entorno ni pipe. El archivo de entrada se conserva: el operador gestiona su custodia. No hay comandos de reset, reactivación o revocación ni altas web en esta entrega. Crear cuentas no habilita todavía acceso por navegador; JWT, CSRF y login se implementan en sus siguientes issues.
 
 ## Detener, iniciar y conservar datos
 
@@ -192,7 +213,8 @@ tests/                           Alcance de integración
 | --- | --- |
 | Go | 1.27.3 |
 | chi / pgx | 5.5.0 / 5.11.0 |
-| x/text (indirecta) | 0.41.0 |
+| x/crypto / x/term | 0.58.0 / 0.47.0 |
+| x/text / x/sys (indirectas) | 0.43.0 / 0.49.0 |
 | Goose | 3.28.0 |
 | PostgreSQL | 18.6 (bookworm) |
 | Node / npm | 22.23.4 / 10.9.9 (incluido en la imagen) |

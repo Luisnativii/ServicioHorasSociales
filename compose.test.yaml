@@ -29,6 +29,8 @@ services:
       test: [CMD, node, -e, "fetch('http://127.0.0.1:8080/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
   migrator:
     image: hs-migrator:${APP_VERSION:-0.0.1}-test
+  admin:
+    image: hs-admin:${APP_VERSION:-0.0.1}-test
   db-role-probe:
     image: hs-migrator:${APP_VERSION:-0.0.1}-test
     profiles: [tools]
