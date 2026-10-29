@@ -9,6 +9,14 @@ CMD ["bash", "/workspace/scripts/dev-api.sh"]
 
 FROM dev AS build
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/api ./cmd/api
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/admin ./cmd/admin
+
+FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab AS admin-runtime
+ARG APP_VERSION=0.0.1
+LABEL org.opencontainers.image.version=${APP_VERSION}
+COPY --from=build /out/admin /admin
+USER 65532:65532
+ENTRYPOINT ["/admin"]
 
 FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab AS runtime
 ARG APP_VERSION=0.0.1
