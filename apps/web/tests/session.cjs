@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const { ApiClient, ApiError, NetworkError, StaleSessionError } = require('/tmp/hs-web-session-tests/lib/api.js');
 const { SessionController, createQueryClient } = require('/tmp/hs-web-session-tests/app/session.js');
 const { authorizedDestination, navigation } = require('/tmp/hs-web-session-tests/app/navigation.js');
+const { accountsApi, uncertainChange } = require('/tmp/hs-web-session-tests/features/accounts/api.js');
 const json = (status, value) => new Response(JSON.stringify(value), { status });
 const error = status => json(status, { error: { code: 'controlled' } });
 const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; };
@@ -155,4 +156,31 @@ test('suspending a cached document hides identity and removes private queries', 
   assert.deepEqual(session.getSnapshot(), { status: 'loading', user: null, error: null });
   assert.equal(queries.getQueryCache().getAll().length, 0);
   await session.validate(); assert.equal(session.getSnapshot().status, 'authenticated'); queries.clear();
+});
+
+test('account listing sends server pagination/order and exposes only public fields', async () => {
+  const id = 'b14f0325-1640-4014-a00e-15b249b78866';
+  const client = new ApiClient(async path => {
+    const url = new URL(path, 'http://example.test');
+    assert.equal(url.searchParams.get('page'), '2'); assert.equal(url.searchParams.get('page_size'), '10');
+    assert.equal(url.searchParams.get('order'), 'desc'); assert.equal(url.searchParams.get('sort'), 'creado_en');
+    return json(200, { cuentas: [{ id, correo: 'fixture@example.test', activo: false, contrasena_hash: 'not-for-ui' }], pagina: { pagina: 2, page_size: 10, total: 11 } });
+  }, () => 'proof');
+  const result = await accountsApi(client).list(2, 10, 'desc');
+  assert.deepEqual(Object.keys(result.cuentas[0]).sort(), ['activo', 'correo', 'id']);
+});
+
+test('account state changes require confirmed server state and are never retried', async () => {
+  const previous = { id: 'b14f0325-1640-4014-a00e-15b249b78866', correo: 'fixture@example.test', activo: true };
+  let calls = 0;
+  const client = new ApiClient(async (path, init) => {
+    calls++; assert.ok(path.endsWith('/desactivar')); assert.equal(init.method, 'POST');
+    return json(200, { ...previous, activo: false });
+  }, () => 'proof');
+  assert.equal((await accountsApi(client).setActive(previous)).activo, false); assert.equal(calls, 1);
+  const unchanged = new ApiClient(async () => json(200, previous), () => 'proof');
+  await assert.rejects(accountsApi(unchanged).setActive(previous));
+  assert.equal(uncertainChange(new NetworkError()), true);
+  assert.equal(uncertainChange(new ApiError(500, 'internal_error')), true);
+  assert.equal(uncertainChange(new ApiError(403, 'forbidden')), false);
 });

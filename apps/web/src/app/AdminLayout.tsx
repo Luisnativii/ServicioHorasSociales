@@ -107,9 +107,9 @@ export function Home() {
     <p className="shell-lead">Bienvenido al Portal de Horas Sociales.</p>
     <div className="shell-empty">
       <span className="empty-rule" aria-hidden="true" />
-      <h2>El espacio está preparado</h2>
-      <p>Los módulos de gestión todavía no están disponibles. Puedes consultar el estado del portal desde el menú.</p>
-      <Link className="shell-text-link" to="/sistema/estado">Ver estado del portal <span aria-hidden="true">→</span></Link>
+      <h2>Cuentas administradoras</h2>
+      <p>Consulta las cuentas con acceso al portal y administra su estado.</p>
+      <Link className="shell-text-link" to="/administradores">Ver administradores <span aria-hidden="true">→</span></Link>
     </div>
   </section>;
 }

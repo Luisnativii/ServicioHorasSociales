@@ -128,7 +128,7 @@ Para una automatización local, prepara por un medio seguro un archivo bajo `.se
 bash scripts/admin.sh create --email tu-correo@tu-dominio --password-file .secrets/admin-password
 ```
 
-No se admite contraseña por argumento, variable de entorno ni pipe. El archivo de entrada se conserva: el operador gestiona su custodia. No hay comandos de reset, reactivación o revocación ni altas web. El navegador ofrece acceso en `/login` y confirma la identidad antes de entrar a la estructura administrativa Archivo. El menú presenta solo Inicio y Estado del portal; los módulos de negocio se incorporan en sus issues. La comprobación pública de servicios se conserva en `/estado`.
+No se admite contraseña por argumento, variable de entorno ni pipe. El archivo de entrada se conserva: el operador gestiona su custodia. No hay comandos de reset, reactivación o revocación ni altas web. El navegador ofrece acceso en `/login` y confirma la identidad antes de entrar a Archivo. En `/administradores` permite listar, activar y desactivar cuentas, incluida la propia o la última activa, sin revocar sesiones existentes. Los módulos de negocio se incorporan en sus issues. La comprobación pública de servicios se conserva en `/estado`.
 
 ## Validación JWT administrativa
 
