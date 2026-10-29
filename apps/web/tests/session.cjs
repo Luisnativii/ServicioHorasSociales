@@ -2,6 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { ApiClient, ApiError, NetworkError, StaleSessionError } = require('/tmp/hs-web-session-tests/lib/api.js');
 const { SessionController, createQueryClient } = require('/tmp/hs-web-session-tests/app/session.js');
+const { authorizedDestination, navigation } = require('/tmp/hs-web-session-tests/app/navigation.js');
 const json = (status, value) => new Response(JSON.stringify(value), { status });
 const error = status => json(status, { error: { code: 'controlled' } });
 const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; };
@@ -137,4 +138,21 @@ test('successful login response without a usable cookie does not authenticate', 
   const queries = createQueryClient(); const session = new SessionController(queries, client);
   await assert.rejects(session.login('fixture@example.test', 'synthetic1'), ApiError);
   assert.equal(session.getSnapshot().status, 'anonymous'); queries.clear();
+});
+
+test('return destination is restricted to implemented private routes', () => {
+  for (const route of navigation) assert.equal(authorizedDestination(route.path), route.path);
+  for (const value of ['https://attacker.test', '//attacker.test', '/login', '/estudiantes', '/sistema/estado?to=elsewhere', undefined]) {
+    assert.equal(authorizedDestination(value), '/');
+  }
+});
+
+test('suspending a cached document hides identity and removes private queries', async () => {
+  const client = new ApiClient(async () => json(200, { id: 'fixture', correo: 'fixture@example.test' }), () => 'proof');
+  const queries = createQueryClient(); const session = new SessionController(queries, client);
+  await session.validate(); queries.setQueryData(['private'], 'fixture');
+  session.suspend();
+  assert.deepEqual(session.getSnapshot(), { status: 'loading', user: null, error: null });
+  assert.equal(queries.getQueryCache().getAll().length, 0);
+  await session.validate(); assert.equal(session.getSnapshot().status, 'authenticated'); queries.clear();
 });

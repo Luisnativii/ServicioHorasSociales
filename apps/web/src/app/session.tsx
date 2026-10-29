@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useSyncExternalStore, type ReactNode } from 'react';
 import { QueryClient } from '@tanstack/react-query';
+import { flushSync } from 'react-dom';
 import { ApiClient, ApiError, api } from '../lib/api';
 
 export type Administrator = { id: string; correo: string };
@@ -46,6 +47,9 @@ export class SessionController {
     this.queries.clear();
   }
   private reset(): void { this.clear(); this.set({ status: 'anonymous', user: null, error: null }); }
+
+  // Remove private DOM/cache before a document can enter browser back/forward cache.
+  suspend = (): void => { this.clear(); this.set({ status: 'loading', user: null, error: null }); };
 
   validate = (): Promise<void> => {
     if (this.busy) return Promise.resolve();
@@ -114,7 +118,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     window.addEventListener('focus', check);
     document.addEventListener('visibilitychange', check);
     const timer = window.setInterval(check, 60_000);
-    return () => { window.removeEventListener('focus', check); document.removeEventListener('visibilitychange', check); window.clearInterval(timer); };
+    const hide = () => { flushSync(() => session.suspend()); };
+    const restore = (event: PageTransitionEvent) => { if (event.persisted) void session.validate(); };
+    window.addEventListener('pagehide', hide);
+    window.addEventListener('pageshow', restore);
+    return () => {
+      window.removeEventListener('focus', check); document.removeEventListener('visibilitychange', check); window.clearInterval(timer);
+      window.removeEventListener('pagehide', hide); window.removeEventListener('pageshow', restore);
+    };
   }, []);
   return <Context.Provider value={session}>{children}</Context.Provider>;
 }

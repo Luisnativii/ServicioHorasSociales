@@ -128,7 +128,7 @@ Para una automatización local, prepara por un medio seguro un archivo bajo `.se
 bash scripts/admin.sh create --email tu-correo@tu-dominio --password-file .secrets/admin-password
 ```
 
-No se admite contraseña por argumento, variable de entorno ni pipe. El archivo de entrada se conserva: el operador gestiona su custodia. No hay comandos de reset, reactivación o revocación ni altas web. El navegador ofrece acceso en `/login` y confirma la identidad antes de entrar; la comprobación técnica de servicios se conserva en `/estado`. La navegación administrativa completa corresponde a #32.
+No se admite contraseña por argumento, variable de entorno ni pipe. El archivo de entrada se conserva: el operador gestiona su custodia. No hay comandos de reset, reactivación o revocación ni altas web. El navegador ofrece acceso en `/login` y confirma la identidad antes de entrar a la estructura administrativa Archivo. El menú presenta solo Inicio y Estado del portal; los módulos de negocio se incorporan en sus issues. La comprobación pública de servicios se conserva en `/estado`.
 
 ## Validación JWT administrativa
 
@@ -241,7 +241,7 @@ tests/                           Alcance de integración
 
 ## Versiones fijadas
 
-La infraestructura de sesión y acceso del frontend se describe en [apps/web/src/app/README.md](apps/web/src/app/README.md): cliente HTTP, cookies/CSRF, pantalla de login, estado de identidad y cachés privadas, sin refresh ni reintentos automáticos. El layout administrativo sigue en #32. Las comprobaciones específicas se ejecutan con `npm run test:session` dentro de Docker y forman parte de `scripts/check.sh`.
+La infraestructura de sesión, navegación y acceso del frontend se describe en [apps/web/src/app/README.md](apps/web/src/app/README.md): cliente HTTP, cookies/CSRF, login, layout administrativo y cachés privadas, sin refresh ni reintentos automáticos. Las comprobaciones específicas se ejecutan con `npm run test:session` dentro de Docker y forman parte de `scripts/check.sh`.
 
 | Componente | Versión |
 | --- | --- |
