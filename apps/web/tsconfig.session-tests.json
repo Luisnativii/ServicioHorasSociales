@@ -8,5 +8,5 @@
     "outDir": "/tmp/hs-web-session-tests",
     "rootDir": "src"
   },
-  "include": ["src/lib/api.ts", "src/app/session.tsx", "src/app/navigation.ts"]
+  "include": ["src/lib/api.ts", "src/app/session.tsx", "src/app/navigation.ts", "src/features/accounts/api.ts"]
 }

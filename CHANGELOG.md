@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(web): gestión de cuentas administradoras (#33), listado paginado real, confirmación de activación/desactivación y reconciliación de cambios inciertos sin reintentar escrituras.
+
 - feat(web): estructura administrativa Archivo (#32), navegación protegida, menú móvil, confirmación de salida y limpieza de vistas privadas ante caché de navegación.
 
 - feat(web): pantalla de acceso Archivo conectada a login y comprobación de identidad (#31), con errores genéricos, protección contra doble envío y rutas de entrada; salud local disponible en /estado.

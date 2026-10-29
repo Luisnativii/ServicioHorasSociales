@@ -130,3 +130,40 @@ body { margin: 0; }
   .shell-account > span:not(.shell-account-dot) { max-width: 160px; }
   .service-grid { grid-template-columns: 1fr; }
 }
+
+.accounts-toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; margin: 32px 0 24px; }
+.accounts-toolbar label { display: grid; gap: 8px; font-size: 12px; color: var(--muted); }
+.accounts-toolbar select { color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; min-height: 44px; padding: 9px 32px 9px 12px; font-size: 14px; }
+.accounts-toolbar > button { margin-left: auto; }
+.accounts-table-wrap { overflow-x: auto; }
+.accounts-table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+.accounts-table thead { background: light-dark(#E8E7E1, #1E2731); }
+.accounts-table th, .accounts-table td { border-bottom: 1px solid var(--rule); padding: 16px; vertical-align: middle; }
+.accounts-table thead th { font-size: 12px; color: var(--muted); font-weight: 600; }
+.accounts-table tbody th { font-weight: 400; overflow-wrap: anywhere; }
+.accounts-table tbody th small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+.accounts-table td:last-child { text-align: right; }
+.account-active, .account-inactive { font-size: 12px; white-space: nowrap; }
+.account-active { color: light-dark(#286344, #A8D3B7); }
+.account-inactive { color: var(--muted); }
+.account-action { color: var(--accent); min-height: 44px; padding: 8px 0 8px 12px; text-decoration: underline; text-underline-offset: 4px; font-size: 13px; }
+.account-action:disabled, .accounts-page button:disabled { opacity: .55; cursor: default; }
+.accounts-pagination { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-top: 20px; }
+.accounts-pagination p { color: var(--muted); font-size: 12px; }
+.accounts-pagination > div { display: flex; gap: 8px; }
+.accounts-policy { max-width: 650px; border-top: 1px solid var(--rule); margin-top: 48px; padding-top: 24px; }
+.accounts-policy h2 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.accounts-policy p { font-size: 13px; line-height: 1.8; color: var(--muted); margin-bottom: 12px; }
+.accounts-feedback { padding: 24px 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+.accounts-success { color: light-dark(#286344, #A8D3B7); font-size: 14px; padding: 8px 0 20px; overflow-wrap: anywhere; }
+.account-dialog-email { font-weight: 600; color: var(--ink) !important; overflow-wrap: anywhere; margin: 20px 0; }
+.account-self-warning { border-left: 2px solid var(--copper); padding-left: 12px; margin-top: 20px; }
+.accounts-page .access-error { margin-top: 20px; }
+@media (max-width: 600px) {
+  .accounts-toolbar { gap: 12px; }
+  .accounts-toolbar label { flex: 1; min-width: 130px; }
+  .accounts-toolbar > button { margin-left: 0; }
+  .accounts-table th, .accounts-table td { padding: 12px 8px; }
+  .accounts-table { min-width: 340px; }
+  .accounts-pagination { flex-wrap: wrap; }
+}
