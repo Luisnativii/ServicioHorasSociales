@@ -102,7 +102,7 @@ func TestErrorsAreGenericAndCorrelated(t *testing.T) {
 	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
 		t.Fatal(err)
 	}
-	if w.Code != 404 || body.Error.Code != "not_found" || body.Error.RequestID == "" || body.Error.RequestID != w.Header().Get("X-Request-ID") {
+	if w.Code != 401 || body.Error.Code != "unauthorized" || body.Error.RequestID == "" || body.Error.RequestID != w.Header().Get("X-Request-ID") {
 		t.Fatalf("respuesta: %s", w.Body.String())
 	}
 	for _, mode := range []string{"unknown code", "internal error", "encoding error"} {

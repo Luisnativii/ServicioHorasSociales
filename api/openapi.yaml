@@ -4,8 +4,9 @@ info:
   version: 0.0.1
   description: |
     Revisión inicial del contrato HTTP, independiente de la versión de la aplicación.
-    Solo las rutas de salud están implementadas. Los componentes de /api/v1
-    preparan los módulos posteriores; no representan CRUD ni autenticación existentes.
+    Solo las rutas de salud están implementadas y siguen públicas. El grupo /api/v1
+    exige una cookie JWT válida, incluso para rutas desconocidas. Los componentes
+    preparan los módulos posteriores; todavía no hay login ni CRUD de negocio.
     Todas las respuestas JSON usan Cache-Control no-store y X-Request-ID.
 paths:
   /api/health/live:
@@ -53,6 +54,12 @@ paths:
         '500':
           $ref: '#/components/responses/LegacyInternalError'
 components:
+  securitySchemes:
+    AdminCookie:
+      type: apiKey
+      in: cookie
+      name: hs_access
+      description: JWT HS256 de dos horas, validado por el grupo privado /api/v1. Sin emisión web todavía.
   headers:
     RequestID:
       description: Identificador de correlación de la petición

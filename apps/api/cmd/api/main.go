@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"horas-sociales/api/internal/config"
+	"horas-sociales/api/internal/platform/auth"
 	"horas-sociales/api/internal/platform/database"
 	httpserver "horas-sociales/api/internal/platform/http"
 )
@@ -38,6 +39,14 @@ func main() {
 }
 
 func run() error {
+	var tokens *auth.Tokens
+	if path := os.Getenv("JWT_KEY_FILE"); path != "" {
+		var err error
+		tokens, err = auth.LoadKey(path)
+		if err != nil {
+			return err
+		}
+	}
 	cfg, err := config.Load()
 	if err != nil {
 		return fmt.Errorf("configuración inválida: %s", err)
@@ -50,7 +59,7 @@ func run() error {
 	}
 	defer pool.Close()
 	srv := &http.Server{
-		Addr: ":8080", Handler: httpserver.Router(pool),
+		Addr: ":8080", Handler: httpserver.Router(pool, httpserver.Options{Tokens: tokens}),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second,
 		WriteTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second,
 	}
