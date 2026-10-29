@@ -6,7 +6,7 @@ info:
     Revisión inicial del contrato HTTP, independiente de la versión de la aplicación.
     Las rutas de salud y preparación CSRF están implementadas y son públicas.
     Las demás rutas del grupo /api/v1 exigen una cookie JWT válida; sus mutaciones
-    exigen Origin y prueba CSRF firmada ligada al JWT. Todavía no hay login ni CRUD.
+    exigen Origin y prueba CSRF firmada ligada al JWT. Las rutas de inicio de sesión y cierre de sesión ya están implementadas.
     Todas las respuestas JSON usan Cache-Control no-store y X-Request-ID.
 paths:
   /api/v1/auth/csrf:
@@ -92,6 +92,30 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+  /api/v1/auth/logout:
+    post:
+      operationId: postLogout
+      summary: Cerrar sesión eliminando cookies del navegador
+      description: |
+        Exige Origin exacto y prueba CSRF firmada, pero no un JWT vigente:
+        permite cerrar incluso cuando el token ya venció, siempre que se haya
+        preparado CSRF con antelación. Borra hs_access y hs_csrf con los mismos
+        atributos de emisión (HttpOnly, SameSite=Strict, Secure con HTTPS).
+        No invalida el JWT en servidor: una copia previa conserva validez hasta
+        vencer. No hay cierre remoto, revocación ni tabla de sesiones.
+      security: []
+      responses:
+        '204':
+          description: Cookies eliminadas; cuerpo vacío y Cache-Control no-store.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: hs_access y hs_csrf borradas con Max-Age=0 y Expires en el pasado; Path=/api y Path=/ respectivamente; SameSite=Strict.
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /api/v1/auth/me:
     get:
       operationId: getMe
