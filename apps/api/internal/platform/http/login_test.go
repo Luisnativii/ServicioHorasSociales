@@ -31,6 +31,31 @@ func (f buscadorFalso) FindByID(context.Context, pgtype.UUID) (admin.Administrat
 	return f.cuenta, f.err
 }
 
+func (f buscadorFalso) List(context.Context, int32, int64, ...bool) ([]admin.Administrator, error) {
+	if f.err != nil {
+		return nil, f.err
+	}
+	return []admin.Administrator{f.cuenta}, nil
+}
+
+func (f buscadorFalso) Count(context.Context) (int32, error) {
+	if f.err != nil {
+		return 0, f.err
+	}
+	return 1, nil
+}
+
+func (f buscadorFalso) SetActive(_ context.Context, id pgtype.UUID, activar bool) (admin.Administrator, error) {
+	if f.err != nil {
+		return admin.Administrator{}, f.err
+	}
+	if f.cuenta.ID != id {
+		return admin.Administrator{}, admin.ErrNotFound
+	}
+	f.cuenta.Activo = activar
+	return f.cuenta, nil
+}
+
 func idDePrueba() pgtype.UUID {
 	return pgtype.UUID{
 		Bytes: [16]byte{0xb1, 0x4f, 0x03, 0x25, 0x16, 0x40, 0x40, 0x14, 0xa0, 0x0e, 0x15, 0xb2, 0x49, 0xb7, 0x88, 0x66},

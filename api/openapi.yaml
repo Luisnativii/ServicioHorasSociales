@@ -138,6 +138,103 @@ paths:
                 $ref: '#/components/schemas/Identidad'
         '401':
           $ref: '#/components/responses/Unauthorized'
+  /api/v1/admin/cuentas:
+    get:
+      operationId: listarCuentas
+      summary: Listar cuentas de administrador con paginación
+      description: |
+        Devuelve las cuentas de administrador con su estado activo/inactivo.
+        No devuelve hashes de contraseña. Requiere JWT válido; no exige CSRF
+        porque es una consulta de solo lectura.
+      security:
+        - AdminCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200':
+          description: Listado de cuentas con metadatos de paginación.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListarCuentas'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/admin/cuentas/{id}/activar:
+    post:
+      operationId: activarCuenta
+      summary: Activar una cuenta de administrador
+      description: |
+        Activa una cuenta de administrador existente. Requiere JWT, Origin
+        exacto y prueba CSRF firmada. Desactivar la última cuenta activa o la
+        propia cuenta está permitido; no hay revocación de JWT emitidos.
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Identificador de la cuenta de administrador.
+      responses:
+        '200':
+          description: Cuenta activada.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cuenta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/admin/cuentas/{id}/desactivar:
+    post:
+      operationId: desactivarCuenta
+      summary: Desactivar una cuenta de administrador
+      description: |
+        Desactiva una cuenta de administrador existente. Una cuenta desactivada
+        no puede iniciar sesión, pero sus JWT emitidos conservan validez hasta
+        vencer. Requiere JWT, Origin exacto y prueba CSRF firmada.
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Identificador de la cuenta de administrador.
+      responses:
+        '200':
+          description: Cuenta desactivada.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cuenta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /api/health/live:
     get:
       operationId: getLiveness
@@ -213,6 +310,33 @@ components:
           type: string
           format: email
           description: Correo canónico de la cuenta autenticada.
+    Cuenta:
+      type: object
+      additionalProperties: false
+      required: [id, correo, activo]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identificador de la cuenta de administrador.
+        correo:
+          type: string
+          format: email
+          description: Correo canónico de la cuenta de administrador.
+        activo:
+          type: boolean
+          description: Indica si la cuenta puede iniciar sesión.
+    ListarCuentas:
+      type: object
+      additionalProperties: false
+      required: [cuentas, pagina]
+      properties:
+        cuentas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cuenta'
+        pagina:
+          $ref: '#/components/schemas/PageMetadata'
     HealthOK:
       type: object
       additionalProperties: false

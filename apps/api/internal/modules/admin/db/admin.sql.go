@@ -11,6 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countAdministradores = `-- name: CountAdministradores :one
+SELECT count(*)::int AS total FROM horas_sociales.administrador
+`
+
+func (q *Queries) CountAdministradores(ctx context.Context) (int32, error) {
+	row := q.db.QueryRow(ctx, countAdministradores)
+	var total int32
+	err := row.Scan(&total)
+	return total, err
+}
+
 const createAdministrador = `-- name: CreateAdministrador :one
 INSERT INTO horas_sociales.administrador (correo, contrasena_hash)
 VALUES ($1, $2)
@@ -75,11 +86,16 @@ func (q *Queries) GetAdministradorPorID(ctx context.Context, id pgtype.UUID) (Ho
 const listAdministradores = `-- name: ListAdministradores :many
 SELECT id, correo, activo, creado_en, actualizado_en
 FROM horas_sociales.administrador
-ORDER BY creado_en, id
-LIMIT $2::integer OFFSET $1::bigint
+ORDER BY
+  CASE WHEN $1::boolean THEN creado_en END DESC,
+  CASE WHEN $1::boolean THEN id END DESC,
+  CASE WHEN NOT $1::boolean THEN creado_en END ASC,
+  CASE WHEN NOT $1::boolean THEN id END ASC
+LIMIT $3::integer OFFSET $2::bigint
 `
 
 type ListAdministradoresParams struct {
+	Descendente    bool
 	Desplazamiento int64
 	Limite         int32
 }
@@ -93,7 +109,7 @@ type ListAdministradoresRow struct {
 }
 
 func (q *Queries) ListAdministradores(ctx context.Context, arg ListAdministradoresParams) ([]ListAdministradoresRow, error) {
-	rows, err := q.db.Query(ctx, listAdministradores, arg.Desplazamiento, arg.Limite)
+	rows, err := q.db.Query(ctx, listAdministradores, arg.Descendente, arg.Desplazamiento, arg.Limite)
 	if err != nil {
 		return nil, err
 	}
