@@ -1,0 +1,12 @@
+# Included by dc.sh only after the operator explicitly initializes the key.
+services:
+  api:
+    environment:
+      JWT_KEY_FILE: /run/secrets/hs-jwt.key
+    volumes:
+      - type: bind
+        source: ./.secrets/hs-dev-jwt.key
+        target: /run/secrets/hs-jwt.key
+        read_only: true
+        bind:
+          create_host_path: false

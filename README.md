@@ -128,6 +128,23 @@ bash scripts/admin.sh create --email tu-correo@tu-dominio --password-file .secre
 
 No se admite contraseña por argumento, variable de entorno ni pipe. El archivo de entrada se conserva: el operador gestiona su custodia. No hay comandos de reset, reactivación o revocación ni altas web en esta entrega. Crear cuentas no habilita todavía acceso por navegador; JWT, CSRF y login se implementan en sus siguientes issues.
 
+## Validación JWT administrativa
+
+Las rutas `/api/v1` quedan protegidas por defecto. Solo se acepta la cookie `hs_access`; no se leen tokens de URL, cuerpos ni cabeceras Authorization. Se verifica HS256, firma, issuer `horas-sociales-api`, audience `horas-sociales-web`, sujeto UUID y claims obligatorios iat/exp con duración exacta de dos horas. La tolerancia de reloj es 30 segundos para emisión y vencimiento. La identidad se transporta en el contexto de la petición. No se consultan sesiones ni se revocan tokens al desactivar una cuenta, conforme al contrato aceptado.
+
+Para preparar la clave local, ejecuta una sola vez (con la imagen web de desarrollo ya construida):
+
+```bash
+bash scripts/init-jwt-key.sh
+bash scripts/dc.sh up -d --build --wait --wait-timeout 180
+```
+
+El script genera 32 bytes aleatorios dentro de Docker en `.secrets/hs-dev-jwt.key`, con permisos 0600 y creación exclusiva. Repetirlo conserva la clave. No la imprime, no modifica `.env` y no crea cuentas. `dc.sh` monta únicamente ese archivo en solo lectura mediante `compose.jwt.yaml`; no monta el directorio completo de secretos en la API. Conservarlo entre arranques mantiene válidos los tokens emitidos. No hay clave predeterminada ni regeneración al iniciar.
+
+Sin clave configurada, salud sigue pública y el grupo privado deniega todo acceso. Si se configura `JWT_KEY_FILE` y el archivo es inválido, la API rechaza el arranque con un error genérico. El archivo debe ser regular, sin enlaces, de 32 bytes exactos y permisos 0400/0600, propiedad del usuario o de root y legible por el proceso. El montaje local respeta el UID del operador; otros entornos deberán montar su clave protegida explícitamente y definir `JWT_KEY_FILE`, sin reutilizar la clave local.
+
+Los módulos futuros se registran con `Options.RegisterPrivate` para heredar la protección. Todavía no existen rutas de login ni emisión de cookies: corresponden a #25/#26. No enviar tokens por JSON ni almacenarlos en localStorage. Referencia de la biblioteca: [validación JWT en Go](https://golang-jwt.github.io/jwt/usage/parse/).
+
 ## Detener, iniciar y conservar datos
 
 ```bash
@@ -213,6 +230,7 @@ tests/                           Alcance de integración
 | --- | --- |
 | Go | 1.27.3 |
 | chi / pgx | 5.5.0 / 5.11.0 |
+| golang-jwt/jwt v5 | 5.3.1 |
 | x/crypto / x/term | 0.58.0 / 0.47.0 |
 | x/text / x/sys (indirectas) | 0.43.0 / 0.49.0 |
 | Goose | 3.28.0 |
