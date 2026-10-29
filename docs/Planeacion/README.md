@@ -4,6 +4,8 @@ Este directorio conserva el plan original y organiza su ejecución en tareas peq
 
 ## Documentos
 
+- [Lógica de negocio recuperada](Logica_Negocio.md): consolidación histórica del 25 de octubre, publicada por solicitud del propietario; consultar su aviso de precedencia frente a decisiones posteriores.
+
 - [Relevo a otra IA y cola de 20 issues](RELEVO_OTRA_IA.md): instrucciones copiables, estado real, Git/Docker/PR y orden de continuación sin duplicar tareas.
 
 - [Plan original de 20 etapas](Plan_Programacion_IA_Horas_Sociales.md): fuente recibida; se conserva sin reescritura.

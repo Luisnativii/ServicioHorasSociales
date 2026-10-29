@@ -4,6 +4,8 @@ Revisión 1 · 26 de octubre de 2026 · America/Guatemala · Issue [#5](https://
 
 ## Estado de esta entrega
 
+**Incorporación posterior — 29 de octubre de 2026, #117:** el propietario solicitó publicar [Logica_Negocio.md](Logica_Negocio.md), antes conservado localmente. Se añade como fuente histórica con corte del 25 de octubre y aviso de precedencia; no altera retroactivamente la evidencia de #5 ni aprueba políticas/modelos sustituidos o pendientes. Los párrafos siguientes conservan el estado de la consolidación original.
+
 **CONFIRMADO:** el propietario indicó en esta sesión que la lógica de negocio ya fue revisada y coincide con el contexto disponible. Autorizó omitir la recuperación de la exportación `Logica_Negocio.md`.
 
 **PROPUESTA:** el [modelo nuevo](MODELO_DATOS_PROPUESTO.md) se presenta para revisión. La confirmación de la lógica no convierte sus nombres físicos, columnas, tipos, restricciones o alternativas en un esquema aprobado.
