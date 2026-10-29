@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(web): estructura administrativa Archivo (#32), navegación protegida, menú móvil, confirmación de salida y limpieza de vistas privadas ante caché de navegación.
+
 - feat(web): pantalla de acceso Archivo conectada a login y comprobación de identidad (#31), con errores genéricos, protección contra doble envío y rutas de entrada; salud local disponible en /estado.
 
 - feat(web): cliente central de sesión/CSRF, React Router y TanStack Query (#30), sin refresh ni reintentos automáticos; limpieza de datos privados al cambiar o vencer la sesión.

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSession } from '../../app/session';
 import { ApiError, NetworkError } from '../../lib/api';
+import { authorizedDestination } from '../../app/navigation';
 
 export function accessError(error: unknown): string {
   if (error instanceof NetworkError) return 'No pudimos conectar con el portal. Revisa tu conexión y vuelve a intentarlo.';
@@ -25,8 +26,13 @@ export default function Login() {
   const [error, setError] = useState('');
   const sending = useRef(false);
   const errorBox = useRef<HTMLParagraphElement>(null);
-  useEffect(() => { document.title = 'Iniciar sesión · Horas Sociales'; }, []);
+  useEffect(() => { document.title = 'Iniciar sesión · Horas Sociales'; }, [location.key]);
   useEffect(() => { if (error) errorBox.current?.focus(); }, [error]);
+  useEffect(() => {
+    const hide = () => { setPassword(''); setVisible(false); };
+    window.addEventListener('pagehide', hide);
+    return () => window.removeEventListener('pagehide', hide);
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,7 +42,7 @@ export default function Login() {
     catch (failure) { setError(accessError(failure)); }
     finally { setPassword(''); setVisible(false); sending.current = false; setSubmitting(false); }
   }
-  if (session.status === 'authenticated') return <Navigate to="/" replace />;
+  if (session.status === 'authenticated') return <Navigate to={authorizedDestination(location.state?.from)} replace />;
   const checking = session.status === 'loading' && !submitting;
   return <main className="archivo-access">
     <section className="access-intro" aria-label="Portal de Horas Sociales">
