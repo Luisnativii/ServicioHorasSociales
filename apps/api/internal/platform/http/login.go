@@ -22,6 +22,9 @@ import (
 type administradorBuscador interface {
 	FindByEmail(context.Context, string) (admin.Administrator, error)
 	FindByID(context.Context, pgtype.UUID) (admin.Administrator, error)
+	List(context.Context, int32, int64) ([]admin.Administrator, error)
+	Count(context.Context) (int32, error)
+	SetActive(context.Context, pgtype.UUID, bool) (admin.Administrator, error)
 }
 
 // hashPrueba se verifica siempre que el correo no exista, para que el costo

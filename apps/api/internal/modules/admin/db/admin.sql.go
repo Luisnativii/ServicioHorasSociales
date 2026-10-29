@@ -11,6 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countAdministradores = `-- name: CountAdministradores :one
+SELECT count(*)::int AS total FROM horas_sociales.administrador
+`
+
+func (q *Queries) CountAdministradores(ctx context.Context) (int32, error) {
+	row := q.db.QueryRow(ctx, countAdministradores)
+	var total int32
+	err := row.Scan(&total)
+	return total, err
+}
+
 const createAdministrador = `-- name: CreateAdministrador :one
 INSERT INTO horas_sociales.administrador (correo, contrasena_hash)
 VALUES ($1, $2)

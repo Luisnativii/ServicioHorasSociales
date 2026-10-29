@@ -108,6 +108,11 @@ func Router(db Pinger, options ...Options) http.Handler {
 		private.Group(func(protected chi.Router) {
 			protected.Use(RequireAdmin(config.Tokens), RequireCSRF(config.Browser))
 			protected.Get("/auth/me", meHandler(config.Buscador))
+			protected.Route("/admin/cuentas", func(cuentas chi.Router) {
+				cuentas.Get("/", listarCuentasHandler(config.Buscador))
+				cuentas.Post("/{id}/activar", cambiarEstadoHandler(config.Buscador, true))
+				cuentas.Post("/{id}/desactivar", cambiarEstadoHandler(config.Buscador, false))
+			})
 			if config.RegisterPrivate != nil {
 				config.RegisterPrivate(protected)
 			}

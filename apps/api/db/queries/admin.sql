@@ -20,3 +20,6 @@ UPDATE horas_sociales.administrador
 SET activo = $2, actualizado_en = now()
 WHERE id = $1
 RETURNING *;
+
+-- name: CountAdministradores :one
+SELECT count(*)::int AS total FROM horas_sociales.administrador;

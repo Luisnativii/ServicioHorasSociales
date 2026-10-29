@@ -92,6 +92,11 @@ func (r *Repository) List(ctx context.Context, limit int32, offset int64) ([]Adm
 	return result, nil
 }
 
+func (r *Repository) Count(ctx context.Context) (int32, error) {
+	total, err := r.queries.CountAdministradores(ctx)
+	return total, storageError(err)
+}
+
 func fromRow(row admindb.HorasSocialesAdministrador) Administrator {
 	return Administrator{row.ID, row.Correo, row.ContrasenaHash, row.Activo, row.CreadoEn.Time, row.ActualizadoEn.Time}
 }
