@@ -100,6 +100,10 @@ func Router(db Pinger, options ...Options) http.Handler {
 		private.Group(func(sesion chi.Router) {
 			sesion.Use(RequireCSRF(config.Browser))
 			sesion.Post("/auth/login", loginHandler(config.Buscador, config.Limiter, config.Tokens, config.Browser))
+			// Logout borra las cookies incluso con JWT vencido; no requiere
+			// sesión válida, solo la prueba CSRF vinculada al JWT (o al vacío
+			// cuando el token expiró y se preparó CSRF de nuevo).
+			sesion.Post("/auth/logout", logoutHandler(config.Browser))
 		})
 		private.Group(func(protected chi.Router) {
 			protected.Use(RequireAdmin(config.Tokens), RequireCSRF(config.Browser))
