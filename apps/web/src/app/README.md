@@ -1,6 +1,8 @@
 # Sesión y transporte
 
-`main.tsx` instala BrowserRouter, QueryClientProvider y SessionProvider. La pantalla de salud sigue disponible; #31 implementa acceso y #32 el layout Archivo. No hay pantallas de negocio simuladas.
+`main.tsx` instala BrowserRouter, QueryClientProvider y SessionProvider. `/login` ofrece acceso real con Archivo; `/` confirma la identidad de una sesión autenticada y redirige al acceso cuando falta sesión. Las rutas aún no implementadas vuelven a esa entrada. La pantalla de salud se conserva en `/estado`; #32 implementa el layout administrativo. No hay pantallas de negocio simuladas.
+
+Login conserva correo ante errores y limpia la contraseña al terminar cada intento; no hay recuperación ni alta web. Solo entra después de confirmar `/auth/me` con la cookie recibida. Los controles tienen etiquetas, autocompletado apropiado, foco visible, error genérico y bloqueo de doble envío. El diseño sigue la apariencia del sistema, con la paleta Archivo clara/oscura y formulario de una columna en móvil. La entrada autenticada es deliberadamente mínima hasta #32.
 
 `session.tsx` expone `useSession()` con estado `loading`, `anonymous`, `authenticated` o `error`, identidad `{id, correo}` y acciones `login`, `logout`, `validate`. Login/logout esperan al backend real y no reintentan; rechazan una segunda operación de acceso simultánea. Los componentes de #31 deben capturar los errores de las acciones y conservar entradas conforme a sus contratos.
 
