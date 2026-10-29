@@ -8,6 +8,8 @@ El código está directamente en la raíz de `develop`, rama predeterminada. `ma
 
 Empieza por [la guía de issues, ramas, PR y versiones](docs/GITFLOW.md). Una tarea se transforma en `tipo/NUMERO-descripcion` al marcar su issue con `status:ready`.
 
+Para continuar con OpenCode u otra IA, usa [la guía de relevo y próximos 20 issues](docs/Planeacion/RELEVO_OTRA_IA.md). Incluye el estado real, decisiones del propietario, actualización desde GitHub y entrega por PR sin alterar el flujo.
+
 ## Preparar y arrancar
 
 En macOS abre Docker Desktop. En Ubuntu inicia Docker Engine con el plugin Compose; en Windows usa Bash dentro de Ubuntu/WSL2 con la integración de Docker Desktop activada. Trabaja desde la raíz de este repositorio, sin `sudo` si Docker ya está accesible al usuario.

@@ -1,5 +1,7 @@
 # Contexto breve para ejecutar un issue con IA
 
+Para continuar desde otro agente, consultar [Relevo y cola de 20 issues](RELEVO_OTRA_IA.md). Incluye el estado al 29 de octubre, actualización desde GitHub, operación Docker y decisiones recientes; verificar siempre el estado vivo antes de actuar.
+
 Este archivo es una instrucción de trabajo acotada, no una orden de implementar todo el backlog.
 
 1. Lee `AGENTS.md`, `docs/GITFLOW.md`, `docs/Planeacion/DECISIONES_VIGENTES.md` y el issue concreto. Consulta las reglas pertinentes en `REGLAS_CONSOLIDADAS.md` y su procedencia en `FUENTES_Y_TRAZABILIDAD.md`. `MODELO_DATOS_PROPUESTO.md` es un diseño nuevo pendiente de revisión, no SQL aprobado ni el v0.2 recuperado. Después consulta solo la etapa original necesaria; evita volver a cargar las 20 etapas en cada sesión.

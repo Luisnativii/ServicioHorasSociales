@@ -4,6 +4,8 @@ Este directorio conserva el plan original y organiza su ejecución en tareas peq
 
 ## Documentos
 
+- [Relevo a otra IA y cola de 20 issues](RELEVO_OTRA_IA.md): instrucciones copiables, estado real, Git/Docker/PR y orden de continuación sin duplicar tareas.
+
 - [Plan original de 20 etapas](Plan_Programacion_IA_Horas_Sociales.md): fuente recibida; se conserva sin reescritura.
 - [Aclaraciones vigentes](DECISIONES_VIGENTES.md): un rol ADMIN, múltiples cuentas y prioridad de las decisiones recientes.
 - [Contrato de acceso aceptado](CONTRATO_ACCESO.md): dos horas, contraseña sencilla hasheada, JWT sin recuperación/revocación y bloque mínimo de identidad aprobado para #21.
