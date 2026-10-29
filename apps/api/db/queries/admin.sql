@@ -12,7 +12,11 @@ SELECT * FROM horas_sociales.administrador WHERE id = $1;
 -- name: ListAdministradores :many
 SELECT id, correo, activo, creado_en, actualizado_en
 FROM horas_sociales.administrador
-ORDER BY creado_en, id
+ORDER BY
+  CASE WHEN sqlc.arg(descendente)::boolean THEN creado_en END DESC,
+  CASE WHEN sqlc.arg(descendente)::boolean THEN id END DESC,
+  CASE WHEN NOT sqlc.arg(descendente)::boolean THEN creado_en END ASC,
+  CASE WHEN NOT sqlc.arg(descendente)::boolean THEN id END ASC
 LIMIT sqlc.arg(limite)::integer OFFSET sqlc.arg(desplazamiento)::bigint;
 
 -- name: SetAdministradorActivo :one

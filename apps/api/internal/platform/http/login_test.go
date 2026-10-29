@@ -31,7 +31,7 @@ func (f buscadorFalso) FindByID(context.Context, pgtype.UUID) (admin.Administrat
 	return f.cuenta, f.err
 }
 
-func (f buscadorFalso) List(context.Context, int32, int64) ([]admin.Administrator, error) {
+func (f buscadorFalso) List(context.Context, int32, int64, ...bool) ([]admin.Administrator, error) {
 	if f.err != nil {
 		return nil, f.err
 	}

@@ -86,11 +86,16 @@ func (q *Queries) GetAdministradorPorID(ctx context.Context, id pgtype.UUID) (Ho
 const listAdministradores = `-- name: ListAdministradores :many
 SELECT id, correo, activo, creado_en, actualizado_en
 FROM horas_sociales.administrador
-ORDER BY creado_en, id
-LIMIT $2::integer OFFSET $1::bigint
+ORDER BY
+  CASE WHEN $1::boolean THEN creado_en END DESC,
+  CASE WHEN $1::boolean THEN id END DESC,
+  CASE WHEN NOT $1::boolean THEN creado_en END ASC,
+  CASE WHEN NOT $1::boolean THEN id END ASC
+LIMIT $3::integer OFFSET $2::bigint
 `
 
 type ListAdministradoresParams struct {
+	Descendente    bool
 	Desplazamiento int64
 	Limite         int32
 }
@@ -104,7 +109,7 @@ type ListAdministradoresRow struct {
 }
 
 func (q *Queries) ListAdministradores(ctx context.Context, arg ListAdministradoresParams) ([]ListAdministradoresRow, error) {
-	rows, err := q.db.Query(ctx, listAdministradores, arg.Desplazamiento, arg.Limite)
+	rows, err := q.db.Query(ctx, listAdministradores, arg.Descendente, arg.Desplazamiento, arg.Limite)
 	if err != nil {
 		return nil, err
 	}

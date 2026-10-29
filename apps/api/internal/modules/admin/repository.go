@@ -77,11 +77,12 @@ func (r *Repository) SetActive(ctx context.Context, id pgtype.UUID, active bool)
 	return fromRow(row), storageError(err)
 }
 
-func (r *Repository) List(ctx context.Context, limit int32, offset int64) ([]Administrator, error) {
+func (r *Repository) List(ctx context.Context, limit int32, offset int64, descending ...bool) ([]Administrator, error) {
 	if limit < 1 || limit > 100 || offset < 0 {
 		return nil, ErrPagination
 	}
-	rows, err := r.queries.ListAdministradores(ctx, admindb.ListAdministradoresParams{Limite: limit, Desplazamiento: offset})
+	desc := len(descending) > 0 && descending[0]
+	rows, err := r.queries.ListAdministradores(ctx, admindb.ListAdministradoresParams{Limite: limit, Desplazamiento: offset, Descendente: desc})
 	if err != nil {
 		return nil, storageError(err)
 	}

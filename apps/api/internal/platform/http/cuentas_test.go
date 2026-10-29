@@ -184,6 +184,19 @@ func TestActivarCuentaIDInvalido(t *testing.T) {
 	}
 }
 
+func TestEstadoCuentaErrorAlmacenamiento(t *testing.T) {
+	id := idDePrueba()
+	for _, action := range []string{"activar", "desactivar"} {
+		tokens, browser, router := routerDePrueba(t, buscadorFalso{err: admin.ErrStorage}, nil)
+		acceso := tokenValido(t, tokens, id)
+		csrf := prepararCSRFConAcceso(t, browser, router, acceso)
+		w := peticionCuentas(t, router, "POST", "/api/v1/admin/cuentas/"+id.String()+"/"+action, acceso, csrf)
+		if w.Code != http.StatusInternalServerError {
+			t.Fatalf("fallo de almacenamiento en %s: %d", action, w.Code)
+		}
+	}
+}
+
 func parseJSON(cuerpo []byte, dst any) error {
 	return json.Unmarshal(cuerpo, dst)
 }

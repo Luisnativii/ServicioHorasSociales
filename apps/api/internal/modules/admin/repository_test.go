@@ -108,6 +108,19 @@ func TestRepositoryPostgreSQL(t *testing.T) {
 	if err != nil || len(page) < 2 {
 		t.Fatal("listado incompleto")
 	}
+	reversed, err := repository.List(ctx, 100, 0, true)
+	if err != nil || len(reversed) != len(page) {
+		t.Fatal("listado descendente incompleto")
+	}
+	for i := range page {
+		if page[i].ID != reversed[len(page)-1-i].ID {
+			t.Fatal("orden descendente no invierte el orden estable")
+		}
+	}
+	slice, err := repository.List(ctx, 1, 1, true)
+	if err != nil || len(slice) != 1 || slice[0].ID != reversed[1].ID {
+		t.Fatal("paginación descendente incorrecta")
+	}
 	for _, item := range page {
 		if item.ContrasenaHash != "" {
 			t.Fatal("el listado no debe consultar hashes")

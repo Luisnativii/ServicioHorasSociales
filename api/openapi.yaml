@@ -175,7 +175,7 @@ paths:
         propia cuenta está permitido; no hay revocación de JWT emitidos.
       security:
         - AdminCookie: []
-        - CSRFHeader: []
+          CSRFHeader: []
       parameters:
         - in: path
           name: id
@@ -210,7 +210,7 @@ paths:
         vencer. Requiere JWT, Origin exacto y prueba CSRF firmada.
       security:
         - AdminCookie: []
-        - CSRFHeader: []
+          CSRFHeader: []
       parameters:
         - in: path
           name: id

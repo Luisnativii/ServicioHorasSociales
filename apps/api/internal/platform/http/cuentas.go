@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
@@ -47,7 +48,7 @@ func listarCuentasHandler(buscar administradorBuscador) http.HandlerFunc {
 			return
 		}
 
-		cuentas, err := buscar.List(ctx, int32(paginacion.PageSize), paginacion.Offset)
+		cuentas, err := buscar.List(ctx, int32(paginacion.PageSize), paginacion.Offset, paginacion.Descending)
 		if err != nil {
 			WriteError(w, r, "internal_error")
 			return
@@ -102,7 +103,11 @@ func cambiarEstadoHandler(buscar administradorBuscador, activar bool) http.Handl
 		}
 
 		if _, err := buscar.FindByID(ctx, id); err != nil {
-			WriteError(w, r, "not_found")
+			if errors.Is(err, admin.ErrNotFound) {
+				WriteError(w, r, "not_found")
+			} else {
+				WriteError(w, r, "internal_error")
+			}
 			return
 		}
 
