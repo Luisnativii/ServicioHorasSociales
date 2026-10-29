@@ -173,7 +173,7 @@ Después siguen #39–#43, instituciones, estudiantes, proyectos, participacione
 
 ## Pasar la carpeta y coordinar agentes
 
-- En el mismo equipo, abrir la carpeta raíz existente y conservar `.git` para ver historial/ramas. El documento local `docs/Planeacion/Logica_Negocio.md` está sin versionar y pertenece al propietario: no agregarlo ni eliminarlo automáticamente.
+- En el mismo equipo, abrir la carpeta raíz existente y conservar `.git` para ver historial/ramas. [Logica_Negocio.md](Logica_Negocio.md) se incorporó posteriormente por solicitud expresa del propietario en #117. Es una consolidación histórica del 25 de octubre: leer su aviso de precedencia y no usarla para restaurar requisitos sustituidos. Conservar los documentos y cambios locales del propietario.
 - Los volúmenes Docker **no viajan dentro de la carpeta**. En otro equipo, clonar trae código, no la base real. Para datos existentes hace falta respaldo/restauración acordados; no afirmar que copiar `.env` importa la base.
 - No pegar `.env`, claves, hashes, cookies o tokens en prompts ni subir una carpeta comprimida con secretos a una IA remota. Un agente local puede usar la configuración para ejecutar el proyecto sin mostrarla en la conversación. Los secretos permanecen fuera de Git e imágenes.
 - No ejecutar dos agentes escribiendo en la misma rama/carpeta, ni dos pruebas sobre el mismo `hs-test`. Terminar/guardar una entrega y hacer relevo explícito. No mezclar una tarea de otro agente en un commit propio.
