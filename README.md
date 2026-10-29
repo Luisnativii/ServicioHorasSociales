@@ -128,7 +128,7 @@ Para una automatización local, prepara por un medio seguro un archivo bajo `.se
 bash scripts/admin.sh create --email tu-correo@tu-dominio --password-file .secrets/admin-password
 ```
 
-No se admite contraseña por argumento, variable de entorno ni pipe. El archivo de entrada se conserva: el operador gestiona su custodia. No hay comandos de reset, reactivación o revocación ni altas web en esta entrega. Crear cuentas no habilita todavía acceso por navegador; el endpoint de login sigue pendiente en #26.
+No se admite contraseña por argumento, variable de entorno ni pipe. El archivo de entrada se conserva: el operador gestiona su custodia. No hay comandos de reset, reactivación o revocación ni altas web. Login/logout ya tienen endpoints; la pantalla de acceso por navegador corresponde a #31.
 
 ## Validación JWT administrativa
 
@@ -241,6 +241,8 @@ tests/                           Alcance de integración
 
 ## Versiones fijadas
 
+La infraestructura de sesión del frontend se describe en [apps/web/src/app/README.md](apps/web/src/app/README.md): cliente HTTP, cookies/CSRF, estado de identidad y cachés privadas, sin refresh ni reintentos automáticos. El #30 instala sus proveedores; las pantallas de acceso y layout siguen en #31/#32. Las comprobaciones específicas se ejecutan con `npm run test:session` dentro de Docker y forman parte de `scripts/check.sh`.
+
 | Componente | Versión |
 | --- | --- |
 | Go | 1.27.3 |
@@ -252,6 +254,7 @@ tests/                           Alcance de integración
 | PostgreSQL | 18.6 (bookworm) |
 | Node / npm | 22.23.4 / 10.9.9 (incluido en la imagen) |
 | React / React DOM | 19.3.1 |
+| React Router DOM / TanStack React Query | 7.18.5 / 5.105.0 |
 | Vite / plugin React | 7.3.7 / 5.2.0 |
 | TypeScript | 5.9.3 |
 | Tailwind / plugin Vite | 4.3.3 |

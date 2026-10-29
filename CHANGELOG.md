@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(web): cliente central de sesión/CSRF, React Router y TanStack Query (#30), sin refresh ni reintentos automáticos; limpieza de datos privados al cambiar o vencer la sesión.
+
 - feat(auth): administrar cuentas ADMIN (#29): GET /api/v1/admin/cuentas (listado con paginación) y POST /api/v1/admin/cuentas/{id}/activar y /desactivar, con JWT y CSRF en mutaciones, registro de actor en logs sin secretos, y rutas documentadas en OpenAPI.
 - feat(auth): cerrar sesión eliminando cookies (#28): POST /api/v1/auth/logout con CSRF y origen, borra hs_access y hs_csrf con los mismos atributos de emisión, funciona con JWT vencido sin revocación ni tabla de sesiones, y rutas documentadas en OpenAPI.
 - feat(auth): login y consulta de identidad (#26): POST /api/v1/auth/login y GET /api/v1/auth/me con cookies reales hs_access y hs_csrf, verificación Argon2id, errores genéricos, control de intentos por IP con 429 y Retry-After, y rutas documentadas en OpenAPI.

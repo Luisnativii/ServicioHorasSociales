@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "outDir": "/tmp/hs-web-session-tests",
+    "rootDir": "src"
+  },
+  "include": ["src/lib/api.ts", "src/app/session.tsx"]
+}
