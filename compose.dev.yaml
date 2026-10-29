@@ -8,6 +8,7 @@ services:
       GOCACHE: /tmp/go-cache
       GOPATH: /tmp/go
       GOMODCACHE: /go/pkg/mod
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:8080}
     volumes:
       - ./apps/api:/workspace/apps/api:ro
       - ./scripts:/workspace/scripts:ro

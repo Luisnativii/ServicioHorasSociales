@@ -4,11 +4,44 @@ info:
   version: 0.0.1
   description: |
     Revisión inicial del contrato HTTP, independiente de la versión de la aplicación.
-    Solo las rutas de salud están implementadas y siguen públicas. El grupo /api/v1
-    exige una cookie JWT válida, incluso para rutas desconocidas. Los componentes
-    preparan los módulos posteriores; todavía no hay login ni CRUD de negocio.
+    Las rutas de salud y preparación CSRF están implementadas y son públicas.
+    Las demás rutas del grupo /api/v1 exigen una cookie JWT válida; sus mutaciones
+    exigen Origin y prueba CSRF firmada ligada al JWT. Todavía no hay login ni CRUD.
     Todas las respuestas JSON usan Cache-Control no-store y X-Request-ID.
 paths:
+  /api/v1/auth/csrf:
+    get:
+      operationId: prepareCSRF
+      summary: Preparar cookie CSRF antes del login o para el JWT vigente
+      description: |
+        Devuelve solo la cookie legible hs_csrf, nunca el JWT en JSON.
+        Copiar su valor a X-CSRF-Token en mutaciones, junto con Origin exacto.
+        Sin JWT válido prepara una prueba de prelogin; con JWT válido la liga
+        a ese token. No renueva el acceso. Tras expirar, volver a preparar la
+        prueba antes del futuro logout. No habilita CORS con credenciales.
+      security: []
+      responses:
+        '204':
+          description: Cookie preparada; cuerpo vacío y Cache-Control no-store.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: hs_csrf; Path=/; SameSite=Strict; Max-Age=7200; Secure con HTTPS; sin Domain ni HttpOnly.
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+        '403':
+          description: Origen/Host no permitido o cookies ambiguas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Clave u origen no configurados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/health/live:
     get:
       operationId: getLiveness
@@ -55,6 +88,11 @@ paths:
           $ref: '#/components/responses/LegacyInternalError'
 components:
   securitySchemes:
+    CSRFHeader:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: Debe coincidir con hs_csrf y tener firma válida ligada al JWT para mutaciones autenticadas. Origin exacto también es obligatorio.
     AdminCookie:
       type: apiKey
       in: cookie
@@ -97,7 +135,7 @@ components:
           properties:
             code:
               type: string
-              enum: [invalid_json, invalid_pagination, bad_request, unauthorized, forbidden, not_found, method_not_allowed, conflict, payload_too_large, unsupported_media_type, internal_error]
+              enum: [invalid_json, invalid_pagination, bad_request, unauthorized, forbidden, not_found, method_not_allowed, conflict, payload_too_large, unsupported_media_type, internal_error, service_unavailable]
             message:
               type: string
             request_id:

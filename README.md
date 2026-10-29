@@ -126,7 +126,7 @@ Para una automatización local, prepara por un medio seguro un archivo bajo `.se
 bash scripts/admin.sh create --email tu-correo@tu-dominio --password-file .secrets/admin-password
 ```
 
-No se admite contraseña por argumento, variable de entorno ni pipe. El archivo de entrada se conserva: el operador gestiona su custodia. No hay comandos de reset, reactivación o revocación ni altas web en esta entrega. Crear cuentas no habilita todavía acceso por navegador; JWT, CSRF y login se implementan en sus siguientes issues.
+No se admite contraseña por argumento, variable de entorno ni pipe. El archivo de entrada se conserva: el operador gestiona su custodia. No hay comandos de reset, reactivación o revocación ni altas web en esta entrega. Crear cuentas no habilita todavía acceso por navegador; el endpoint de login sigue pendiente en #26.
 
 ## Validación JWT administrativa
 
@@ -143,7 +143,20 @@ El script genera 32 bytes aleatorios dentro de Docker en `.secrets/hs-dev-jwt.ke
 
 Sin clave configurada, salud sigue pública y el grupo privado deniega todo acceso. Si se configura `JWT_KEY_FILE` y el archivo es inválido, la API rechaza el arranque con un error genérico. El archivo debe ser regular, sin enlaces, de 32 bytes exactos y permisos 0400/0600, propiedad del usuario o de root y legible por el proceso. El montaje local respeta el UID del operador; otros entornos deberán montar su clave protegida explícitamente y definir `JWT_KEY_FILE`, sin reutilizar la clave local.
 
-Los módulos futuros se registran con `Options.RegisterPrivate` para heredar la protección. Todavía no existen rutas de login ni emisión de cookies: corresponden a #25/#26. No enviar tokens por JSON ni almacenarlos en localStorage. Referencia de la biblioteca: [validación JWT en Go](https://golang-jwt.github.io/jwt/usage/parse/).
+Los módulos futuros se registran con `Options.RegisterPrivate` para heredar JWT y CSRF. Todavía no existen rutas de login (#26). No enviar JWT por JSON ni almacenarlos en localStorage. Referencia de la biblioteca: [validación JWT en Go](https://golang-jwt.github.io/jwt/usage/parse/).
+
+### Cookies, origen y CSRF
+
+`APP_ORIGIN` define un único origen exacto, sin ruta ni barra final. Producción exige HTTPS; HTTP se admite exclusivamente para `localhost` o `127.0.0.1`. Compose de desarrollo usa `http://localhost:8080`; para usar la otra dirección hay que configurar explícitamente el origen y abrir el portal con esa dirección. El origen nunca se infiere de `X-Forwarded-*`. Con clave JWT configurada, un origen inválido impide arrancar. Sin clave, la preparación CSRF responde 503 y las rutas privadas siguen cerradas.
+
+El intercambio implementado es:
+
+1. `GET /api/v1/auth/csrf` devuelve 204 vacío, `Cache-Control: no-store` y cookie `hs_csrf`. Sin JWT prepara una prueba de prelogin; con JWT válido la vincula a ese JWT. No extiende su vencimiento.
+2. En cada POST/PUT/PATCH/DELETE, enviar `Origin` igual a `APP_ORIGIN` y `X-CSRF-Token` con el valor de `hs_csrf`. El grupo privado exige primero JWT y después verifica origen, coincidencia cookie/cabecera y firma HMAC-SHA256. La clave CSRF se deriva de la clave JWT con separación de propósito; incluye nonce aleatorio, fecha y vinculación al JWT. No hay tabla de sesiones. Las cookies/cabeceras duplicadas se rechazan.
+3. El futuro login (#26) usará `Browser.SetSession`: cookie `hs_access` HttpOnly, Path=/api, SameSite=Strict, Max-Age=7200, sin Domain; rota la prueba CSRF para vincularla al nuevo JWT. La cookie CSRF usa Path=/ para que el frontend pueda leerla y no es HttpOnly. Ambas usan Secure con HTTPS; solo el origen HTTP local aceptado permite omitirlo.
+4. Para el futuro logout (#28), incluso tras vencer el JWT, volver a obtener CSRF y enviarlo con Origin. `Browser.ClearSession` elimina ambas cookies con sus mismos atributos/rutas. No revoca copias del JWT ni renueva sesiones. Los helpers ya están disponibles; login/logout todavía no tienen endpoints.
+
+CSRF caduca a las dos horas con 30 segundos de tolerancia de reloj. Una prueba de prelogin no autoriza mutaciones con JWT y una prueba vinculada a un JWT no se puede reutilizar con otro. Una mutación sin prueba válida devuelve 403 sin ejecutar el handler. No hay CORS genérico ni aceptación de Origin ausente, `null` o exterior. La preparación GET admite Origin ausente, pero exige Host configurado y rechaza Origin exterior o `Sec-Fetch-Site: cross-site`. Referencia: [doble envío firmado de OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#signed-double-submit-cookie-recommended).
 
 ## Detener, iniciar y conservar datos
 
