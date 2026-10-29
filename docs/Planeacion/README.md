@@ -38,3 +38,7 @@ Las tareas permanecen en backlog hasta decidir ejecutarlas. Las decisiones y la 
 El trabajo previo se acredita en #1 y la validación manual inicial sigue en #2. No se crean otra vez esas tareas ni se agregan otras 300 horas al presupuesto. Los hitos no fijan fechas ni afirman tiempo ya trabajado.
 
 La versión se rige por [GitFlow](../GITFLOW.md), no por las etiquetas de ejemplo del plan antiguo. `main` sigue reservada con README; esta documentación se prepara mediante PR hacia `develop`.
+
+## Identidad visual
+
+[Archivo](IDENTIDAD_VISUAL.md) es la dirección elegida el 28 de octubre. El alta de estudiante se presenta en una página independiente del listado; consultar la guía antes de #31/#32/#57.
