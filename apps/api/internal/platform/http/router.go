@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"horas-sociales/api/internal/platform/auth"
+	"horas-sociales/api/internal/platform/ratelimit"
 )
 
 type Pinger interface{ Ping(context.Context) error }
@@ -32,6 +33,11 @@ func routeError(w http.ResponseWriter, r *http.Request, status int, code string)
 type Options struct {
 	Tokens  *auth.Tokens
 	Browser *auth.Browser
+	// Buscador recupera cuentas de administrador para login y me.
+	Buscador administradorBuscador
+	// Limiter controla intentos fallidos de inicio de sesión por IP; nil usa
+	// el predeterminado: cinco fallos por IP en cinco minutos.
+	Limiter *ratelimit.Limiter
 	// RegisterPrivate mounts future business handlers inside the protected group.
 	RegisterPrivate func(chi.Router)
 }
@@ -42,6 +48,9 @@ func Router(db Pinger, options ...Options) http.Handler {
 		config = options[0]
 	}
 	r := chi.NewRouter()
+	if config.Limiter == nil {
+		config.Limiter = ratelimit.NewLimiter(5, 5*time.Minute, 4096)
+	}
 	r.Use(middleware.RequestID)
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -87,8 +96,14 @@ func Router(db Pinger, options ...Options) http.Handler {
 			}
 			w.WriteHeader(http.StatusNoContent)
 		})
+		// Sesión: login rota cookies reales sin JWT previo; exige CSRF y origen.
+		private.Group(func(sesion chi.Router) {
+			sesion.Use(RequireCSRF(config.Browser))
+			sesion.Post("/auth/login", loginHandler(config.Buscador, config.Limiter, config.Tokens, config.Browser))
+		})
 		private.Group(func(protected chi.Router) {
 			protected.Use(RequireAdmin(config.Tokens), RequireCSRF(config.Browser))
+			protected.Get("/auth/me", meHandler(config.Buscador))
 			if config.RegisterPrivate != nil {
 				config.RegisterPrivate(protected)
 			}
