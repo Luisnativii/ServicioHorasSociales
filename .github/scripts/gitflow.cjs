@@ -20,6 +20,62 @@ function bump(tag, level = 'patch') {
   throw new Error('Incremento de versión inválido');
 }
 function labelsOf(item) { return (item.labels || []).map(label => typeof label === 'string' ? label : label.name); }
+const dependencyExceptionMarker = '<!-- hs:dependency-gate:exempt -->';
+
+function dependencyException(issue) {
+  const labels = labelsOf(issue);
+  const documentationOrTracking = labels.includes('type:docs') || labels.includes('area:planning');
+  return documentationOrTracking && (issue.body || '').includes(dependencyExceptionMarker);
+}
+
+function acceptedDecisionDependencies(issue) {
+  const accepted = new Set();
+  const pattern = /<!--\s*hs:dependency-gate:accepted\s+#([1-9]\d*)\s*-->/g;
+  for (const match of (issue.body || '').matchAll(pattern)) accepted.add(Number(match[1]));
+  return accepted;
+}
+
+async function blockedBy(github, repo, issueNumber) {
+  const dependencies = [];
+  for (let page = 1; ; page += 1) {
+    const response = await github.request('GET /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by', {
+      ...repo,
+      issue_number: issueNumber,
+      per_page: 100,
+      page,
+      headers: { 'X-GitHub-Api-Version': '2022-11-28' },
+    });
+    dependencies.push(...response.data);
+    if (response.data.length < 100) return dependencies;
+  }
+}
+
+function dependencyProblem(issue) {
+  const labels = labelsOf(issue);
+  if (issue.state !== 'closed') return 'sigue abierta';
+  if (issue.state_reason === 'not_planned') return 'se cerró como no planificada';
+  if (!labels.includes('status:done')) return 'está cerrada sin criterio de entrega status:done';
+  if (labels.includes('needs:decision')) return 'conserva una decisión pendiente';
+  return null;
+}
+
+async function validateDependencies(github, repo, issue) {
+  let dependencies;
+  try {
+    dependencies = await blockedBy(github, repo, issue.number);
+  } catch (error) {
+    throw new Error(`No se pudieron comprobar las dependencias de #${issue.number}; se bloquea por seguridad: ${error.message}`);
+  }
+  if (dependencyException(issue)) return dependencies;
+  const acceptedDecisions = acceptedDecisionDependencies(issue);
+  const blockers = dependencies.map(dependency => ({ dependency, problem: dependencyProblem(dependency) }))
+    .filter(item => item.problem && !(item.problem === 'conserva una decisión pendiente' && acceptedDecisions.has(item.dependency.number)));
+  if (blockers.length) {
+    const detail = blockers.map(({ dependency, problem }) => `#${dependency.number} ${problem}`).join('; ');
+    throw new Error(`Dependencias pendientes de #${issue.number}: ${detail}`);
+  }
+  return dependencies;
+}
 function issueType(issue) {
   const selected = labelsOf(issue).filter(label => label.startsWith('type:'));
   if (selected.length !== 1 || !Object.hasOwn(types, selected[0].slice(5))) throw new Error('Selecciona exactamente una etiqueta type: válida');
@@ -71,6 +127,7 @@ async function planVersion({ github, context }) {
     if (!match) throw new Error('La rama debe comenzar con tipo/NUMERO-');
     const issue = (await github.rest.issues.get({ ...repo, issue_number: Number(match[1]) })).data;
     const { level } = validatePullRequest(pr, issue);
+    await validateDependencies(github, repo, issue);
     const tag = bump(previous, level);
     return { tag, version: tag.slice(1), release: false, previous };
   }
@@ -135,6 +192,7 @@ async function manageIssue({ github, context, core }) {
   if (context.payload.label?.name !== 'status:ready' || issue.state !== 'open') return;
   const permission = (await github.rest.repos.getCollaboratorPermissionLevel({ ...repo, username: context.actor })).data.permission;
   if (!['admin', 'maintain', 'write'].includes(permission)) throw new Error('Solo colaboradores con escritura pueden iniciar una tarea');
+  await validateDependencies(github, repo, issue);
   const desired = branchForIssue(issue);
   const type = issueType(issue);
   const existing = await github.paginate(github.rest.git.listMatchingRefs, { ...repo, ref: `heads/${type}/${issue.number}-` });
@@ -154,4 +212,4 @@ async function manageIssue({ github, context, core }) {
   else await github.rest.issues.createComment({ ...repo, issue_number: issue.number, body });
   core.info(`Rama de trabajo: ${branch}`);
 }
-module.exports = { parseTag, compareTags, bump, branchForIssue, versionLevel, validatePullRequest, planVersion, publishVersion, manageIssue };
+module.exports = { parseTag, compareTags, bump, branchForIssue, versionLevel, validatePullRequest, validateDependencies, planVersion, publishVersion, manageIssue };

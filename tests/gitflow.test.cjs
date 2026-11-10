@@ -1,7 +1,7 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { parseTag, compareTags, bump, branchForIssue, validatePullRequest, planVersion, publishVersion } = require('../.github/scripts/gitflow.cjs');
+const { parseTag, compareTags, bump, branchForIssue, validatePullRequest, validateDependencies, planVersion, publishVersion } = require('../.github/scripts/gitflow.cjs');
 const issue = { number: 12, state: 'open', title: 'Definir conexión y validación', labels: [{ name: 'type:feature' }] };
 const pull = () => ({ number: 25, title: 'feat(api): definir conexión (#12)', body: '## Cambio\nDescripción\n\nCloses #12\n', base: { ref: 'develop' }, head: { ref: 'feature/12-definir-conexion-y-validacion' }, labels: [{ name: 'version:patch' }] });
 
@@ -41,6 +41,7 @@ test('PR inválido: main, número, issue cerrado, tipo, título, vínculo y etiq
 });
 function mockGitHub({ tagged = 'baseline', merged = true } = {}) {
   return {
+    request: async () => ({ data: [] }),
     paginate: async (method, params) => method(params),
     rest: {
       git: {
@@ -60,6 +61,39 @@ const context = { eventName: 'push', ref: 'refs/heads/develop', sha: 'current', 
 test('baseline ya etiquetada no aumenta versión', async () => {
   const plan = await planVersion({ github: mockGitHub({ tagged: 'current' }), context });
   assert.equal(plan.tag, 'V0.0.1'); assert.equal(plan.release, false);
+});
+
+test('dependencias: acepta entregas terminadas y muestra bloqueos concretos', async () => {
+  const completed = { number: 3, state: 'closed', state_reason: 'completed', labels: [{ name: 'status:done' }] };
+  const github = { request: async () => ({ data: [completed] }) };
+  assert.deepEqual(await validateDependencies(github, context.repo, issue), [completed]);
+
+  const cases = [
+    [{ ...completed, number: 4, state: 'open' }, /#4 sigue abierta/],
+    [{ ...completed, number: 5, labels: [] }, /#5 está cerrada sin criterio de entrega/],
+    [{ ...completed, number: 6, labels: [{ name: 'status:done' }, { name: 'needs:decision' }] }, /#6 conserva una decisión pendiente/],
+    [{ ...completed, number: 7, state_reason: 'not_planned' }, /#7 se cerró como no planificada/],
+  ];
+  for (const [dependency, message] of cases) {
+    github.request = async () => ({ data: [dependency] });
+    await assert.rejects(validateDependencies(github, context.repo, issue), message);
+  }
+
+  const decision = { ...completed, number: 5, labels: [{ name: 'status:done' }, { name: 'needs:decision' }] };
+  github.request = async () => ({ data: [decision] });
+  const acceptedForTarget = { ...issue, body: '<!-- hs:dependency-gate:accepted #5 -->\nBloque concreto aceptado por el propietario.' };
+  assert.deepEqual(await validateDependencies(github, context.repo, acceptedForTarget), [decision]);
+});
+
+test('dependencias: falla de API bloquea y excepción documental debe ser explícita', async () => {
+  const github = { request: async () => { throw new Error('API no disponible'); } };
+  await assert.rejects(validateDependencies(github, context.repo, issue), /se bloquea por seguridad/);
+
+  const open = { number: 3, state: 'open', labels: [] };
+  github.request = async () => ({ data: [open] });
+  const documentation = { ...issue, labels: [{ name: 'type:docs' }], body: '<!-- hs:dependency-gate:exempt -->\nSeguimiento sin implementación.' };
+  assert.deepEqual(await validateDependencies(github, context.repo, documentation), [open]);
+  await assert.rejects(validateDependencies(github, context.repo, { ...documentation, labels: [{ name: 'type:feature' }] }), /#3 sigue abierta/);
 });
 test('preview de PR calcula versión y no publica tags', async () => {
   const plan = await planVersion({ github: mockGitHub(), context: { ...context, eventName: 'pull_request', payload: { pull_request: { number: 25 } } } });
@@ -97,6 +131,7 @@ test('issue listo: creación controlada, reutilización y permiso de escritura',
   for (const reuse of [false, true]) {
     const writes = [];
     const github = {
+      request: async () => ({ data: [] }),
       paginate: async (method, args) => method(args),
       rest: {
         repos: { getCollaboratorPermissionLevel: async () => ({ data: { permission: 'write' } }) },

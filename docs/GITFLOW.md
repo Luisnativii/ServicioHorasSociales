@@ -36,10 +36,15 @@ Se exige exactamente un tipo. El número es el número real del issue; `12` es s
 Cuando el issue esté definido, asigna responsable y agrega **`status:ready`**. El workflow **Issues**:
 
 1. Verifica que quien inicia la tarea tenga permiso de escritura.
-2. Obtiene el número y título real del issue.
-3. Elimina acentos y símbolos del título y genera un nombre corto en minúsculas.
-4. Crea `tipo/NUMERO-descripcion` desde el commit actual de `develop`.
-5. Cambia el estado a `status:in-progress` y deja en el issue un enlace y los comandos de Git.
+2. Consulta las dependencias nativas y rechaza el inicio si alguna sigue abierta, fue cerrada como no planificada, carece de `status:done` o conserva `needs:decision`.
+3. Obtiene el número y título real del issue.
+4. Elimina acentos y símbolos del título y genera un nombre corto en minúsculas.
+5. Crea `tipo/NUMERO-descripcion` desde el commit actual de `develop`.
+6. Cambia el estado a `status:in-progress` y deja en el issue un enlace y los comandos de Git.
+
+La comprobación falla de forma segura si GitHub no permite consultar las dependencias. Si una dependencia terminada conserva `needs:decision` porque contiene otros bloques abiertos, la aceptación humana del bloque concreto debe registrarse en el issue dependiente con `<!-- hs:dependency-gate:accepted #NUMERO -->` y una explicación. Esta marca solo resuelve `needs:decision`: no convierte una tarea abierta, no planificada o sin entrega en una dependencia válida.
+
+Una tarea exclusivamente documental o de seguimiento puede declarar la excepción `<!-- hs:dependency-gate:exempt -->` en su cuerpo, pero solo se reconoce con `type:docs` o `area:planning`; la excepción debe explicar el seguimiento y no autoriza implementar el trabajo bloqueado.
 
 No crea ramas automáticamente por el simple hecho de proponer una tarea. Al repetir `status:ready` para el mismo tipo/issue se reutiliza la rama existente, sin sobrescribir su trabajo. Evita cambiar el tipo de un issue después de empezar a trabajar.
 
@@ -111,6 +116,7 @@ Las imágenes locales serán `hs-api:VERSION-dev`, `hs-web:VERSION-dev` y `hs-mi
 ## Pipeline y comprobaciones
 
 - **GitFlow**: valida issue, rama, título, destino, etiqueta de versión y procedencia de las integraciones; propone la versión.
+- **Dependencias**: tanto `status:ready` como el PR consultan las dependencias nativas. Un cierre sin entrega aceptada o con decisión pendiente no desbloquea implementación, y un error de API nunca concede permiso por omisión.
 - **Docker**: ejecuta `scripts/ci.sh` exclusivamente en `hs-test`, con credenciales, redes y volumen propios; construye imágenes y comprueba aislamiento, Go/TypeScript/Vite, migraciones, recuperación, persistencia, runtime sin root y vulnerabilidades conocidas.
 - **Versionado**: crea el tag si los checks pasaron, hay un PR integrado y el commit sigue siendo el vigente de `develop`.
 - **Issues**: crea ramas y mantiene los estados al iniciar, cerrar o reabrir issues.
