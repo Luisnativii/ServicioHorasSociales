@@ -38,7 +38,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R18 | CONFIRMADO | Un estudiante puede participar en varios proyectos y un proyecto tener varios estudiantes. Una sola participación por par estudiante/proyecto; sin reincorporación después de abandono. | F01 etapa 11; F03. |
 | R19 | CONFIRMADO | Cupo solicitado informativo: excederlo advierte y permite asignar. Asignación solo con proyecto ACTIVO. | F01 etapa 11; F03. |
 | R20 | CONFIRMADO | Abandono individual conserva participación, horas e historial. El proyecto pasa a ABANDONADO cuando tiene al menos una participación y todas están ABANDONADAS. Tener cero participantes activos no demuestra esa condición. | F01 etapa 11; F03. |
-| R21 | PENDIENTE | Precisar estados y efectos de cancelar/finalizar sobre cada participante, combinación de finalizados y abandonados, fechas y campos editables después del cierre. | F01 decisiones abiertas; F02 D10–D15; #8. |
+| R21 | CONFIRMADO | [Contrato de cierres](CONTRATO_CIERRES.md) revisión 0.1 aceptado: estados y transiciones de proyectos/participaciones, `CANCELADA` por cancelación global, fechas y motivos, abandono total, finalización sin activas y bloqueo posterior al cierre. | F01 decisiones abiertas; F02 D10–D15; aceptación del propietario en #8 del 10 de noviembre. |
 
 ## Horas, saldos y reportes
 
