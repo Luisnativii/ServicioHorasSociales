@@ -49,7 +49,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R24 | CONFIRMADO | Reintentar la misma solicitud no duplica movimientos. Reutilizar su clave con un cuerpo distinto produce conflicto. | F01 etapa 12; F03. |
 | R25 | CONFIRMADO | Meta de 300 horas internas Y 300 externas por estudiante, sin compensar categorías. El exceso de internas no cubre la falta de externas. Se admiten saldos previos separados por categoría, con procedencia por acordar. | F01 reglas funcionales y etapa 12; F03. |
 | R26 | PENDIENTE | Acordar corte, idempotencia y procedencia de saldos previos; no fabricar proyectos, fechas o territorios históricos desconocidos. | F01 decisiones abiertas; F02 D17–D18; #10. |
-| R27 | PENDIENTE | Aprobar mecanismo de corrección, reversos y casos después del cierre. Hasta resolverlo no exponer edición, borrado ni reversos de horas. | F01 decisiones abiertas y etapa 12; F02 D16; #9. |
+| R27 | PROPUESTA | [Contrato de correcciones](CONTRATO_CORRECCIONES_HORAS.md) revisión 0.1: original inmutable, reverso completo vinculado y reemplazo opcional que no aumenta horas. Después del cierre corrige historia existente sin habilitar acreditación tardía. Requiere aceptación; hasta entonces no exponer edición, borrado ni reversos. | F01 decisiones abiertas y etapa 12; F02 D16; #9. |
 | R28 | PENDIENTE | Acordar límites de `fecha_horas`, relación con fechas del proyecto y zona horaria de cortes. Distinguir fecha de actividad de instante de registro no resuelve esas políticas. | F02 D22; #5 y #8. |
 | R29 | CONFIRMADO | Dashboard y XLSX comparten filtros y cifras. Separar estudiantes únicos, participaciones, proyectos y movimientos; evitar multiplicar horas al combinar áreas. La actividad del período se mide por `fecha_horas`; el acumulado y los saldos sin historia se distinguen de esa actividad. | F01 etapas 13–14; F03. |
 | R30 | PENDIENTE | Precisar clasificación e historia académica para reportes, significado de cumplimiento a una fecha y semántica final de filtros. | F01 decisiones abiertas y etapa 13; F02 D19, D20, D24 y D25; #7, #12 y #75. |
@@ -79,6 +79,7 @@ Estos casos usan datos sintéticos; verifican la interpretación de reglas y no 
 | E08 | Reintento idéntico / misma clave con otra cantidad | Un movimiento / conflicto, respectivamente. R24. |
 | E09 | Acreditación ordinaria después de cierre | Rechazada. Una eventual corrección tiene decisión separada y no habilita horas tardías. R23 y R27. |
 | E10 | Saldo previo sin fecha conocida | Puede afectar acumulado según contrato de #10; no se atribuye a un período o territorio inventado. R26 y R29. |
+| E11 | Corregir 10 internas como 10 externas | El original permanece; un reverso neutraliza 10 internas y un reemplazo agrega 10 externas. El total global no aumenta. Propuesta pendiente de aprobar en R27. |
 
 ## Límite de aprobación
 
