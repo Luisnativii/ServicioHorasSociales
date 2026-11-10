@@ -92,7 +92,7 @@ Este issue documenta sus fronteras; no sustituye las decisiones específicas ni 
 | Contactos y asociaciones de coordinadores | #11, antes de #44/#46/#48. |
 | Historia académica/clasificación y cumplimiento a una fecha | #12, antes de #55/#65 y reportes afectados. |
 | Modalidad y habilidades blandas | #13; sin implementación por deducción. |
-| Equipo objetivo y metas de calidad/recuperación | #14; no inferir capacidad por el equipo donde se edita este documento. |
+| Equipo objetivo y metas de calidad/recuperación | [Contrato aceptado](CONTRATO_EQUIPO_CALIDAD.md) en #14; el equipo de desarrollo está inventariado y las metas son referencias iniciales. El servidor objetivo aún no está designado y debe identificarse antes de #90/#92. |
 | Contrato de identidad, normalización y sesiones | #20, antes de #21–#29. |
 | Semántica final de filtros y consultas | #75, junto con #7/#12. |
 | Carga inicial SQL, corte y conciliación | #95 junto con #10; no ejecutarla ni diseñar un importador web en este issue. |

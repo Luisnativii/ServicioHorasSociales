@@ -11,6 +11,7 @@ Este directorio conserva el plan original y organiza su ejecución en tareas peq
 - [Plan original de 20 etapas](Plan_Programacion_IA_Horas_Sociales.md): fuente recibida; se conserva sin reescritura.
 - [Aclaraciones vigentes](DECISIONES_VIGENTES.md): un rol ADMIN, múltiples cuentas y prioridad de las decisiones recientes.
 - [Contrato de acceso aceptado](CONTRATO_ACCESO.md): dos horas, contraseña sencilla hasheada, JWT sin recuperación/revocación y bloque mínimo de identidad aprobado para #21.
+- [Inventario y contrato de calidad aceptado](CONTRATO_EQUIPO_CALIDAD.md): separa desarrollo del servidor aún no designado y fija metas candidatas para medir antes de producción.
 - [Contrato de saldos previos aceptado](CONTRATO_SALDOS_PREVIOS.md): corte inclusivo, procedencia, representación histórica única e idempotencia; la fecha exacta se declara en #95.
 - [Contrato de correcciones de horas aceptado](CONTRATO_CORRECCIONES_HORAS.md): reversos auditables, reemplazos limitados y corrección posterior al cierre sin acreditación tardía.
 - [Contrato de estados y cierres aceptado](CONTRATO_CIERRES.md): matriz de proyectos y participaciones, fechas, cancelación y efectos posteriores al cierre.
