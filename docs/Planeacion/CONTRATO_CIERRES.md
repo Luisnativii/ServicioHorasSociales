@@ -1,8 +1,8 @@
 # Contrato de estados y cierres
 
-Revisión 0.1 para aprobación · Issue [#8](https://github.com/Luisnativii/ServicioHorasSociales/issues/8) · 9 de noviembre de 2026
+Revisión 0.1 aceptada · Issue [#8](https://github.com/Luisnativii/ServicioHorasSociales/issues/8) · 10 de noviembre de 2026
 
-**Estado: propuesta acotada.** El propietario confirmó que una participación abierta puede cerrarse como finalizada o abandonada. Los efectos del cierre global, las fechas y el estado de cancelación requieren aceptación expresa antes de generar SQL.
+**Estado: contrato aceptado.** El propietario aceptó la matriz, el estado `CANCELADA`, las reglas de fecha y el bloqueo posterior al solicitar corregir e integrar los PR #128–#134.
 
 ## Decisiones vigentes
 
@@ -65,7 +65,7 @@ Cada cierre registra:
 - `cerrada_por`: cuenta ADMIN responsable;
 - `motivo`: obligatorio para abandono individual y cancelación de proyecto; opcional al finalizar.
 
-Reglas propuestas:
+Reglas aceptadas:
 
 - `fecha_cierre` no puede ser futura ni anterior a la fecha de inicio/asignación correspondiente.
 - No puede ser anterior a la última `fecha_horas` ya acreditada en la participación o proyecto afectado.
@@ -95,6 +95,6 @@ La aceptación desbloquea la semántica de #53, #59, #62, #64, #66 y sus interfa
 6. Cualquier intento de asignar o acreditar después del cierre se rechaza, incluso con fecha anterior.
 7. Una carrera entre acreditar y cerrar deja exactamente una operación válida según el bloqueo transaccional.
 
-## Criterio de aprobación
+## Registro de aprobación
 
-El propietario debe aceptar expresamente la matriz, el estado `CANCELADA`, las reglas de fecha y el bloqueo de edición posterior. Hasta entonces se mantiene `needs:decision` y no se generan migraciones.
+El 10 de noviembre de 2026 el propietario solicitó corregir e integrar los siete PR documentales abiertos, incluido #131. Esa instrucción acepta la matriz completa de esta revisión. Las migraciones y operaciones transaccionales se implementarán únicamente en sus issues dependientes.

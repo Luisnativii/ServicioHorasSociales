@@ -107,11 +107,11 @@ Base funcional: R16–R21. Campos definitivos y sus validaciones en #5/#6; histo
 | `participacion.id` | `uuid` | Sí | PK. |
 | `participacion.estudiante_id` | `uuid` | Sí | FK → `estudiante.id`. |
 | `participacion.proyecto_id` | `uuid` | Sí | FK → `proyecto.id`. |
-| `participacion.estado` | `text` controlado | Sí | `ACTIVA`, `ABANDONADA`, `CANCELADA`, `FINALIZADA` propuestos en [CONTRATO_CIERRES.md](CONTRATO_CIERRES.md); requieren aceptación antes del SQL. |
+| `participacion.estado` | `text` controlado | Sí | `ACTIVA`, `ABANDONADA`, `CANCELADA`, `FINALIZADA` según el [contrato aceptado](CONTRATO_CIERRES.md). |
 | `participacion.asignada_en` | `timestamptz` | Sí | Instante técnico de asignación; separar de fecha efectiva si se aprueba otra fecha. |
-| `participacion.fecha_cierre` | `date` | No | Fecha administrativa del cierre; validaciones propuestas en #8. |
+| `participacion.fecha_cierre` | `date` | No | Fecha administrativa del cierre; validaciones aceptadas en #8. |
 | `participacion.cerrada_en` / `cerrada_por` | `timestamptz` / `uuid` | No | Instante técnico y ADMIN responsable; ambos aparecen al cerrar. |
-| `participacion.motivo_cierre` | `text` | Según estado | Obligatorio al abandonar/cancelar y opcional al finalizar, sujeto a aprobación de #8. |
+| `participacion.motivo_cierre` | `text` | Según estado | Obligatorio al abandonar/cancelar y opcional al finalizar, según #8. |
 
 Restricción candidata: `UNIQUE (estudiante_id, proyecto_id)`; abandono no elimina la fila ni permite nueva inscripción del mismo par. Cardinalidades: estudiante 1 → 0..N participaciones; proyecto 1 → 0..N participaciones; cada participación tiene exactamente un estudiante y un proyecto. No se fija máximo de personas usando `alumnos_solicitados`.
 
