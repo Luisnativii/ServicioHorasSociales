@@ -1,8 +1,8 @@
 # Inventario de equipo y contrato de calidad
 
-Revisión 0.1 para aprobación · Issue [#14](https://github.com/Luisnativii/ServicioHorasSociales/issues/14) · 10 de noviembre de 2026
+Revisión 0.1 aceptada · Issue [#14](https://github.com/Luisnativii/ServicioHorasSociales/issues/14) · 10 de noviembre de 2026
 
-**Estado: propuesta acotada.** Se distingue el equipo de desarrollo comprobado del servidor objetivo todavía no identificado. Las cifras de rendimiento y recuperación son candidatos de aceptación, no resultados medidos ni garantías.
+**Estado: contrato aceptado.** Al solicitar corregir e integrar los PR #128–#134, el propietario aceptó distinguir el equipo de desarrollo, mantener el servidor objetivo como no designado y usar estas metas como candidatos de medición, no como resultados ni garantías.
 
 ## Inventario comprobado
 
@@ -43,7 +43,7 @@ No se infieren estos valores desde el equipo donde se edita el repositorio. #90 
 
 ## Metas candidatas de calidad
 
-Se conservan las referencias del plan como propuesta para medir en el servidor confirmado:
+Se conservan las referencias del plan como metas candidatas aceptadas para medir en el servidor confirmado:
 
 | Aspecto | Meta candidata | Condición de medición |
 | --- | --- | --- |
@@ -92,13 +92,13 @@ Ninguna fase usa información personal real. No se ejecuta una carga pesada sin 
 
 El [registro de horas](REGISTRO_HORAS.md) sigue sin duraciones históricas confirmadas. Este inventario no calcula horas a partir de commits, CI o sesiones de chat, no descuenta automáticamente el presupuesto orientativo de 300 horas y no promete una fecha de entrega.
 
-## Criterio de aprobación
+## Registro de aprobación
 
-Para cerrar #14 el propietario debe:
+El 10 de noviembre de 2026 el propietario solicitó corregir e integrar los siete PR documentales abiertos, incluido #134. Con esa instrucción:
 
-1. identificar el servidor objetivo o aprobar expresamente que todavía no existe;
-2. confirmar o ajustar las metas candidatas;
-3. acordar RPO/RTO y responsable de respaldos;
-4. autorizar que #82 use este protocolo cuando exista el sistema funcional.
+1. acepta que el servidor objetivo todavía no está designado;
+2. acepta las metas como referencias iniciales sujetas a medición;
+3. acepta RPO 24 h y RTO 4 h como objetivos que solo se acreditan mediante restauración;
+4. autoriza que #82 use este protocolo cuando exista el sistema funcional.
 
-Hasta entonces se conserva `needs:decision`; no se instala software, no se carga volumen sintético y no se presenta la Mac de desarrollo como servidor.
+El hardware, responsable y destino de respaldos deben registrarse antes de ejecutar #90/#92. Cerrar esta decisión no autoriza instalar software, cargar volumen sintético ni presentar la Mac de desarrollo como servidor.
