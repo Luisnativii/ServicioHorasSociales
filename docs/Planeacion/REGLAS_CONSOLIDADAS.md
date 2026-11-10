@@ -23,11 +23,11 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R08 | CONFIRMADO | Jerarquía territorial departamento → municipio → distrito sobre datos verificados. No inventar nombres, códigos ni asociaciones. | F01 etapa 07; F03; carga en #37. |
 | R09 | CONFIRMADO | Una institución puede tener varios proyectos; cada proyecto corresponde a una institución y una ubicación física de ejecución. La sede institucional se distingue de la ubicación del proyecto. | F01 reglas funcionales y etapas 08–09; F03. |
 | R10 | CONFIRMADO | Contacto de institución y responsable del proyecto son independientes. Teléfonos y extensiones se conservan como texto. | F01 etapa 08; F03. |
-| R11 | PENDIENTE | Definir campos obligatorios y cardinalidad de contactos/coordinadores, vínculos con carreras y proyectos y si se reutiliza una misma persona. | F01 decisiones abiertas; F02 D07–D09; #11. |
+| R11 | CONFIRMADO | [Contrato de contactos](CONTRATO_CONTACTOS.md) revisión 0.1 aceptado: coordinador textual en carrera, contacto principal textual en institución y responsable textual en proyecto; son bloques independientes, sin catálogo, enum, cuenta ni entidad global de persona. | F01 decisiones abiertas; F02 D07–D09; aceptación del propietario en #11 del 10 de noviembre. |
 | R12 | CONFIRMADO | Un proyecto inicia ACTIVO y EXTERNA por defecto. La fecha final no se exige en el alta y se captura al finalizar. No hay acción de publicar. Desde ACTIVO puede pasar a ABANDONADO, CANCELADO o FINALIZADO, sin reapertura. | F01 etapa 09; F03. |
 | R13 | CONFIRMADO | Un cambio de naturaleza afecta las horas nuevas; conserva la categoría de los movimientos anteriores. | F01 reglas funcionales y etapa 12; F03. |
-| R14 | PENDIENTE | Elegir un tipo o varios, una o varias áreas, su independencia y su historia. No seleccionar una alternativa SQL antes de aprobar #7 y, para historia, #12. | F01 decisiones abiertas; F02 D04–D05, D20. |
-| R15 | PENDIENTE | Definir o excluir modalidad y habilidades blandas antes de crear campos o catálogos. | F01 decisiones abiertas; F02 D06; #13. |
+| R14 | CONFIRMADO | [Contrato de clasificación](CONTRATO_CLASIFICACION.md) revisión 0.1 aceptado: exactamente un tipo y un área independientes por proyecto, sin relaciones muchos-a-muchos; la reclasificación es prospectiva y conserva la atribución histórica. Los nombres oficiales siguen pendientes de fuente para #41. | F01 decisiones abiertas; F02 D04–D05, D20; aceptación del propietario en #7 del 10 de noviembre. |
+| R15 | CONFIRMADO | [Contrato de modalidad](CONTRATO_MODALIDAD.md) revisión 0.1 aceptado: catálogo administrable, una referencia obligatoria por proyecto, desactivación sin borrar usos y cambios bloqueados cuando existe actividad acreditada hasta definir historia. “Habilidades blandas” no es otro campo. | F01 decisiones abiertas; F02 D06; aceptación del propietario en #13 del 10 de noviembre. |
 
 ## Estudiantes y participaciones
 
@@ -38,7 +38,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R18 | CONFIRMADO | Un estudiante puede participar en varios proyectos y un proyecto tener varios estudiantes. Una sola participación por par estudiante/proyecto; sin reincorporación después de abandono. | F01 etapa 11; F03. |
 | R19 | CONFIRMADO | Cupo solicitado informativo: excederlo advierte y permite asignar. Asignación solo con proyecto ACTIVO. | F01 etapa 11; F03. |
 | R20 | CONFIRMADO | Abandono individual conserva participación, horas e historial. El proyecto pasa a ABANDONADO cuando tiene al menos una participación y todas están ABANDONADAS. Tener cero participantes activos no demuestra esa condición. | F01 etapa 11; F03. |
-| R21 | PENDIENTE | Precisar estados y efectos de cancelar/finalizar sobre cada participante, combinación de finalizados y abandonados, fechas y campos editables después del cierre. | F01 decisiones abiertas; F02 D10–D15; #8. |
+| R21 | CONFIRMADO | [Contrato de cierres](CONTRATO_CIERRES.md) revisión 0.1 aceptado: estados y transiciones de proyectos/participaciones, `CANCELADA` por cancelación global, fechas y motivos, abandono total, finalización sin activas y bloqueo posterior al cierre. | F01 decisiones abiertas; F02 D10–D15; aceptación del propietario en #8 del 10 de noviembre. |
 
 ## Horas, saldos y reportes
 
@@ -49,7 +49,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R24 | CONFIRMADO | Reintentar la misma solicitud no duplica movimientos. Reutilizar su clave con un cuerpo distinto produce conflicto. | F01 etapa 12; F03. |
 | R25 | CONFIRMADO | Meta de 300 horas internas Y 300 externas por estudiante, sin compensar categorías. El exceso de internas no cubre la falta de externas. Se admiten saldos previos separados por categoría, con procedencia por acordar. | F01 reglas funcionales y etapa 12; F03. |
 | R26 | CONFIRMADO | [Contrato de saldos previos](CONTRATO_SALDOS_PREVIOS.md) revisión 0.1 aceptado: corte global inclusivo, saldos separados por categoría, una sola representación histórica por estudiante/categoría, procedencia verificable y lote idempotente. La fecha exacta se declara antes de cargar; no fabricar proyectos, fechas o territorios. | F01 decisiones abiertas; F02 D17–D18; aceptación del propietario en #10 del 10 de noviembre. |
-| R27 | PENDIENTE | Aprobar mecanismo de corrección, reversos y casos después del cierre. Hasta resolverlo no exponer edición, borrado ni reversos de horas. | F01 decisiones abiertas y etapa 12; F02 D16; #9. |
+| R27 | CONFIRMADO | [Contrato de correcciones](CONTRATO_CORRECCIONES_HORAS.md) revisión 0.1 aceptado: original inmutable, reverso completo vinculado y reemplazo opcional que no aumenta horas. Después del cierre corrige historia existente sin habilitar acreditación tardía. | F01 decisiones abiertas y etapa 12; F02 D16; aceptación del propietario en #9 del 10 de noviembre. |
 | R28 | PENDIENTE | Acordar límites de `fecha_horas`, relación con fechas del proyecto y zona horaria de cortes. Distinguir fecha de actividad de instante de registro no resuelve esas políticas. | F02 D22; #5 y #8. |
 | R29 | CONFIRMADO | Dashboard y XLSX comparten filtros y cifras. Separar estudiantes únicos, participaciones, proyectos y movimientos; evitar multiplicar horas al combinar áreas. La actividad del período se mide por `fecha_horas`; el acumulado y los saldos sin historia se distinguen de esa actividad. | F01 etapas 13–14; F03. |
 | R30 | PENDIENTE | Precisar clasificación e historia académica para reportes, significado de cumplimiento a una fecha y semántica final de filtros. | F01 decisiones abiertas y etapa 13; F02 D19, D20, D24 y D25; #7, #12 y #75. |
@@ -79,7 +79,8 @@ Estos casos usan datos sintéticos; verifican la interpretación de reglas y no 
 | E08 | Reintento idéntico / misma clave con otra cantidad | Un movimiento / conflicto, respectivamente. R24. |
 | E09 | Acreditación ordinaria después de cierre | Rechazada. Una eventual corrección tiene decisión separada y no habilita horas tardías. R23 y R27. |
 | E10 | Saldo previo sin fecha conocida | Puede afectar acumulado según contrato de #10; no se atribuye a un período o territorio inventado. R26 y R29. |
-| E11 | 120 internas al corte y 20 internas posteriores | Acumulado 140; actividad posterior al corte 20. El saldo no se convierte en movimiento ni se cuenta dos veces. Propuesta R26. |
+| E11 | Corregir 10 internas como 10 externas | El original permanece; un reverso neutraliza 10 internas y un reemplazo agrega 10 externas. El total global no aumenta. R27. |
+| E12 | 120 internas al corte y 20 internas posteriores | Acumulado 140; actividad posterior al corte 20. El saldo no se convierte en movimiento ni se cuenta dos veces. Propuesta R26. |
 
 ## Límite de aprobación
 

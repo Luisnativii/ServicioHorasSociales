@@ -77,6 +77,7 @@ Base funcional: R09–R15. Antes de persistir: aprobación de campos en #5/#6, c
 | `proyecto.descripcion` | `text` | Por acordar | Alcance del proyecto; contenido y longitud por revisar. |
 | `proyecto.distrito_id` | `uuid` | Por acordar | FK → `distrito.id` para ejecución, independiente de la sede. |
 | `proyecto.direccion_ejecucion` | `text` | Por acordar | Una ubicación física; formato y obligatoriedad por revisar. |
+| `proyecto.modalidad_id` | `uuid` | Sí según R15 | FK al catálogo administrable `modalidad`; implementación en tarea propia. |
 | `proyecto.naturaleza` | `text` controlado | Sí | `INTERNA` / `EXTERNA`; valor inicial EXTERNA. Cambios solo afectan movimientos nuevos. |
 | `proyecto.estado` | `text` controlado | Sí | `ACTIVO`, `ABANDONADO`, `CANCELADO`, `FINALIZADO`; inicia ACTIVO. Transiciones mediante servicio, no solo lista de valores. |
 | `proyecto.fecha_inicio` | `date` | Por acordar | No inferir fechas ni reglas de acreditación de este campo. |
@@ -85,11 +86,11 @@ Base funcional: R09–R15. Antes de persistir: aprobación de campos en #5/#6, c
 
 Cardinalidades propuestas: institución 1 → 0..N proyectos; proyecto → exactamente una institución. Sede y ejecución no comparten una fila mutable de dirección por deducción. Si se admite ubicación desconocida o externa al catálogo nacional, #5/#6 debe decidir su representación antes de migrar.
 
-**PENDIENTE R11:** `contacto_institucion` y `contacto_proyecto` son dos candidatos separados; campos candidatos `id uuid`, FK al titular, `nombre text`, `correo text`, `telefono text`, `extension text`. #11 debe elegir número de contactos, campos obligatorios y si son personas reutilizables. No elegir un único responsable, exigir correo o crear una entidad global de persona sin esa decisión.
+**ACEPTADO R11:** el [contrato de contactos](CONTRATO_CONTACTOS.md) revisión 0.1 define `carrera.coordinador_nombre` y bloques textuales en línea para el contacto principal de `institucion` y el responsable de `proyecto`, con sus obligatoriedades acordadas. No crear `coordinador`, `carrera_coordinador`, `contacto_institucion`, `contacto_proyecto` ni una entidad global de persona.
 
-**PENDIENTE R11:** `coordinador` y `carrera_coordinador` representan una alternativa N:M; candidatos mínimos: coordinador con `id uuid` y `nombre text`; vínculo con `carrera_id uuid` y `coordinador_id uuid` (PK compuesta/FK). Campos de contacto, vigencia y relación con proyectos se deciden en #11. Un coordinador no referencia `administrador` por el hecho de existir.
+**ACEPTADO R14:** el [contrato de clasificación](CONTRATO_CLASIFICACION.md) revisión 0.1 confirma exactamente un tipo y un área independientes por proyecto, por lo que se descartan tablas puente y dependencias área→tipo. Los candidatos son catálogos `tipo_proyecto` y `area`, cada uno con `id uuid`, `nombre text`, `activo boolean`, y referencias vigentes `proyecto.tipo_id` / `proyecto.area_id`. La reclasificación es prospectiva; #12 definirá el mecanismo físico de historia. No precargar nombres sin fuente aprobada.
 
-**PENDIENTE R14:** catálogos candidatos `tipo_proyecto` y `area`, cada uno con `id uuid`, `nombre text`, `activo boolean`. Si #7 aprueba un tipo por proyecto, la alternativa es FK `proyecto.tipo_id`; si aprueba varios, tabla puente con PK `(proyecto_id, tipo_id)`. Análogamente, una sola área usaría FK `proyecto.area_id`; varias usarían `proyecto_area` con PK `(proyecto_id, area_id)`. No implementar ambas alternativas ni una dependencia área→tipo sin aprobación. Si se requiere historia, #12 definirá qué instantánea/versionado conservar.
+**ACEPTADO R15:** el [contrato de modalidad](CONTRATO_MODALIDAD.md) revisión 0.1 define un catálogo `modalidad` con `id uuid`, `nombre text` y `activo boolean`; cada proyecto tiene una FK obligatoria. Se exige unicidad canónica, desactivación sin borrar usos y bloqueo de cambios con actividad acreditada hasta definir historia. “Habilidades blandas” no crea otra columna o tabla ni se precarga sin fuente.
 
 Índices candidatos: `proyecto.institucion_id`, estado y los FK territoriales; clasificación solo después de seleccionar cardinalidades y consultas. No añadir índices de búsqueda ni restricciones de nombres que aún no tengan contrato.
 
@@ -107,9 +108,11 @@ Base funcional: R16–R21. Campos definitivos y sus validaciones en #5/#6; histo
 | `participacion.id` | `uuid` | Sí | PK. |
 | `participacion.estudiante_id` | `uuid` | Sí | FK → `estudiante.id`. |
 | `participacion.proyecto_id` | `uuid` | Sí | FK → `proyecto.id`. |
-| `participacion.estado` | `text` controlado | Sí | ACTIVO/ABANDONADO constan en reglas; conjunto final y cierres PENDIENTES en #8. No inferir CANCELADO/FINALIZADO para todas las personas. |
+| `participacion.estado` | `text` controlado | Sí | `ACTIVA`, `ABANDONADA`, `CANCELADA`, `FINALIZADA` según el [contrato aceptado](CONTRATO_CIERRES.md). |
 | `participacion.asignada_en` | `timestamptz` | Sí | Instante técnico de asignación; separar de fecha efectiva si se aprueba otra fecha. |
-| `participacion.cerrada_en` | `timestamptz` | No | Semántica y relación con cierre de proyecto por aprobar. |
+| `participacion.fecha_cierre` | `date` | No | Fecha administrativa del cierre; validaciones aceptadas en #8. |
+| `participacion.cerrada_en` / `cerrada_por` | `timestamptz` / `uuid` | No | Instante técnico y ADMIN responsable; ambos aparecen al cerrar. |
+| `participacion.motivo_cierre` | `text` | Según estado | Obligatorio al abandonar/cancelar y opcional al finalizar, según #8. |
 
 Restricción candidata: `UNIQUE (estudiante_id, proyecto_id)`; abandono no elimina la fila ni permite nueva inscripción del mismo par. Cardinalidades: estudiante 1 → 0..N participaciones; proyecto 1 → 0..N participaciones; cada participación tiene exactamente un estudiante y un proyecto. No se fija máximo de personas usando `alumnos_solicitados`.
 
@@ -140,7 +143,7 @@ Cardinalidad propuesta: participación 1 → 0..N movimientos; administrador 1 �
 
 **ACEPTADO R26:** [CONTRATO_SALDOS_PREVIOS.md](CONTRATO_SALDOS_PREVIOS.md) revisión 0.1 define un lote inmutable con `id`, `fecha_corte`, metadatos de fuente, conteos, sumas y huella canónica. Cada `saldo_previo` contiene `id`, `lote_id`, `estudiante_id`, `naturaleza`, `horas`, `fuente_ref`, `registrado_en` y `registrado_por`; unicidad por estudiante/categoría y por fila del lote. `horas` admite cero solo con fuente explícita y la ausencia no equivale a cero. La carga debe impedir que un saldo conviva con movimientos detallados de la misma categoría hasta el corte. #68/#95 implementan SQL y garantías físicas.
 
-**PENDIENTE R27:** no se añade un campo negativo ni una tabla de reverso como si ya estuvieran aprobados. #9 resolverá corrección, referencias al original, motivo, actor, fechas y tratamiento tras el cierre antes de #72.
+**ACEPTADO R27:** [CONTRATO_CORRECCIONES_HORAS.md](CONTRATO_CORRECCIONES_HORAS.md) revisión 0.1 define un registro `correccion_horas` con `id`, `movimiento_original_id` único, `movimiento_reverso_id` único, `movimiento_reemplazo_id` opcional, `motivo`, `corregido_por`, `corregido_en` y `solicitud_id` único. El original queda inmutable; el reverso lo compensa exactamente y el reemplazo no puede aumentar sus horas. #72 debe garantizar atomicidad, idempotencia y exclusión concurrente.
 
 **PENDIENTE R30:** campos de instantánea académica/clasificación se seleccionan en #12. Su ausencia en este borrador no autoriza a migrar el libro perdiendo historia requerida.
 
@@ -170,7 +173,7 @@ erDiagram
     PARTICIPACION ||--o{ MOVIMIENTO_HORAS : acredita
 ```
 
-Tipos/áreas, contactos, coordinadores, historia académica, saldos y correcciones se dejan fuera del diagrama principal hasta elegir sus alternativas. Las FK territoriales candidatas de sede y ejecución constan en M30; su obligatoriedad sigue pendiente.
+Tipos/áreas, contactos, coordinadores, historia académica, saldos y correcciones se dejan fuera del diagrama principal hasta aprobar sus contratos. Las FK territoriales candidatas de sede y ejecución constan en M30; su obligatoriedad sigue pendiente.
 
 ## Aprobación por bloques y barreras de implementación
 
