@@ -1,21 +1,21 @@
 # Contrato de clasificación de proyectos
 
-Revisión 0.1 para aprobación · Issue [#7](https://github.com/Luisnativii/ServicioHorasSociales/issues/7) · 9 de noviembre de 2026
+Revisión 0.1 aceptada · Issue [#7](https://github.com/Luisnativii/ServicioHorasSociales/issues/7) · 10 de noviembre de 2026
 
-**Estado: propuesta acotada.** La cardinalidad indicada abajo ya fue confirmada por el propietario. La independencia de los catálogos y el efecto histórico de reclasificar requieren aceptación expresa antes de generar SQL. Este documento no crea tablas ni autoriza valores de catálogo.
+**Estado: contrato aceptado.** El propietario aceptó D-CL-01 y D-CL-02 al solicitar corregir e integrar los PR #128–#134. Este documento no crea tablas ni autoriza valores de catálogo sin una fuente.
 
 ## Evidencia y decisiones vigentes
 
 | Tema | Estado | Resultado |
 | --- | --- | --- |
 | Cardinalidad por proyecto | CONFIRMADO | Cada proyecto elige exactamente un tipo y exactamente un área. No se admiten varios tipos ni varias áreas para un mismo proyecto. |
-| Tipo frente a área | PENDIENTE DE ACEPTACIÓN | No hay fuente que defina combinaciones permitidas, jerarquía o dependencia entre ambos catálogos. |
-| Reclasificación e historia | PENDIENTE DE ACEPTACIÓN | Las fuentes exigen conservar historia, pero no fijan todavía desde cuándo aplica un cambio de tipo o área. |
+| Tipo frente a área | ACEPTADO | Son catálogos independientes; no existen combinaciones, jerarquía ni dependencia entre ambos. |
+| Reclasificación e historia | ACEPTADO | Un cambio es prospectivo y conserva la atribución histórica de la actividad anterior. |
 | Valores iniciales | PENDIENTE DE FUENTE | El plan menciona 26 tipos y 12 áreas, pero las fuentes disponibles no contienen sus nombres oficiales. No se inventan ni se precargan etiquetas. |
 
 La confirmación de cardinalidad sustituye las referencias históricas a “un tipo y varias áreas”. No autoriza una tabla puente para tipo o área.
 
-## Propuesta para aprobación
+## Decisión aceptada
 
 ### D-CL-01 · Catálogos independientes
 
@@ -60,6 +60,6 @@ Hasta recibirla, #40 puede diseñarse únicamente después de aprobar D-CL-01 y 
 
 #41 no queda desbloqueado para cargar datos hasta recibir y aprobar los 38 nombres oficiales.
 
-## Criterio de aprobación
+## Registro de aprobación
 
-Para aceptar esta revisión, el propietario debe confirmar expresamente D-CL-01 y D-CL-02. Si solicita cambios, se actualiza esta revisión y se mantiene `needs:decision`. La aceptación se registra en #7 antes de cerrar el issue.
+El 10 de noviembre de 2026 el propietario solicitó corregir e integrar los siete PR documentales abiertos, incluido #128. Esa instrucción acepta expresamente D-CL-01 y D-CL-02. La fuente de los 26 tipos y 12 áreas sigue pendiente y mantiene bloqueada únicamente la carga de #41.
