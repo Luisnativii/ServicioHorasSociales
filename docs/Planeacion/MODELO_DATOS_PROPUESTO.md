@@ -77,6 +77,7 @@ Base funcional: R09–R15. Antes de persistir: aprobación de campos en #5/#6, c
 | `proyecto.descripcion` | `text` | Por acordar | Alcance del proyecto; contenido y longitud por revisar. |
 | `proyecto.distrito_id` | `uuid` | Por acordar | FK → `distrito.id` para ejecución, independiente de la sede. |
 | `proyecto.direccion_ejecucion` | `text` | Por acordar | Una ubicación física; formato y obligatoriedad por revisar. |
+| `proyecto.modalidad_id` | `uuid` | Sí según R15 | FK al catálogo administrable `modalidad`; implementación en tarea propia. |
 | `proyecto.naturaleza` | `text` controlado | Sí | `INTERNA` / `EXTERNA`; valor inicial EXTERNA. Cambios solo afectan movimientos nuevos. |
 | `proyecto.estado` | `text` controlado | Sí | `ACTIVO`, `ABANDONADO`, `CANCELADO`, `FINALIZADO`; inicia ACTIVO. Transiciones mediante servicio, no solo lista de valores. |
 | `proyecto.fecha_inicio` | `date` | Por acordar | No inferir fechas ni reglas de acreditación de este campo. |
@@ -88,6 +89,8 @@ Cardinalidades propuestas: institución 1 → 0..N proyectos; proyecto → exact
 **ACEPTADO R11:** el [contrato de contactos](CONTRATO_CONTACTOS.md) revisión 0.1 define `carrera.coordinador_nombre` y bloques textuales en línea para el contacto principal de `institucion` y el responsable de `proyecto`, con sus obligatoriedades acordadas. No crear `coordinador`, `carrera_coordinador`, `contacto_institucion`, `contacto_proyecto` ni una entidad global de persona.
 
 **ACEPTADO R14:** el [contrato de clasificación](CONTRATO_CLASIFICACION.md) revisión 0.1 confirma exactamente un tipo y un área independientes por proyecto, por lo que se descartan tablas puente y dependencias área→tipo. Los candidatos son catálogos `tipo_proyecto` y `area`, cada uno con `id uuid`, `nombre text`, `activo boolean`, y referencias vigentes `proyecto.tipo_id` / `proyecto.area_id`. La reclasificación es prospectiva; #12 definirá el mecanismo físico de historia. No precargar nombres sin fuente aprobada.
+
+**ACEPTADO R15:** el [contrato de modalidad](CONTRATO_MODALIDAD.md) revisión 0.1 define un catálogo `modalidad` con `id uuid`, `nombre text` y `activo boolean`; cada proyecto tiene una FK obligatoria. Se exige unicidad canónica, desactivación sin borrar usos y bloqueo de cambios con actividad acreditada hasta definir historia. “Habilidades blandas” no crea otra columna o tabla ni se precarga sin fuente.
 
 Índices candidatos: `proyecto.institucion_id`, estado y los FK territoriales; clasificación solo después de seleccionar cardinalidades y consultas. No añadir índices de búsqueda ni restricciones de nombres que aún no tengan contrato.
 
