@@ -1,10 +1,10 @@
 # Contrato de saldos previos
 
-Revisión 0.1 para aprobación · Issue [#10](https://github.com/Luisnativii/ServicioHorasSociales/issues/10) · 9 de noviembre de 2026
+Revisión 0.1 aceptada · Issue [#10](https://github.com/Luisnativii/ServicioHorasSociales/issues/10) · 10 de noviembre de 2026
 
-**Estado: propuesta acotada.** El propietario confirmó que realizará la carga inicial mediante SQL. Este contrato define qué debe significar esa carga, pero no ejecuta consultas, no incorpora datos reales y no autoriza diseñar persistencia antes de su aceptación.
+**Estado: contrato aceptado.** El propietario aceptó corte inclusivo, procedencia, representación única e idempotencia al solicitar corregir e integrar los PR #128–#134. La fecha exacta y la carga SQL siguen correspondiendo a #95.
 
-## Decisión propuesta
+## Decisión aceptada
 
 - La carga inicial usa una sola `fecha_corte` global, obligatoria e inclusiva: un saldo resume horas reconocidas hasta esa fecha, incluida.
 - La fecha calendario exacta no se inventa en este issue. El propietario debe declararla y aprobarla en #95 antes del ensayo de carga; el manifiesto no puede cambiarla después de aplicarse.
@@ -30,7 +30,7 @@ Si existe un saldo previo para un estudiante/categoría, la carga rechaza movimi
 
 Cada saldo debe pertenecer a un lote y conservar:
 
-| Dato | Regla propuesta |
+| Dato | Regla aceptada |
 | --- | --- |
 | `lote_id` | UUID único de la carga conciliada. |
 | `estudiante_id` | Estudiante identificado sin modificar ni normalizar su carnet por intuición. |
@@ -83,10 +83,10 @@ Después de la transacción se vuelven a comparar cantidad, sumas y huella con e
 5. Una fila sin fecha, proyecto o territorio histórico conserva únicamente el saldo y la procedencia; no inventa dimensiones para aparecer en reportes de actividad.
 6. Un lote con 50 filas falla en la fila 40: no queda ninguna de sus filas aplicada.
 
-## Límites y aprobación
+## Límites y registro de aprobación
 
 - La carga inicial real, sus respaldos y el procedimiento SQL corresponden a #95.
 - Este contrato no crea importador web, endpoints, migraciones ni datos de ejemplo que imiten información real.
 - R28 fija las reglas temporales generales de movimientos; este contrato solo define la frontera del corte inicial.
 - Corregir o sustituir un saldo ya aplicado requiere un mecanismo auditado que se acuerde antes de implementarlo; no se edita ni elimina directamente.
-- Hasta la aceptación expresa del propietario, R26 permanece como propuesta, el issue conserva `needs:decision` y la fecha exacta de corte sigue pendiente para #95.
+- El 10 de noviembre de 2026 el propietario solicitó corregir e integrar los siete PR documentales abiertos, incluido #133. Esa instrucción acepta esta revisión; la fecha exacta de corte sigue pendiente para #95 y debe constar en el manifiesto antes de cargar.
