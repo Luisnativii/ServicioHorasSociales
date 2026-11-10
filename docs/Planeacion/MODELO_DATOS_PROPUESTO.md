@@ -77,7 +77,7 @@ Base funcional: R09–R15. Antes de persistir: aprobación de campos en #5/#6, c
 | `proyecto.descripcion` | `text` | Por acordar | Alcance del proyecto; contenido y longitud por revisar. |
 | `proyecto.distrito_id` | `uuid` | Por acordar | FK → `distrito.id` para ejecución, independiente de la sede. |
 | `proyecto.direccion_ejecucion` | `text` | Por acordar | Una ubicación física; formato y obligatoriedad por revisar. |
-| `proyecto.modalidad_id` | `uuid` | Propuesto sí | FK al catálogo administrable `modalidad`; requiere aceptar [CONTRATO_MODALIDAD.md](CONTRATO_MODALIDAD.md) y su tarea de implementación. |
+| `proyecto.modalidad_id` | `uuid` | Sí según R15 | FK al catálogo administrable `modalidad`; implementación en tarea propia. |
 | `proyecto.naturaleza` | `text` controlado | Sí | `INTERNA` / `EXTERNA`; valor inicial EXTERNA. Cambios solo afectan movimientos nuevos. |
 | `proyecto.estado` | `text` controlado | Sí | `ACTIVO`, `ABANDONADO`, `CANCELADO`, `FINALIZADO`; inicia ACTIVO. Transiciones mediante servicio, no solo lista de valores. |
 | `proyecto.fecha_inicio` | `date` | Por acordar | No inferir fechas ni reglas de acreditación de este campo. |
@@ -92,7 +92,7 @@ Cardinalidades propuestas: institución 1 → 0..N proyectos; proyecto → exact
 
 **PENDIENTE R14:** catálogos candidatos `tipo_proyecto` y `area`, cada uno con `id uuid`, `nombre text`, `activo boolean`. Si #7 aprueba un tipo por proyecto, la alternativa es FK `proyecto.tipo_id`; si aprueba varios, tabla puente con PK `(proyecto_id, tipo_id)`. Análogamente, una sola área usaría FK `proyecto.area_id`; varias usarían `proyecto_area` con PK `(proyecto_id, area_id)`. No implementar ambas alternativas ni una dependencia área→tipo sin aprobación. Si se requiere historia, #12 definirá qué instantánea/versionado conservar.
 
-**PENDIENTE R15:** `modalidad` es un catálogo candidato con `id uuid`, `nombre text` y `activo boolean`; cada proyecto tendría una FK obligatoria. La unicidad canónica, desactivación y bloqueo de cambios con actividad están propuestos en [CONTRATO_MODALIDAD.md](CONTRATO_MODALIDAD.md). “Habilidades blandas” no crea otra columna o tabla y no se precarga como valor sin aprobación.
+**ACEPTADO R15:** el [contrato de modalidad](CONTRATO_MODALIDAD.md) revisión 0.1 define un catálogo `modalidad` con `id uuid`, `nombre text` y `activo boolean`; cada proyecto tiene una FK obligatoria. Se exige unicidad canónica, desactivación sin borrar usos y bloqueo de cambios con actividad acreditada hasta definir historia. “Habilidades blandas” no crea otra columna o tabla ni se precarga sin fuente.
 
 Índices candidatos: `proyecto.institucion_id`, estado y los FK territoriales; clasificación solo después de seleccionar cardinalidades y consultas. No añadir índices de búsqueda ni restricciones de nombres que aún no tengan contrato.
 

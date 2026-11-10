@@ -1,8 +1,8 @@
 # Contrato de modalidad de proyectos
 
-Revisión 0.1 para aprobación · Issue [#13](https://github.com/Luisnativii/ServicioHorasSociales/issues/13) · 9 de noviembre de 2026
+Revisión 0.1 aceptada · Issue [#13](https://github.com/Luisnativii/ServicioHorasSociales/issues/13) · 10 de noviembre de 2026
 
-**Estado: propuesta acotada.** El propietario ya confirmó un único concepto llamado modalidad, seleccionable o creable. La ubicación, cardinalidad, obligatoriedad y operación del catálogo requieren aceptación expresa antes de generar SQL.
+**Estado: contrato aceptado.** El propietario aceptó D-MO-01 a D-MO-04 al solicitar corregir e integrar los PR #128–#134. Modalidad es un catálogo obligatorio por proyecto; “habilidades blandas” no crea otro campo.
 
 ## Decisiones vigentes
 
@@ -12,7 +12,7 @@ Revisión 0.1 para aprobación · Issue [#13](https://github.com/Luisnativii/Ser
 - Modalidad no se confunde con tipo, área, naturaleza ni ubicación territorial.
 - No se precarga “Habilidades blandas” ni ningún otro valor sin una lista aprobada.
 
-## Propuesta para aprobación
+## Decisión aceptada
 
 ### D-MO-01 · Catálogo administrable asociado al proyecto
 
@@ -76,6 +76,6 @@ El trabajo consume el presupuesto orientativo existente de 300 horas; no abre un
 4. Un proyecto nuevo sin modalidad se rechaza.
 5. Cambiar modalidad después de acreditar actividad se rechaza mientras no exista contrato histórico.
 
-## Criterio de aprobación
+## Registro de aprobación
 
-El propietario debe aceptar expresamente D-MO-01 a D-MO-04 o indicar los ajustes deseados. Hasta entonces se mantiene `needs:decision`, no se crea la tarea de implementación y no se generan migraciones.
+El 10 de noviembre de 2026 el propietario solicitó corregir e integrar los siete PR documentales abiertos, incluido #130. Esa instrucción acepta D-MO-01 a D-MO-04. La implementación requiere un issue propio y no precargará valores sin fuente.
