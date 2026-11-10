@@ -1,8 +1,8 @@
 # Contrato de coordinadores y contactos
 
-Revisión 0.1 para aprobación · Issue [#11](https://github.com/Luisnativii/ServicioHorasSociales/issues/11) · 9 de noviembre de 2026
+Revisión 0.1 aceptada · Issue [#11](https://github.com/Luisnativii/ServicioHorasSociales/issues/11) · 10 de noviembre de 2026
 
-**Estado: propuesta acotada.** El propietario ya decidió guardar coordinadores como texto repetible, sin tabla, catálogo ni enum. La ubicación exacta, los campos y su obligatoriedad requieren aceptación expresa antes de generar SQL.
+**Estado: contrato aceptado.** El propietario aceptó D-PE-01 a D-PE-04 al solicitar corregir e integrar los PR #128–#134. Coordinadores, contacto institucional y responsable del proyecto permanecen como bloques textuales, sin entidad global de persona.
 
 ## Decisiones vigentes
 
@@ -15,7 +15,7 @@ Revisión 0.1 para aprobación · Issue [#11](https://github.com/Luisnativii/Ser
 
 Estas decisiones sustituyen la propuesta histórica de tablas `coordinador` y `carrera_coordinador`.
 
-## Propuesta para aprobación
+## Decisión aceptada
 
 ### D-PE-01 · Coordinador académico en la carrera
 
@@ -24,7 +24,7 @@ Estas decisiones sustituyen la propuesta histórica de tablas `coordinador` y `c
 - No hay identificador de coordinador, relación muchos-a-muchos, catálogo, desactivación ni pantalla independiente.
 - Cambiar el texto actualiza la carrera; no se interpreta como cambio de cuenta o permisos.
 
-Esta propuesta traduce la simplificación del propietario sin mantener la cardinalidad antigua de “varios coordinadores por carrera”.
+Esta decisión traduce la simplificación del propietario sin mantener la cardinalidad antigua de “varios coordinadores por carrera”.
 
 ### D-PE-02 · Contacto principal de la institución
 
@@ -80,6 +80,6 @@ Los títulos y criterios históricos de #44/#45/#48 deben ajustarse antes de ini
 4. Teléfono `+503 2222-0000` y extensión `004` conservan su representación textual.
 5. Un correo informado con formato inválido se rechaza; omitirlo está permitido.
 
-## Criterio de aprobación
+## Registro de aprobación
 
-El propietario debe aceptar expresamente D-PE-01 a D-PE-04 o indicar los campos/obligatoriedades que desea cambiar. Hasta entonces se mantiene `needs:decision` y no se generan migraciones.
+El 10 de noviembre de 2026 el propietario solicitó corregir e integrar los siete PR documentales abiertos, incluido #129. Esa instrucción acepta D-PE-01 a D-PE-04. La representación física se implementará únicamente en sus issues dependientes.
