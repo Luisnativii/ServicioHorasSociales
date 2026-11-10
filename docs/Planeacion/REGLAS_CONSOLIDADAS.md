@@ -26,7 +26,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R11 | PENDIENTE | Definir campos obligatorios y cardinalidad de contactos/coordinadores, vínculos con carreras y proyectos y si se reutiliza una misma persona. | F01 decisiones abiertas; F02 D07–D09; #11. |
 | R12 | CONFIRMADO | Un proyecto inicia ACTIVO y EXTERNA por defecto. La fecha final no se exige en el alta y se captura al finalizar. No hay acción de publicar. Desde ACTIVO puede pasar a ABANDONADO, CANCELADO o FINALIZADO, sin reapertura. | F01 etapa 09; F03. |
 | R13 | CONFIRMADO | Un cambio de naturaleza afecta las horas nuevas; conserva la categoría de los movimientos anteriores. | F01 reglas funcionales y etapa 12; F03. |
-| R14 | PENDIENTE | Elegir un tipo o varios, una o varias áreas, su independencia y su historia. No seleccionar una alternativa SQL antes de aprobar #7 y, para historia, #12. | F01 decisiones abiertas; F02 D04–D05, D20. |
+| R14 | PENDIENTE | Está confirmado exactamente un tipo y un área por proyecto, sin relaciones muchos-a-muchos. Falta aprobar si ambos catálogos son independientes y si una reclasificación solo afecta actividad nueva conservando la atribución histórica. No generar SQL antes de aceptar el [contrato de clasificación](CONTRATO_CLASIFICACION.md); el mecanismo temporal se coordina con #12. | F01 decisiones abiertas; F02 D04–D05, D20; aclaración del propietario en #7. |
 | R15 | PENDIENTE | Definir o excluir modalidad y habilidades blandas antes de crear campos o catálogos. | F01 decisiones abiertas; F02 D06; #13. |
 
 ## Estudiantes y participaciones
