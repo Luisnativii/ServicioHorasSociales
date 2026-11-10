@@ -143,7 +143,7 @@ Cardinalidad propuesta: participación 1 → 0..N movimientos; administrador 1 �
 
 **PENDIENTE R26:** candidato `saldo_previo` con `id uuid` PK, `estudiante_id uuid` FK, `naturaleza text`, `horas integer`, `fecha_corte date`, `procedencia text`, `registrado_en timestamptz`, `registrado_por uuid` FK e identificador de carga/solicitud por definir. #10 decide obligatoriedades, si cero se omite, granularidad, clave de unicidad y conciliación. No representar saldo desconocido con un proyecto, fecha o territorio ficticios ni crear un único saldo mutable sin procedencia.
 
-**PENDIENTE R27:** no se añade un campo negativo ni una tabla de reverso como si ya estuvieran aprobados. #9 resolverá corrección, referencias al original, motivo, actor, fechas y tratamiento tras el cierre antes de #72.
+**ACEPTADO R27:** [CONTRATO_CORRECCIONES_HORAS.md](CONTRATO_CORRECCIONES_HORAS.md) revisión 0.1 define un registro `correccion_horas` con `id`, `movimiento_original_id` único, `movimiento_reverso_id` único, `movimiento_reemplazo_id` opcional, `motivo`, `corregido_por`, `corregido_en` y `solicitud_id` único. El original queda inmutable; el reverso lo compensa exactamente y el reemplazo no puede aumentar sus horas. #72 debe garantizar atomicidad, idempotencia y exclusión concurrente.
 
 **PENDIENTE R30:** campos de instantánea académica/clasificación se seleccionan en #12. Su ausencia en este borrador no autoriza a migrar el libro perdiendo historia requerida.
 
@@ -173,7 +173,7 @@ erDiagram
     PARTICIPACION ||--o{ MOVIMIENTO_HORAS : acredita
 ```
 
-Tipos/áreas, contactos, coordinadores, historia académica, saldos y correcciones se dejan fuera del diagrama principal hasta elegir sus alternativas. Las FK territoriales candidatas de sede y ejecución constan en M30; su obligatoriedad sigue pendiente.
+Tipos/áreas, contactos, coordinadores, historia académica, saldos y correcciones se dejan fuera del diagrama principal hasta aprobar sus contratos. Las FK territoriales candidatas de sede y ejecución constan en M30; su obligatoriedad sigue pendiente.
 
 ## Aprobación por bloques y barreras de implementación
 
