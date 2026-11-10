@@ -138,7 +138,7 @@ Cardinalidad propuesta: participación 1 → 0..N movimientos; administrador 1 �
 
 **PENDIENTE técnico de R24:** #66 debe conservar/comparar el contenido canónico de la solicitud o un registro de idempotencia equivalente. Una clave única por sí sola evita duplicados pero no detecta un cuerpo diferente. Resolver atomicidad, reintentos concurrentes y retención sin confundir conflicto con repetición válida.
 
-**PENDIENTE R26:** candidato `saldo_previo` con `id uuid` PK, `estudiante_id uuid` FK, `naturaleza text`, `horas integer`, `fecha_corte date`, `procedencia text`, `registrado_en timestamptz`, `registrado_por uuid` FK e identificador de carga/solicitud por definir. #10 decide obligatoriedades, si cero se omite, granularidad, clave de unicidad y conciliación. No representar saldo desconocido con un proyecto, fecha o territorio ficticios ni crear un único saldo mutable sin procedencia.
+**PROPUESTA R26:** [CONTRATO_SALDOS_PREVIOS.md](CONTRATO_SALDOS_PREVIOS.md) revisión 0.1 define un lote inmutable con `id`, `fecha_corte`, metadatos de fuente, conteos, sumas y huella canónica. Cada `saldo_previo` candidato contiene `id`, `lote_id`, `estudiante_id`, `naturaleza`, `horas`, `fuente_ref`, `registrado_en` y `registrado_por`; unicidad por estudiante/categoría y por fila del lote. `horas` admite cero solo con fuente explícita y la ausencia no equivale a cero. La carga debe impedir que un saldo conviva con movimientos detallados de la misma categoría hasta el corte. #68/#95 deciden SQL y garantías físicas solo después de aprobar #10.
 
 **PENDIENTE R27:** no se añade un campo negativo ni una tabla de reverso como si ya estuvieran aprobados. #9 resolverá corrección, referencias al original, motivo, actor, fechas y tratamiento tras el cierre antes de #72.
 
