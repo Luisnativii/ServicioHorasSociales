@@ -48,7 +48,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R23 | CONFIRMADO | Acreditar solo con proyecto y participación ACTIVOS; no admitir horas tardías después del cierre. Estado, historial y acreditación deben conservar consistencia ante operaciones concurrentes. | F01 etapas 09, 11 y 12; F03. |
 | R24 | CONFIRMADO | Reintentar la misma solicitud no duplica movimientos. Reutilizar su clave con un cuerpo distinto produce conflicto. | F01 etapa 12; F03. |
 | R25 | CONFIRMADO | Meta de 300 horas internas Y 300 externas por estudiante, sin compensar categorías. El exceso de internas no cubre la falta de externas. Se admiten saldos previos separados por categoría, con procedencia por acordar. | F01 reglas funcionales y etapa 12; F03. |
-| R26 | PENDIENTE | Acordar corte, idempotencia y procedencia de saldos previos; no fabricar proyectos, fechas o territorios históricos desconocidos. | F01 decisiones abiertas; F02 D17–D18; #10. |
+| R26 | CONFIRMADO | [Contrato de saldos previos](CONTRATO_SALDOS_PREVIOS.md) revisión 0.1 aceptado: corte global inclusivo, saldos separados por categoría, una sola representación histórica por estudiante/categoría, procedencia verificable y lote idempotente. La fecha exacta se declara antes de cargar; no fabricar proyectos, fechas o territorios. | F01 decisiones abiertas; F02 D17–D18; aceptación del propietario en #10 del 10 de noviembre. |
 | R27 | CONFIRMADO | [Contrato de correcciones](CONTRATO_CORRECCIONES_HORAS.md) revisión 0.1 aceptado: original inmutable, reverso completo vinculado y reemplazo opcional que no aumenta horas. Después del cierre corrige historia existente sin habilitar acreditación tardía. | F01 decisiones abiertas y etapa 12; F02 D16; aceptación del propietario en #9 del 10 de noviembre. |
 | R28 | PENDIENTE | Acordar límites de `fecha_horas`, relación con fechas del proyecto y zona horaria de cortes. Distinguir fecha de actividad de instante de registro no resuelve esas políticas. | F02 D22; #5 y #8. |
 | R29 | CONFIRMADO | Dashboard y XLSX comparten filtros y cifras. Separar estudiantes únicos, participaciones, proyectos y movimientos; evitar multiplicar horas al combinar áreas. La actividad del período se mide por `fecha_horas`; el acumulado y los saldos sin historia se distinguen de esa actividad. | F01 etapas 13–14; F03. |
@@ -80,6 +80,7 @@ Estos casos usan datos sintéticos; verifican la interpretación de reglas y no 
 | E09 | Acreditación ordinaria después de cierre | Rechazada. Una eventual corrección tiene decisión separada y no habilita horas tardías. R23 y R27. |
 | E10 | Saldo previo sin fecha conocida | Puede afectar acumulado según contrato de #10; no se atribuye a un período o territorio inventado. R26 y R29. |
 | E11 | Corregir 10 internas como 10 externas | El original permanece; un reverso neutraliza 10 internas y un reemplazo agrega 10 externas. El total global no aumenta. R27. |
+| E12 | 120 internas al corte y 20 internas posteriores | Acumulado 140; actividad posterior al corte 20. El saldo no se convierte en movimiento ni se cuenta dos veces. Propuesta R26. |
 
 ## Límite de aprobación
 
