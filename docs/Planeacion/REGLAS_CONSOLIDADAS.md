@@ -26,7 +26,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R11 | CONFIRMADO | [Contrato de contactos](CONTRATO_CONTACTOS.md) revisión 0.1 aceptado: coordinador textual en carrera, contacto principal textual en institución y responsable textual en proyecto; son bloques independientes, sin catálogo, enum, cuenta ni entidad global de persona. | F01 decisiones abiertas; F02 D07–D09; aceptación del propietario en #11 del 10 de noviembre. |
 | R12 | CONFIRMADO | Un proyecto inicia ACTIVO y EXTERNA por defecto. La fecha final no se exige en el alta y se captura al finalizar. No hay acción de publicar. Desde ACTIVO puede pasar a ABANDONADO, CANCELADO o FINALIZADO, sin reapertura. | F01 etapa 09; F03. |
 | R13 | CONFIRMADO | Un cambio de naturaleza afecta las horas nuevas; conserva la categoría de los movimientos anteriores. | F01 reglas funcionales y etapa 12; F03. |
-| R14 | PENDIENTE | Elegir un tipo o varios, una o varias áreas, su independencia y su historia. No seleccionar una alternativa SQL antes de aprobar #7 y, para historia, #12. | F01 decisiones abiertas; F02 D04–D05, D20. |
+| R14 | CONFIRMADO | [Contrato de clasificación](CONTRATO_CLASIFICACION.md) revisión 0.1 aceptado: exactamente un tipo y un área independientes por proyecto, sin relaciones muchos-a-muchos; la reclasificación es prospectiva y conserva la atribución histórica. Los nombres oficiales siguen pendientes de fuente para #41. | F01 decisiones abiertas; F02 D04–D05, D20; aceptación del propietario en #7 del 10 de noviembre. |
 | R15 | PENDIENTE | Definir o excluir modalidad y habilidades blandas antes de crear campos o catálogos. | F01 decisiones abiertas; F02 D06; #13. |
 
 ## Estudiantes y participaciones
