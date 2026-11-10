@@ -1,10 +1,10 @@
 # Contrato de correcciones del libro de horas
 
-Revisión 0.1 para aprobación · Issue [#9](https://github.com/Luisnativii/ServicioHorasSociales/issues/9) · 9 de noviembre de 2026
+Revisión 0.1 aceptada · Issue [#9](https://github.com/Luisnativii/ServicioHorasSociales/issues/9) · 10 de noviembre de 2026
 
-**Estado: propuesta acotada.** Este contrato no habilita edición ni borrado de movimientos, no ejecuta SQL sobre datos reales y no sustituye la decisión del propietario de realizar una carga inicial manual. Debe aprobarse antes de implementar #72/#73.
+**Estado: contrato aceptado.** El propietario aceptó el reverso auditable, reemplazo limitado y tratamiento posterior al cierre al solicitar corregir e integrar los PR #128–#134. Este contrato no ejecuta SQL ni sustituye la carga inicial manual.
 
-## Decisión propuesta
+## Decisión aceptada
 
 - Un movimiento de horas acreditado es inmutable: nunca se actualiza ni se elimina.
 - Una corrección crea un reverso auditable vinculado al movimiento original y, cuando corresponde, un movimiento de reemplazo vinculado a la misma corrección.
@@ -36,7 +36,7 @@ La corrección no reabre el proyecto ni la participación, no cambia su estado d
 
 La implementación puede representar el reverso y el reemplazo como movimientos relacionados, pero el SQL definitivo pertenece a #72. Como mínimo debe preservar:
 
-| Dato | Regla propuesta |
+| Dato | Regla aceptada |
 | --- | --- |
 | `correccion.id` | Identificador único de la operación administrativa. |
 | `movimiento_original_id` | FK obligatoria; único entre correcciones efectivas. |
@@ -66,10 +66,10 @@ Original, reverso, reemplazo y registro de corrección se guardan en una sola tr
 5. Dos ADMIN intentan corregir el mismo original: solo una transacción puede confirmarse; la otra recibe conflicto.
 6. Reintentar la misma `solicitud_id` con el mismo cuerpo no duplica reversos; reutilizarla con otro cuerpo produce conflicto.
 
-## Límites y aprobación
+## Límites y registro de aprobación
 
 - La carga inicial manual indicada por el propietario no se ejecuta ni se diseña en este issue; #10/#95 definen saldos y conciliación.
 - No se corrigen saldos previos con este contrato hasta que #10 defina su procedencia y granularidad.
 - R28 debe fijar los rangos exactos de fecha antes de implementar correcciones de fecha.
-- La matriz de cierre de #8 es una propuesta separada. Este contrato solo exige distinguir acreditación ordinaria de corrección administrativa.
-- Hasta la aceptación expresa del propietario, R27 permanece como propuesta, el issue conserva `needs:decision` y no se generan migraciones ni endpoints.
+- La matriz de cierre de #8 es un contrato separado y no se modifica mediante correcciones.
+- El 10 de noviembre de 2026 el propietario solicitó corregir e integrar los siete PR documentales abiertos, incluido #132. Esa instrucción acepta esta revisión; migraciones y endpoints corresponden a #72/#73.
