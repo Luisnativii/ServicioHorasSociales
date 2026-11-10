@@ -85,9 +85,7 @@ Base funcional: R09–R15. Antes de persistir: aprobación de campos en #5/#6, c
 
 Cardinalidades propuestas: institución 1 → 0..N proyectos; proyecto → exactamente una institución. Sede y ejecución no comparten una fila mutable de dirección por deducción. Si se admite ubicación desconocida o externa al catálogo nacional, #5/#6 debe decidir su representación antes de migrar.
 
-**PENDIENTE R11:** `contacto_institucion` y `contacto_proyecto` son dos candidatos separados; campos candidatos `id uuid`, FK al titular, `nombre text`, `correo text`, `telefono text`, `extension text`. #11 debe elegir número de contactos, campos obligatorios y si son personas reutilizables. No elegir un único responsable, exigir correo o crear una entidad global de persona sin esa decisión.
-
-**PENDIENTE R11:** `coordinador` y `carrera_coordinador` representan una alternativa N:M; candidatos mínimos: coordinador con `id uuid` y `nombre text`; vínculo con `carrera_id uuid` y `coordinador_id uuid` (PK compuesta/FK). Campos de contacto, vigencia y relación con proyectos se deciden en #11. Un coordinador no referencia `administrador` por el hecho de existir.
+**ACEPTADO R11:** el [contrato de contactos](CONTRATO_CONTACTOS.md) revisión 0.1 define `carrera.coordinador_nombre` y bloques textuales en línea para el contacto principal de `institucion` y el responsable de `proyecto`, con sus obligatoriedades acordadas. No crear `coordinador`, `carrera_coordinador`, `contacto_institucion`, `contacto_proyecto` ni una entidad global de persona.
 
 **ACEPTADO R14:** el [contrato de clasificación](CONTRATO_CLASIFICACION.md) revisión 0.1 confirma exactamente un tipo y un área independientes por proyecto, por lo que se descartan tablas puente y dependencias área→tipo. Los candidatos son catálogos `tipo_proyecto` y `area`, cada uno con `id uuid`, `nombre text`, `activo boolean`, y referencias vigentes `proyecto.tipo_id` / `proyecto.area_id`. La reclasificación es prospectiva; #12 definirá el mecanismo físico de historia. No precargar nombres sin fuente aprobada.
 
