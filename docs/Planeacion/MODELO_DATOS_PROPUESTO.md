@@ -89,7 +89,7 @@ Cardinalidades propuestas: institución 1 → 0..N proyectos; proyecto → exact
 
 **PENDIENTE R11:** `coordinador` y `carrera_coordinador` representan una alternativa N:M; candidatos mínimos: coordinador con `id uuid` y `nombre text`; vínculo con `carrera_id uuid` y `coordinador_id uuid` (PK compuesta/FK). Campos de contacto, vigencia y relación con proyectos se deciden en #11. Un coordinador no referencia `administrador` por el hecho de existir.
 
-**PENDIENTE R14:** catálogos candidatos `tipo_proyecto` y `area`, cada uno con `id uuid`, `nombre text`, `activo boolean`. Si #7 aprueba un tipo por proyecto, la alternativa es FK `proyecto.tipo_id`; si aprueba varios, tabla puente con PK `(proyecto_id, tipo_id)`. Análogamente, una sola área usaría FK `proyecto.area_id`; varias usarían `proyecto_area` con PK `(proyecto_id, area_id)`. No implementar ambas alternativas ni una dependencia área→tipo sin aprobación. Si se requiere historia, #12 definirá qué instantánea/versionado conservar.
+**ACEPTADO R14:** el [contrato de clasificación](CONTRATO_CLASIFICACION.md) revisión 0.1 confirma exactamente un tipo y un área independientes por proyecto, por lo que se descartan tablas puente y dependencias área→tipo. Los candidatos son catálogos `tipo_proyecto` y `area`, cada uno con `id uuid`, `nombre text`, `activo boolean`, y referencias vigentes `proyecto.tipo_id` / `proyecto.area_id`. La reclasificación es prospectiva; #12 definirá el mecanismo físico de historia. No precargar nombres sin fuente aprobada.
 
 Índices candidatos: `proyecto.institucion_id`, estado y los FK territoriales; clasificación solo después de seleccionar cardinalidades y consultas. No añadir índices de búsqueda ni restricciones de nombres que aún no tengan contrato.
 
