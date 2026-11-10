@@ -12,6 +12,10 @@ Este directorio conserva el plan original y organiza su ejecución en tareas peq
 - [Aclaraciones vigentes](DECISIONES_VIGENTES.md): un rol ADMIN, múltiples cuentas y prioridad de las decisiones recientes.
 - [Contrato de acceso aceptado](CONTRATO_ACCESO.md): dos horas, contraseña sencilla hasheada, JWT sin recuperación/revocación y bloque mínimo de identidad aprobado para #21.
 - [Inventario y contrato de calidad aceptado](CONTRATO_EQUIPO_CALIDAD.md): separa desarrollo del servidor aún no designado y fija metas candidatas para medir antes de producción.
+- [Contrato de saldos previos aceptado](CONTRATO_SALDOS_PREVIOS.md): corte inclusivo, procedencia, representación histórica única e idempotencia; la fecha exacta se declara en #95.
+- [Contrato de correcciones de horas aceptado](CONTRATO_CORRECCIONES_HORAS.md): reversos auditables, reemplazos limitados y corrección posterior al cierre sin acreditación tardía.
+- [Contrato de estados y cierres aceptado](CONTRATO_CIERRES.md): matriz de proyectos y participaciones, fechas, cancelación y efectos posteriores al cierre.
+- [Contrato de modalidad aceptado](CONTRATO_MODALIDAD.md): un catálogo administrable obligatorio por proyecto; “habilidades blandas” no es otro campo.
 - [Alcance vigente](ALCANCE_VIGENTE.md): usuarios, funciones previstas, avance existente, exclusiones y responsables de decisiones abiertas.
 - [Registro de horas de desarrollo](REGISTRO_HORAS.md): presupuesto de 300 horas separado de las metas estudiantiles; sesiones reales solo cuando se confirmen.
 - [Fuentes y trazabilidad](FUENTES_Y_TRAZABILIDAD.md): procedencia, confirmación de la lógica, sustituciones y bloqueos por issue.
