@@ -27,7 +27,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R12 | CONFIRMADO | Un proyecto inicia ACTIVO y EXTERNA por defecto. La fecha final no se exige en el alta y se captura al finalizar. No hay acción de publicar. Desde ACTIVO puede pasar a ABANDONADO, CANCELADO o FINALIZADO, sin reapertura. | F01 etapa 09; F03. |
 | R13 | CONFIRMADO | Un cambio de naturaleza afecta las horas nuevas; conserva la categoría de los movimientos anteriores. | F01 reglas funcionales y etapa 12; F03. |
 | R14 | PENDIENTE | Elegir un tipo o varios, una o varias áreas, su independencia y su historia. No seleccionar una alternativa SQL antes de aprobar #7 y, para historia, #12. | F01 decisiones abiertas; F02 D04–D05, D20. |
-| R15 | PENDIENTE | Definir o excluir modalidad y habilidades blandas antes de crear campos o catálogos. | F01 decisiones abiertas; F02 D06; #13. |
+| R15 | PENDIENTE | El propietario confirmó un solo concepto “modalidad”, seleccionable o creable; “habilidades blandas” es un ejemplo, no otro campo. Falta aprobar su catálogo, referencia obligatoria por proyecto, desactivación y límite histórico según [CONTRATO_MODALIDAD.md](CONTRATO_MODALIDAD.md). | F01 decisiones abiertas; F02 D06; aclaración del propietario en #13. |
 
 ## Estudiantes y participaciones
 
