@@ -7,7 +7,9 @@
 - **tipo/NUMERO-descripcion**: una rama por issue, creada desde `develop` y eliminada por GitHub después de integrar el PR.
 - **V0.0.1**: tag anotado de la base inicial. Sustituye la numeración provisional `0.1.0-dev` usada durante la preparación local. No representa un despliegue en producción.
 
-`develop` es predeterminada para que GitHub utilice las plantillas y workflows de issues, y para que `Closes #NUMERO` cierre el issue al integrar el PR. Estas funciones dependen de la rama predeterminada: [plantillas](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/about-issue-and-pull-request-templates) y [vinculación de issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue).
+`develop` es predeterminada para que GitHub utilice las plantillas y para que `Closes #NUMERO` cierre el issue al integrar el PR. Estas funciones dependen de la rama predeterminada: [plantillas](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/about-issue-and-pull-request-templates) y [vinculación de issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue).
+
+> **GitHub Actions desactivado.** Desde noviembre de 2026 GitHub rechaza iniciar los jobs porque la cuenta está bloqueada por facturación. Se retiraron los workflows para que cada PR no quede marcado por un fallo ajeno al código. Las pruebas siguen disponibles mediante Docker local; las ramas, estados y etiquetas se gestionan manualmente hasta que el propietario decida reactivar CI.
 
 La publicación inicial del proyecto en `develop` es la única excepción al requisito de PR: establece la base sobre la que podrá funcionar CI. Los siguientes cambios pasan por issue, rama y PR.
 
@@ -33,31 +35,25 @@ Se exige exactamente un tipo. El número es el número real del issue; `12` es s
 
 ## 2. Iniciar el trabajo y generar la rama
 
-Cuando el issue esté definido, asigna responsable y agrega **`status:ready`**. El workflow **Issues**:
+Cuando el issue esté definido:
 
-1. Verifica que quien inicia la tarea tenga permiso de escritura.
-2. Consulta las dependencias nativas y rechaza el inicio si alguna sigue abierta, fue cerrada como no planificada, carece de `status:done` o conserva `needs:decision`.
-3. Obtiene el número y título real del issue.
-4. Elimina acentos y símbolos del título y genera un nombre corto en minúsculas.
-5. Crea `tipo/NUMERO-descripcion` desde el commit actual de `develop`.
-6. Cambia el estado a `status:in-progress` y deja en el issue un enlace y los comandos de Git.
-
-La comprobación falla de forma segura si GitHub no permite consultar las dependencias. Si una dependencia terminada conserva `needs:decision` porque contiene otros bloques abiertos, la aceptación humana del bloque concreto debe registrarse en el issue dependiente con `<!-- hs:dependency-gate:accepted #NUMERO -->` y una explicación. Esta marca solo resuelve `needs:decision`: no convierte una tarea abierta, no planificada o sin entrega en una dependencia válida.
-
-Una tarea exclusivamente documental o de seguimiento puede declarar la excepción `<!-- hs:dependency-gate:exempt -->` en su cuerpo, pero solo se reconoce con `type:docs` o `area:planning`; la excepción debe explicar el seguimiento y no autoriza implementar el trabajo bloqueado.
-
-No crea ramas automáticamente por el simple hecho de proponer una tarea. Al repetir `status:ready` para el mismo tipo/issue se reutiliza la rama existente, sin sobrescribir su trabajo. Evita cambiar el tipo de un issue después de empezar a trabajar.
-
-Ejemplo, cuando la automatización haya creado `feature/12-definir-modelo-aprobado`:
+1. Comprueba manualmente sus dependencias nativas. Cada dependencia debe estar integrada, cerrada como completada, con `status:done` y sin una decisión pendiente aplicable.
+2. Asigna responsable y cambia `status:backlog` o `status:ready` a `status:in-progress`.
+3. Actualiza `develop` sin sobrescribir cambios locales.
+4. Crea o reutiliza `tipo/NUMERO-descripcion` desde el commit actual de `develop`.
 
 ```bash
 git fetch origin --prune --tags
-git switch --track origin/feature/12-definir-modelo-aprobado
+git switch develop
+git pull --ff-only origin develop
+git switch -c feature/12-definir-modelo-aprobado
 ```
 
-Si ya existe localmente, usa `git switch feature/12-definir-modelo-aprobado`. También puedes pedirme: «Trabaja el issue #12 en su rama y prepara el PR hacia develop».
+Si la rama ya existe en el remoto, usa `git switch --track origin/RAMA`; si existe localmente, usa `git switch RAMA`. Nunca crees una segunda rama para el mismo issue ni uses `status:ready` esperando una automatización.
 
-Estados: `status:backlog` → `status:ready` → `status:in-progress` → issue cerrado / `status:done`. Al reabrirlo vuelve al backlog.
+Si una dependencia terminada conserva `needs:decision` porque contiene otros bloques abiertos, la aceptación humana del bloque concreto debe registrarse en el issue dependiente con `<!-- hs:dependency-gate:accepted #NUMERO -->` y una explicación. Esta marca solo resuelve esa decisión: no convierte una tarea abierta, no planificada o sin entrega en una dependencia válida.
+
+Estados manuales: `status:backlog` → `status:ready` opcional → `status:in-progress` → issue cerrado / `status:done`. Al reabrirlo vuelve al backlog.
 
 ## 3. Desarrollar y abrir el PR
 
@@ -77,15 +73,17 @@ El PR debe apuntar a **develop** y tener:
 - Explicación del resultado y evidencia de comprobación.
 - **Una sola etiqueta** `version:patch`, `version:minor` o `version:major`.
 
-Los checks **GitFlow** y **Docker** son obligatorios. Para actualizar el PR con nuevos commits, vuelve a subir la misma rama. Si `develop` avanzó y GitHub pide actualizarla, integra ese avance antes de repetir las comprobaciones.
+No hay checks automáticos mientras Actions esté desactivado. Antes de abrir o actualizar el PR ejecuta las comprobaciones pertinentes dentro de Docker y registra comandos y resultados reales. Para cambios amplios o antes de integrar, usa `bash scripts/ci.sh`; para documentación basta como mínimo revisar enlaces afectados y ejecutar `git diff --check`.
 
-La rama está protegida con PR y checks, sin exigir una aprobación ajena que bloquearía a un único mantenedor. Las conversaciones deben estar resueltas. La excepción administrativa de GitHub queda disponible para recuperar el repo, pero no forma parte del trabajo normal.
+Para actualizar el PR con nuevos commits, vuelve a subir la misma rama. Si `develop` avanzó y GitHub pide actualizarla, integra ese avance antes de repetir las comprobaciones.
+
+La rama debe conservar el requisito de PR y conversaciones resueltas, pero no puede exigir los checks `GitFlow` o `Docker` mientras sus workflows no existan. El propietario debe retirar esos nombres de las reglas de protección para evitar un bloqueo permanente; esto no autoriza pushes directos ni merges sin evidencia.
 
 ## 4. Integrar y aumentar la versión
 
-Se usa **Squash and merge**: el título y cuerpo del PR forman el commit que entra a `develop`. GitHub cierra el issue por `Closes #NUMERO` y elimina la rama remota. El workflow Issues marca el issue como terminado.
+Se usa **Squash and merge**: el título y cuerpo del PR forman el commit que entra a `develop`. GitHub cierra el issue por `Closes #NUMERO` y elimina la rama remota. Después del merge, el responsable aplica `status:done` manualmente si GitHub no lo conserva.
 
-La pipeline CI valida la integración de `develop`. Solo después de pasar todas sus comprobaciones crea un tag anotado sobre ese commit:
+El incremento que correspondería se conserva como etiqueta del PR para facilitar una reactivación futura:
 
 | Etiqueta elegida en el PR | Desde V0.0.1 | Uso |
 | --- | --- | --- |
@@ -93,13 +91,11 @@ La pipeline CI valida la integración de `develop`. Solo después de pasar todas
 | `version:minor` | `V0.1.0` | Capacidad nueva que merece incrementar MINOR |
 | `version:major` | `V1.0.0` | Cambio incompatible |
 
-No hay incremento en cada commit, al abrir el issue ni al abrir el PR. Un título con `!` exige `version:major`. La pipeline rechaza pushes directos sin un PR integrado, salvo la base inicial ya etiquetada.
+No hay incremento en cada commit, al abrir el issue ni al abrir el PR. Un título con `!` exige `version:major`. Mientras Actions permanezca desactivado, integrar un PR no crea un tag. No se deben fabricar o mover tags manualmente para aparentar que una validación automática ocurrió.
 
-Si CI falla, no se crea un tag. Una ejecución cuyo commit ya fue superado por otra integración no publica una versión atrasada: la siguiente integración vigente se valida y etiqueta. GitHub serializa CI de `develop` y puede agrupar ejecuciones pendientes cuando entran muchas integraciones seguidas; el tag representa la integración vigente validada, no un contador de todos los PR históricos.
+Los tags ya publicados siguen siendo la fuente histórica de verdad y no se reescriben. La política de reanudación del versionado se definirá al recuperar CI o en el issue de releases; no se publican imágenes ni se despliegan servicios por este cambio.
 
-Los tags son la fuente de verdad y no se reescriben. La pipeline no hace commits de versión, no sube imágenes a un registro y no despliega servicios. Se mantienen permisos de solo lectura durante las pruebas; solo el job de etiquetado puede escribir contenido, y nunca se ejecuta para un PR.
-
-`package.json` conserva la versión de arranque del paquete privado, `0.0.1`: no es la fuente del número de release. `scripts/version.sh` obtiene la versión del tag más cercano del historial; `scripts/dc.sh` la pasa a Compose, al frontend y a las etiquetas de las imágenes. La variable `APP_VERSION` permite que CI construya exactamente la versión propuesta. Si se descarga un ZIP sin Git, el respaldo es `0.0.1`.
+`package.json` conserva la versión de arranque del paquete privado, `0.0.1`: no es la fuente del número de release. `scripts/version.sh` obtiene la versión del tag más cercano del historial; `scripts/dc.sh` la pasa a Compose, al frontend y a las etiquetas de las imágenes. La variable `APP_VERSION` permite una construcción local explícita. Si se descarga un ZIP sin Git, el respaldo es `0.0.1`.
 
 Después de una integración:
 
@@ -113,15 +109,13 @@ bash scripts/dc.sh up -d --build --wait --wait-timeout 180
 
 Las imágenes locales serán `hs-api:VERSION-dev`, `hs-web:VERSION-dev` y `hs-migrator:VERSION-dev`. La pantalla mostrará `VERSION-dev`. Mantén el checkout local en `develop` o en una rama de tarea mientras uses Docker; `main` contiene únicamente el README y no dispone de las fuentes que montan los contenedores.
 
-## Pipeline y comprobaciones
+## Comprobaciones locales
 
-- **GitFlow**: valida issue, rama, título, destino, etiqueta de versión y procedencia de las integraciones; propone la versión.
-- **Dependencias**: tanto `status:ready` como el PR consultan las dependencias nativas. Un cierre sin entrega aceptada o con decisión pendiente no desbloquea implementación, y un error de API nunca concede permiso por omisión.
-- **Docker**: ejecuta `scripts/ci.sh` exclusivamente en `hs-test`, con credenciales, redes y volumen propios; construye imágenes y comprueba aislamiento, Go/TypeScript/Vite, migraciones, recuperación, persistencia, runtime sin root y vulnerabilidades conocidas.
-- **Versionado**: crea el tag si los checks pasaron, hay un PR integrado y el commit sigue siendo el vigente de `develop`.
-- **Issues**: crea ramas y mantiene los estados al iniciar, cerrar o reabrir issues.
-
-Las acciones oficiales están fijadas por SHA. No hay token personal ni secreto guardado en los workflows: usan el `GITHUB_TOKEN` de cada ejecución con permisos limitados.
+- **Política**: `scripts/check-gitflow.sh` conserva pruebas de las reglas de rama/issue/PR y SemVer, pero no consulta ni modifica GitHub.
+- **Dependencias**: se revisan manualmente antes de crear la rama y antes de integrar. Un cierre sin entrega aceptada o con decisión pendiente no desbloquea implementación.
+- **Docker**: `scripts/ci.sh` usa exclusivamente `hs-test`, con credenciales, redes y volumen propios; construye imágenes y comprueba aislamiento, Go/TypeScript/Vite, migraciones, recuperación, persistencia, runtime sin root y vulnerabilidades conocidas.
+- **Versionado**: suspendido mientras Actions esté desactivado. Las etiquetas del PR documentan la intención y los tags publicados no se mueven.
+- **Issues**: ramas, asignación y estados se gestionan manualmente.
 
 ```bash
 # Pruebas de las reglas de GitFlow, dentro de Node en Docker.
@@ -132,6 +126,6 @@ bash scripts/ci.sh
 bash scripts/check.sh
 ```
 
-`scripts/ci.sh` funciona en el runner temporal de GitHub Actions y localmente: detiene únicamente los contenedores de pruebas al terminar y conserva su volumen. No usa `.env` ni modifica o detiene `hs-dev`. Preparación y limpieza en [README](../README.md#pruebas-aisladas-de-desarrollo).
+`scripts/ci.sh` funciona localmente: detiene únicamente los contenedores de pruebas al terminar y conserva su volumen. No usa `.env` ni modifica o detiene `hs-dev`. Preparación y limpieza en [README](../README.md#pruebas-aisladas-de-desarrollo).
 
 Antes de promover código a `main` o publicar producción, definiremos una etapa de release independiente y ajustaremos su protección; por ahora `main` queda reservada.

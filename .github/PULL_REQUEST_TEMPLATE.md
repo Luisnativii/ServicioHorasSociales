@@ -23,4 +23,5 @@ Selecciona **una sola etiqueta** en el PR:
 - [ ] Título como `feat(api): describir el cambio (#12)`.
 - [ ] Los criterios del issue se cumplen.
 - [ ] No hay secretos ni archivos generados.
-- [ ] Las comprobaciones `GitFlow` y `Docker` pasan.
+- [ ] Se ejecutaron y documentaron las comprobaciones locales pertinentes.
+- [ ] Si el cambio lo requiere, `bash scripts/ci.sh` pasa dentro de Docker.

@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- ci: desactivar los workflows de GitHub Actions bloqueados por facturación y trasladar creación de ramas, pruebas completas y versionado a un procedimiento manual verificable.
+
 - feat(web): gestión de cuentas administradoras (#33), listado paginado real, confirmación de activación/desactivación y reconciliación de cambios inciertos sin reintentar escrituras.
 
 - feat(web): estructura administrativa Archivo (#32), navegación protegida, menú móvil, confirmación de salida y limpieza de vistas privadas ante caché de navegación.

@@ -40,9 +40,11 @@ La carga inicial se concreta en #95, con la procedencia, corte y prevención de 
 
 ## Flujo de trabajo y versiones
 
-La configuración existente en `docs/GITFLOW.md` prevalece sobre los ejemplos anteriores del plan: `main` conserva solo README; trabajo e integración en `develop`; rama por issue; PR y checks; tags automáticos `VMAJOR.MINOR.PATCH`.
+La configuración existente en `docs/GITFLOW.md` prevalece sobre los ejemplos anteriores del plan: `main` conserva solo README; trabajo e integración en `develop`; rama por issue; PR y comprobaciones locales documentadas.
 
-Las versiones de ejemplo por etapa del plan no se crean por adelantado ni se generan manualmente para cada issue. La promoción de releases, candidatas y GHCR se define en una tarea posterior explícita; los tags actuales de integración no autorizan despliegues.
+GitHub Actions está desactivado desde noviembre de 2026 porque GitHub bloquea los jobs por un problema de facturación de la cuenta. Mientras continúe ese bloqueo, las ramas y estados se administran manualmente, `scripts/ci.sh` se ejecuta localmente cuando corresponde y no se generan tags automáticos. Las protecciones de rama no deben exigir checks que ya no pueden publicarse.
+
+Las versiones de ejemplo por etapa del plan no se crean por adelantado ni se generan manualmente para cada issue. Los tags existentes son inmutables. La promoción de releases, candidatas y GHCR se define en una tarea posterior explícita; la desactivación de Actions no autoriza despliegues ni versionado improvisado.
 
 ## Avance que se reutiliza
 

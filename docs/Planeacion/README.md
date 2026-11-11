@@ -40,7 +40,7 @@ La autenticación no necesita que se creen de golpe todas las tablas de negocio.
 
 ## Uso del backlog
 
-Los issues incluyen un prompt acotado, criterios de aceptación, etapa de origen, límites y dependencias nativas de GitHub. Los 10 hitos agrupan áreas de entrega; el número del issue identifica la tarea y genera su rama al aplicar `status:ready`.
+Los issues incluyen un prompt acotado, criterios de aceptación, etapa de origen, límites y dependencias nativas de GitHub. Los 10 hitos agrupan áreas de entrega; el número del issue identifica la tarea y su rama se crea manualmente desde `develop`.
 
 Las tareas permanecen en backlog hasta decidir ejecutarlas. Las decisiones y la exportación de contexto no se presentan como aprobadas. La comprobación automática adicional de dependencias se contempla en su propio issue; mientras se incorpora, deben revisarse manualmente antes de marcar una tarea lista.
 

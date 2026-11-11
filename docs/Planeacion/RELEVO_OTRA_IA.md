@@ -4,9 +4,11 @@ Fecha de corte: 29 de octubre de 2026, America/El_Salvador. Guía de relevo, iss
 
 Este documento permite continuar sin depender del historial del chat. Es una fotografía del avance y una cola propuesta; **GitHub y el código actualizado prevalecen para conocer el estado vivo**. No autoriza implementar veinte tareas de golpe ni integrar PR sin solicitud del propietario.
 
+> Actualización operativa de noviembre de 2026: GitHub Actions está desactivado por el bloqueo de facturación de la cuenta. La guía vigente es `docs/GITFLOW.md`: ramas y estados manuales, pruebas locales dentro de Docker y sin tags automáticos.
+
 ## Mensaje inicial para copiar a la otra IA
 
-> Trabaja en este repositorio siguiendo AGENTS.md, docs/GITFLOW.md y docs/Planeacion/CONTEXTO_IA.md. Lee docs/Planeacion/RELEVO_OTRA_IA.md para conocer el avance, las decisiones y la cola. Primero verifica GitHub, ramas, dependencias y cambios locales; no supongas que la carpeta está actualizada. Continúa un solo issue por entrega, empezando por #26 si sigue abierto y sus dependencias están integradas. Usa la rama del issue desde develop, programa, ejecuta comprobaciones específicas dentro de Docker y prepara un PR hacia develop. Detente antes del merge y no crees tags manuales. No repitas toda la batería local sin motivo: GitHub CI ejecuta la completa. Conserva .env, .secrets, hs-dev_pgdata y documentos locales; no imprimas secretos ni uses git add indiscriminadamente. Si falta una decisión importante, prepara una propuesta concreta y pregunta solo lo que realmente falte; no vuelvas a preguntar lo ya aprobado. Comunica brevemente qué quedó funcional, cómo probarlo y qué sigue. La lista de veinte tareas es una secuencia, no autorización para saltar dependencias.
+> Trabaja en este repositorio siguiendo AGENTS.md, docs/GITFLOW.md y docs/Planeacion/CONTEXTO_IA.md. Lee docs/Planeacion/RELEVO_OTRA_IA.md para conocer el avance, las decisiones y la cola. Primero verifica GitHub, ramas, dependencias y cambios locales; no supongas que la carpeta está actualizada. Continúa un solo issue por entrega y verifica sus dependencias integradas. Crea o reutiliza manualmente su rama desde develop, programa, ejecuta comprobaciones específicas dentro de Docker y prepara un PR hacia develop. Detente antes del merge y no crees tags manuales. GitHub Actions está desactivado: registra la validación local realmente ejecutada. Conserva .env, .secrets, hs-dev_pgdata y documentos locales; no imprimas secretos ni uses git add indiscriminadamente. Si falta una decisión importante, prepara una propuesta concreta y pregunta solo lo que realmente falte; no vuelvas a preguntar lo ya aprobado. Comunica brevemente qué quedó funcional, cómo probarlo y qué sigue. La lista de tareas es una secuencia, no autorización para saltar dependencias.
 
 ## Fuentes que debe leer y prioridad
 
@@ -25,7 +27,7 @@ Repositorio: <https://github.com/Luisnativii/ServicioHorasSociales>. La integrac
 | Disponible | Evidencia y límites |
 | --- | --- |
 | Base Go/React/PostgreSQL y Docker | Código en `apps/`, migraciones, salud HTTP, persistencia y portal mínimo. No crear otro proyecto dentro de la carpeta. |
-| Flujo GitHub y pruebas aisladas | Issues, ramas y PR; `hs-test` separado de `hs-dev`; CI completo en GitHub; versionado por tags. |
+| Flujo GitHub y pruebas aisladas | Issues, ramas y PR manuales; `hs-test` separado de `hs-dev`; secuencia completa disponible localmente en `scripts/ci.sh`. |
 | Contrato HTTP y roles de base | Errores/paginación comunes y cuentas separadas `hs_app`/`hs_migrator`. |
 | Administradores | Migración y repositorio reales; herramienta Docker para crear primera cuenta y adicionales; hash Argon2id. No hay cuenta predeterminada. |
 | JWT | Firma/claims/plazo, identidad por contexto y grupo privado protegido. No implementa login por sí solo. |
@@ -65,21 +67,22 @@ bash scripts/version.sh
 ## Ciclo de un issue y cómo subirlo
 
 1. Leer el issue, su instrucción vigente y sus dependencias nativas; comprobar que los prerrequisitos estén aceptados e integrados. Un PR abierto no desbloquea dependientes. Revisar además aprobaciones del modelo: cerrar una fuente documental no aprueba todo el SQL.
-2. Asignar responsable y agregar `status:ready`. La automatización crea/reutiliza `tipo/NUMERO-descripcion` y deja el nombre exacto en el issue. No adivinar ni crear una segunda rama si ya existe.
+2. Asignar responsable, revisar dependencias y marcar `status:in-progress`. Crear o reutilizar manualmente `tipo/NUMERO-descripcion` desde `develop`. No crear una segunda rama si ya existe.
 3. Actualizar referencias y usar esa rama. Si ya tiene avances, conservarlos.
 
 ```bash
 gh issue view NUMERO --repo Luisnativii/ServicioHorasSociales
-gh issue edit NUMERO --repo Luisnativii/ServicioHorasSociales --add-assignee @me --add-label status:ready
+gh issue edit NUMERO --repo Luisnativii/ServicioHorasSociales --add-assignee @me --add-label status:in-progress
 git fetch origin --prune
-# Sustituir RAMA_EXACTA por la publicada por el workflow:
-git switch --track origin/RAMA_EXACTA
+git switch develop
+git pull --ff-only origin develop
+git switch -c tipo/NUMERO-descripcion
 ```
 
 Si la rama existe localmente, usar `git switch RAMA_EXACTA`. `gh` necesita la cuenta GitHub del operador con acceso; si falta autenticación, completar el acceso por sus medios normales. No pedir tokens por el chat ni copiar helpers temporales de otro agente.
 
 4. Implementar exclusivamente el alcance aprobado; reutilizar helpers y componentes existentes. No agregar pantallas/rutas simuladas como si estuvieran conectadas. Documentar contratos cuando cambien.
-5. Ejecutar comprobaciones pertinentes dentro de Docker. Cambios de documentación: enlaces/rutas/diff; backend: compilación y pruebas del paquete afectado; persistencia: PostgreSQL real en `hs-test`; frontend: TypeScript/build y comprobar el flujo modificado. No repetir toda CI local si ya pasó y nada lo justifica. **Nunca omitir o desactivar los checks de GitHub para ganar tiempo.**
+5. Ejecutar comprobaciones pertinentes dentro de Docker. Cambios de documentación: enlaces/rutas/diff; backend: compilación y pruebas del paquete afectado; persistencia: PostgreSQL real en `hs-test`; frontend: TypeScript/build y comprobar el flujo modificado. Para cambios amplios o antes de integrar, ejecutar `bash scripts/ci.sh`. Registrar resultados reales; Actions no los reemplaza mientras está desactivado.
 6. Revisar diff y secretos; agregar solo archivos propios de la tarea. Confirmar que `.env`, `.secrets/` y documentos ajenos queden fuera.
 
 ```bash
@@ -96,8 +99,8 @@ gh pr create --repo Luisnativii/ServicioHorasSociales --base develop \
 
 El cuerpo incluye una línea `Closes #NUMERO`, resultado, pruebas realmente ejecutadas y límites. Elegir exactamente una etiqueta `version:patch|minor|major` según el cambio y GitFlow; el ejemplo no impone patch para todo. No afirmar pruebas inexistentes. Evitar secretos en archivos temporales o cuerpos de PR.
 
-7. Entregar el enlace y detenerse antes de integrar. Solo hacer merge si el propietario lo solicita y pasan los checks requeridos, mediante squash hacia `develop`; sin bypass ni force push. Si GitHub pide actualizar la rama, integrar `origin/develop` en la rama de tarea, resolver conflictos conservando avances y subir normalmente. No reescribir historia publicada.
-8. Después de integrar, volver a actualizar `develop` y Docker. La pipeline crea el tag cuando corresponde. No editar la versión npm para simular una release ni crear/mover tags manualmente.
+7. Entregar el enlace y detenerse antes de integrar. Solo hacer merge si el propietario lo solicita y la evidencia local pertinente está documentada, mediante squash hacia `develop`; sin force push. Si GitHub pide actualizar la rama, integrar `origin/develop` en la rama de tarea, resolver conflictos conservando avances y subir normalmente. No reescribir historia publicada.
+8. Después de integrar, volver a actualizar `develop` y Docker. No editar la versión npm ni crear/mover tags manualmente; el versionado automático queda suspendido con Actions.
 
 ## Operación local y pruebas sin dañar datos
 

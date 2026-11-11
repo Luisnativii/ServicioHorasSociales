@@ -9,7 +9,7 @@ Preparación y comandos exactos en [README](../README.md#pruebas-aisladas-de-des
 - `scripts/check-integration.sh`: migración, caída/recuperación y persistencia sobre hs-test. Retira su esquema temporal, conserva volumen y deja web/API/db de pruebas iniciados.
 - `scripts/check-runtime.sh`: API/Nginx sin root en `hs-test-runtime`, sin puertos y conectado exclusivamente a PostgreSQL de hs-test. Retira sus contenedores al terminar.
 - `scripts/check-security.sh`: npm audit y govulncheck con dependencias temporales en Docker; requiere Internet y no modifica lockfiles.
-- `scripts/check-gitflow.sh`: reglas de rama/issue/PR, SemVer y publicación de tags; Node en Docker.
+- `scripts/check-gitflow.sh`: pruebas locales de las reglas históricas de rama/issue/PR y SemVer; Node en Docker. No publica ramas ni tags.
 - `scripts/ci.sh`: secuencia completa; prepara hs-test, prueba y retira contenedores/redes de pruebas al salir. Conserva volúmenes.
 - `scripts/check-db-roles.sh`: provisiona cuentas dedicadas en hs-test, aplica dos veces una migración sintética con hs_migrator, verifica DML y rechazo de DDL/lectura del registro Goose con hs_app, repite provisión y comprueba readiness de la API con la cuenta limitada. Retira únicamente las tablas sintéticas.
 - `scripts/check-admin.sh`: aplica las migraciones dos veces en una base nueva de prueba propiedad del migrator, comprueba ausencia de cuentas automáticas y prueba el repositorio mediante hs_app. Sus filas sintéticas se revierten; solo se elimina la base creada por esa ejecución. No elimina volúmenes ni usa desarrollo.
