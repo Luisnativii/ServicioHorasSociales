@@ -34,7 +34,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | ID | Estado | Regla | Fuente |
 | --- | --- | --- | --- |
 | R16 | CONFIRMADO | Expediente único por carnet, conservado como texto con sus ceros iniciales; nombres, apellidos y relación con carrera. La facultad actual se obtiene de la carrera. No guardar un total de horas editable en el estudiante. | F01 etapa 10; F03. |
-| R17 | PENDIENTE | Confirmar obligatoriedad y validación exacta de campos del estudiante, incluyendo género y datos de contacto; decidir historia cuando cambie carrera. No inferir longitud de carnet a partir de un ejemplo. | F02 D21 y D19; #5, #6 y #12. |
+| R17 | PENDIENTE | Confirmar obligatoriedad y validación exacta de campos del estudiante, incluyendo género y datos de contacto. La [propuesta de historia académica](CONTRATO_HISTORIA_REPORTES.md) conserva vigencias al cambiar carrera, pendiente de aprobación en #12. No inferir longitud de carnet a partir de un ejemplo. | F02 D21 y D19; #5, #6 y #12. |
 | R18 | CONFIRMADO | Un estudiante puede participar en varios proyectos y un proyecto tener varios estudiantes. Una sola participación por par estudiante/proyecto; sin reincorporación después de abandono. | F01 etapa 11; F03. |
 | R19 | CONFIRMADO | Cupo solicitado informativo: excederlo advierte y permite asignar. Asignación solo con proyecto ACTIVO. | F01 etapa 11; F03. |
 | R20 | CONFIRMADO | Abandono individual conserva participación, horas e historial. El proyecto pasa a ABANDONADO cuando tiene al menos una participación y todas están ABANDONADAS. Tener cero participantes activos no demuestra esa condición. | F01 etapa 11; F03. |
@@ -52,7 +52,7 @@ Estado: contexto funcional confirmado por el propietario; consolidación documen
 | R27 | CONFIRMADO | [Contrato de correcciones](CONTRATO_CORRECCIONES_HORAS.md) revisión 0.1 aceptado: original inmutable, reverso completo vinculado y reemplazo opcional que no aumenta horas. Después del cierre corrige historia existente sin habilitar acreditación tardía. | F01 decisiones abiertas y etapa 12; F02 D16; aceptación del propietario en #9 del 10 de noviembre. |
 | R28 | PENDIENTE | Acordar límites de `fecha_horas`, relación con fechas del proyecto y zona horaria de cortes. Distinguir fecha de actividad de instante de registro no resuelve esas políticas. | F02 D22; #5 y #8. |
 | R29 | CONFIRMADO | Dashboard y XLSX comparten filtros y cifras. Separar estudiantes únicos, participaciones, proyectos y movimientos; evitar multiplicar horas al combinar áreas. La actividad del período se mide por `fecha_horas`; el acumulado y los saldos sin historia se distinguen de esa actividad. | F01 etapas 13–14; F03. |
-| R30 | PENDIENTE | Precisar clasificación e historia académica para reportes, significado de cumplimiento a una fecha y semántica final de filtros. | F01 decisiones abiertas y etapa 13; F02 D19, D20, D24 y D25; #7, #12 y #75. |
+| R30 | PENDIENTE | La [propuesta temporal de #12](CONTRATO_HISTORIA_REPORTES.md) atribuye movimientos por `fecha_horas`, conserva vigencias académicas y de clasificación y define el primer cumplimiento conocido; requiere aprobación antes de fijar el esquema. #75 conserva la semántica final de filtros y conteos. | F01 decisiones abiertas y etapa 13; F02 D19, D20, D24 y D25; #7, #12 y #75. |
 | R31 | CONFIRMADO | En XLSX, carnet como texto y horas como números. El contenido ingresado por usuarios se exporta como valores, sin convertirlo en fórmulas. | F01 etapa 14; F03. |
 
 ## Alcance y procedencia
@@ -81,6 +81,8 @@ Estos casos usan datos sintéticos; verifican la interpretación de reglas y no 
 | E10 | Saldo previo sin fecha conocida | Puede afectar acumulado según contrato de #10; no se atribuye a un período o territorio inventado. R26 y R29. |
 | E11 | Corregir 10 internas como 10 externas | El original permanece; un reverso neutraliza 10 internas y un reemplazo agrega 10 externas. El total global no aumenta. R27. |
 | E12 | 120 internas al corte y 20 internas posteriores | Acumulado 140; actividad posterior al corte 20. El saldo no se convierte en movimiento ni se cuenta dos veces. Propuesta R26. |
+| E13 | Cambio de carrera con horas antes y después | Cada movimiento conserva la academia aplicable en su `fecha_horas`; el expediente muestra la carrera vigente. Propuesta R17/R30. |
+| E14 | Saldo sin historia ya cumple ambas metas | Cumple en el acumulado al corte, pero no se atribuye una fecha de finalización ni un período inventado. Propuesta R30. |
 
 ## Límite de aprobación
 

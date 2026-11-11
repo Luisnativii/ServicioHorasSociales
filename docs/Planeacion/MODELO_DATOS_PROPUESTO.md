@@ -118,7 +118,7 @@ Restricción candidata: `UNIQUE (estudiante_id, proyecto_id)`; abandono no elimi
 
 Índices candidatos: unicidad del carnet, unicidad del par e índice por `proyecto_id`/estado para consultar participantes. Búsqueda de nombres y paginación se definen en #56, con consultas reales.
 
-**PENDIENTE R17/R30:** no almacenar una segunda facultad actual que pueda contradecir `carrera_id`. Conservar historia académica puede requerir una entidad con vigencias o una instantánea por movimiento; #12 debe escoger el significado temporal y el diseño antes de #55/#65.
+**PROPUESTA R17/R30:** [CONTRATO_HISTORIA_REPORTES.md](CONTRATO_HISTORIA_REPORTES.md) revisión 0.1 propone vigencias académicas sin solapamientos, con carrera y facultad históricas, y una referencia desde la participación a la vigencia de asignación. Cada movimiento se atribuye a la vigencia aplicable en `fecha_horas`. Requiere aprobación en #12 antes de #55/#65; no generar SQL desde esta propuesta.
 
 ## M50 · Libro de horas y saldos previos
 
@@ -145,7 +145,7 @@ Cardinalidad propuesta: participación 1 → 0..N movimientos; administrador 1 �
 
 **ACEPTADO R27:** [CONTRATO_CORRECCIONES_HORAS.md](CONTRATO_CORRECCIONES_HORAS.md) revisión 0.1 define un registro `correccion_horas` con `id`, `movimiento_original_id` único, `movimiento_reverso_id` único, `movimiento_reemplazo_id` opcional, `motivo`, `corregido_por`, `corregido_en` y `solicitud_id` único. El original queda inmutable; el reverso lo compensa exactamente y el reemplazo no puede aumentar sus horas. #72 debe garantizar atomicidad, idempotencia y exclusión concurrente.
 
-**PENDIENTE R30:** campos de instantánea académica/clasificación se seleccionan en #12. Su ausencia en este borrador no autoriza a migrar el libro perdiendo historia requerida.
+**PROPUESTA R30:** cada movimiento referenciaría la vigencia académica del estudiante y la vigencia de clasificación del proyecto aplicables en `fecha_horas`. La historia de clasificación conservaría tipo, área y modalidad, fecha efectiva, actor y motivo. [El contrato temporal](CONTRATO_HISTORIA_REPORTES.md) revisión 0.1 debe aprobarse en #12 antes de seleccionar restricciones o migrar el libro.
 
 ## M60 · Historiales y cálculos derivados
 
