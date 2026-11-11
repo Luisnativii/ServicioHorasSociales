@@ -76,7 +76,7 @@ No se afirma un porcentaje de avance ni un saldo de presupuesto mientras el hist
 - Diferenciar fecha de actividad e instante de captura, estudiante único y participación, actividad del período y acumulado. Los contratos precisos se acuerdan en #8, #12 y #75.
 - Cupo informativo; horas enteras; reintentos sin duplicados; operaciones concurrentes coherentes. Implementar y probar estos comportamientos en sus tareas, no darlos por existentes aquí.
 - Mantener SQL parametrizado y compilación/ejecución de Go, Node y PostgreSQL en Docker. Conservar secretos, `.env` y volúmenes; los datos reales quedan fuera de documentación y pruebas.
-- Issue y rama propios, PR a `develop`, título convencional, `Closes #NUMERO`, una etiqueta de versión y checks requeridos. #6 no modifica CI ni las protecciones de integración. Preparar el PR sin esperar activamente a Docker no equivale a declararlo aprobado.
+- Issue y rama propios, PR a `develop`, título convencional, `Closes #NUMERO` y evidencia local pertinente. GitHub Actions está desactivado por facturación; preparar el PR sin ejecutar las comprobaciones necesarias dentro de Docker no equivale a declararlo aprobado.
 
 ## Decisiones que siguen abiertas
 

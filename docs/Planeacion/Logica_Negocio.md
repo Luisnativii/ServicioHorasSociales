@@ -645,9 +645,9 @@ El orden ajustado en F06 contempla persistencia mínima de identidad antes de JW
 
 Los ejemplos antiguos `v0.12.0` o una versión por etapa no prevalecen sobre GitFlow vigente ni autorizan crear tags o desplegar por cada tarea. Las reglas exactas de ramas, etiquetas y automatización se consultan en F08.
 
-**DETALLE DOCUMENTADO EN F08:** la rama usa `tipo/NUMERO-descripcion`; el issue pasa de `status:backlog` a `status:ready` para iniciar su rama y luego a `status:in-progress`. La creación de un issue por sí sola no crea una rama. Los tipos contemplados son feature, fix, chore, docs, refactor, test y ci, con el prefijo de PR correspondiente.
+**DETALLE DOCUMENTADO EN F08:** la rama usa `tipo/NUMERO-descripcion`; mientras GitHub Actions está desactivado se crea manualmente desde `develop` después de revisar dependencias y el issue pasa a `status:in-progress`. La creación de un issue por sí sola no crea una rama. Los tipos contemplados son feature, fix, chore, docs, refactor, test y ci, con el prefijo de PR correspondiente.
 
-El PR identifica su issue en el título, incluye `Closes #NUMERO` y lleva exactamente una etiqueta `version:patch`, `version:minor` o `version:major`. Requiere los checks GitFlow y Docker; se integra mediante squash. La pipeline etiqueta la integración vigente de `develop` cuando pasan sus comprobaciones, sin incrementar versión en cada commit ni sobrescribir tags. La automatización actual de tags no publica imágenes ni despliega; esas acciones pertenecen a una etapa posterior.
+El PR identifica su issue en el título, incluye `Closes #NUMERO` y se integra mediante squash con autorización del propietario. Desde noviembre de 2026 GitHub Actions está desactivado por facturación: la evidencia de Docker se obtiene localmente con los scripts del repositorio, las ramas/estados se gestionan manualmente y el versionado automático queda suspendido. Los tags publicados no se sobrescriben y este cambio no autoriza imágenes ni despliegues.
 
 ### 16.4 Criterios de entrega
 

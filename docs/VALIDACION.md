@@ -1,4 +1,4 @@
-> Registro histórico de la inicialización local, anterior a publicar GitFlow. Las referencias `0.1.0-dev` y la ausencia de commits describen esa fase. La base publicada se normaliza a `V0.0.1`; consulta [GitFlow](GITFLOW.md) y las ejecuciones de [Actions](https://github.com/Luisnativii/ServicioHorasSociales/actions) para el estado actual.
+> Registro histórico de la inicialización local, anterior a publicar GitFlow. Las referencias `0.1.0-dev`, CI aprobada y ausencia de commits describen fases pasadas. La base publicada se normaliza a `V0.0.1`; consulta [GitFlow](GITFLOW.md) para el estado operativo actual. GitHub Actions está desactivado desde noviembre de 2026 por facturación.
 
 La aceptación manual de la base se registra al final de este documento, en «Validación manual registrada — issue #2». El informe original y sus pendientes se conservan como evidencia histórica.
 
@@ -96,4 +96,4 @@ La comparación de V0.0.1 con el `develop` revisado muestra cambios únicamente 
 - Se acepta la pantalla base y la comprobación de disponibilidad confirmadas por el propietario. No se atribuye una prueba de vista móvil, caída de base, persistencia o recarga a esta confirmación; esos ensayos conservan sus fuentes históricas propias.
 - La evidencia automática anterior queda intacta. La nueva aceptación no afirma una ejecución local adicional de Docker ni una repetición de aquellas pruebas durante esta sesión.
 - Este registro no crea autenticación, tablas, módulos de negocio, imágenes definitivas ni despliegues. Las referencias antiguas `v0.1.0` del informe histórico no autorizan a crear o mover tags.
-- La CI de este PR es una comprobación independiente de la aceptación manual. Debe aprobar los checks requeridos antes de integrar; se respeta la publicación automática de versiones establecida en GitFlow.
+- Esta observación describe el flujo histórico de aquel PR. El flujo vigente usa comprobaciones locales documentadas y mantiene suspendida la publicación automática de versiones; consulta [GitFlow](GITFLOW.md).

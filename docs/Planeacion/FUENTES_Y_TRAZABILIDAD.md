@@ -49,7 +49,7 @@ Las [reglas consolidadas](REGLAS_CONSOLIDADAS.md) asignan identificadores para v
 | Posible protección de la última cuenta activa | F02: se permite desactivarla y recuperar por herramienta | No imponer un mínimo de una cuenta activa. El efecto sobre sesiones se acuerda en #20. |
 | Recuperar el modelo v0.2 como condición de diseño | F02: diseñar y revisar un modelo nuevo | No llamar «v0.2 recuperado» a la propuesta ni fijar un número de 19 tablas. |
 | Exportación de lógica todavía solicitada | F03: omitirla; lógica revisada y confirmada | La ausencia de F06 no bloquea esta consolidación. Las decisiones que ya estaban abiertas siguen identificadas. |
-| Versiones Git sugeridas por etapa en F01 | F04: tags `VMAJOR.MINOR.PATCH` publicados por CI tras integrar un PR | No crear tags por adelantado ni modificar versiones publicadas. |
+| Versiones Git sugeridas por etapa en F01 | F04: tags `VMAJOR.MINOR.PATCH`; publicación automática suspendida mientras GitHub Actions está desactivado | No crear tags por adelantado ni modificar versiones publicadas. |
 | F02 decía que #3 / PR #100 aún no estaban integrados | #3 cerrado y PR #100 integrado en `develop`, V0.0.2 | La dependencia de inicio de #5 está satisfecha. |
 
 ## Pendientes que conserva el issue #5

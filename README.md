@@ -4,9 +4,9 @@ Inicialización local de Go, React y PostgreSQL. Ejecutada y verificada en Mac A
 
 ## GitFlow y colaboración
 
-El código está directamente en la raíz de `develop`, rama predeterminada. `main` conserva únicamente un README. La base inicial se etiqueta `V0.0.1`; los siguientes incrementos se crean automáticamente tras integrar PR que pasen CI.
+El código está directamente en la raíz de `develop`, rama predeterminada. `main` conserva únicamente un README. La base inicial se etiqueta `V0.0.1`. GitHub Actions está desactivado desde noviembre de 2026 por el bloqueo de facturación de la cuenta; las ramas, validaciones y etiquetas posteriores se gestionan de forma manual y explícita.
 
-Empieza por [la guía de issues, ramas, PR y versiones](docs/GITFLOW.md). Una tarea se transforma en `tipo/NUMERO-descripcion` al marcar su issue con `status:ready`.
+Empieza por [la guía de issues, ramas, PR y versiones](docs/GITFLOW.md). Cada tarea conserva su issue y rama `tipo/NUMERO-descripcion`, creados manualmente desde `develop` después de revisar dependencias.
 
 Para continuar con OpenCode u otra IA, usa [la guía de relevo y próximos 20 issues](docs/Planeacion/RELEVO_OTRA_IA.md). Incluye el estado real, decisiones del propietario, actualización desde GitHub y entrega por PR sin alterar el flujo.
 
@@ -73,7 +73,7 @@ bash scripts/dc-test.sh down
 
 El wrapper rechaza variables exportadas de Compose/base de datos, claves ausentes o duplicadas, destinos inesperados y opciones que sustituyan proyecto, archivos o secretos. Si informa una configuración ambigua, retira las variables indicadas en esa terminal; no cambies credenciales existentes ni borres volúmenes. Los comandos de limpieza conservan `hs-test_pgdata` y nunca actúan sobre `hs-dev_pgdata`.
 
-`bash scripts/ci.sh` ejecuta la secuencia completa anterior, incluidas reglas GitFlow y comprobación de aislamiento, y retira al terminar solo los contenedores/redes de pruebas. Puede ejecutarse junto al portal de desarrollo; no inicia ni detiene `hs-dev`.
+`bash scripts/ci.sh` ejecuta localmente la secuencia completa anterior, incluidas reglas GitFlow y comprobación de aislamiento, y retira al terminar solo los contenedores/redes de pruebas. Puede ejecutarse junto al portal de desarrollo; no inicia ni detiene `hs-dev`. Este comando sustituye temporalmente la validación automática de GitHub Actions y su resultado debe registrarse en el PR.
 
 ## Migraciones
 
@@ -87,7 +87,7 @@ bash scripts/dc.sh --profile tools run --rm migrator status
 
 La migración 2 crea únicamente `horas_sociales.administrador` del contrato aceptado: UUID, correo canónico único, hash Argon2id, estado y fechas técnicas. No crea cuentas, credenciales de ejemplo, sesiones ni tablas de estudiantes/proyectos/horas. La herramienta de #23 calcula hashes reales; todavía no existe login web.
 
-Las consultas se generan desde SQL mediante `bash scripts/sqlc.sh generate` (sqlc 1.31.1 fijado por digest, sin instalar Go/Node en el anfitrión). `bash scripts/sqlc.sh vet` valida las consultas; CI comprueba que regenerar no cambia los archivos versionados. El repositorio de administradores usa esas consultas y no incluye endpoints públicos.
+Las consultas se generan desde SQL mediante `bash scripts/sqlc.sh generate` (sqlc 1.31.1 fijado por digest, sin instalar Go/Node en el anfitrión). `bash scripts/sqlc.sh vet` valida las consultas; la validación local completa comprueba que regenerar no cambia los archivos versionados. El repositorio de administradores usa esas consultas y no incluye endpoints públicos.
 
 ## Separar cuentas de aplicación y migraciones
 
@@ -107,7 +107,7 @@ La provisión es repetible: no modifica contraseñas de roles ya existentes, no 
 
 Puedes abrir la consola técnica local sin mostrar su contraseña con `docker exec -it hs-dev-db-1 sh -c 'exec psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'`. No ejecutes cambios de contraseña o permisos hasta identificar la discrepancia y conservar una copia protegida de la configuración original.
 
-En pruebas se usa `bash scripts/provision-db-roles.sh test`, con un archivo distinto y las cuentas del clúster `hs-test`. `bash scripts/check-db-roles.sh` crea una migración sintética en ese clúster, verifica permisos y API real y retira únicamente sus tablas de prueba. CI ejecuta esta comprobación antes de las pruebas habituales. Nunca la dirige a desarrollo.
+En pruebas se usa `bash scripts/provision-db-roles.sh test`, con un archivo distinto y las cuentas del clúster `hs-test`. `bash scripts/check-db-roles.sh` crea una migración sintética en ese clúster, verifica permisos y API real y retira únicamente sus tablas de prueba. La secuencia local completa ejecuta esta comprobación antes de las pruebas habituales. Nunca la dirige a desarrollo.
 
 ## Crear cuentas administradoras desde Docker
 
@@ -274,7 +274,7 @@ docker build -f deploy/docker/web.Dockerfile --target runtime --build-arg APP_VE
 
 ## Validación y versionamiento
 
-Consulta [la evidencia ejecutada](docs/VALIDACION.md) y [la guía de GitFlow](docs/GITFLOW.md). El repositorio utiliza la identidad Git ya configurada y la base inicial `V0.0.1` en `develop`. `.env` está excluido de Git. Los tags `VMAJOR.MINOR.PATCH` son la fuente de verdad; `scripts/dc.sh` deriva su versión y permite `APP_VERSION` en CI. Las etiquetas `0.0.1-dev` son las de la base; aumentan con los tags. No hay publicación de imágenes ni despliegue externo.
+Consulta [la evidencia ejecutada](docs/VALIDACION.md) y [la guía de GitFlow](docs/GITFLOW.md). El repositorio utiliza la identidad Git ya configurada y la base inicial `V0.0.1` en `develop`. `.env` está excluido de Git. Los tags `VMAJOR.MINOR.PATCH` publicados siguen siendo inmutables y `scripts/dc.sh` deriva su versión; mientras GitHub Actions permanezca desactivado no se crean tags automáticos. No hay publicación de imágenes ni despliegue externo.
 
 Validación manual pendiente:
 

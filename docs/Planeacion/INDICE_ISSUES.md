@@ -12,7 +12,7 @@ El plan se desglosa en **95 tareas pequeñas y 10 hitos**. Se reutilizan #1 (bas
 
 1. Leer un solo issue y comprobar sus dependencias nativas en GitHub, junto con la aceptación de sus fuentes/decisiones.
 2. Verificar que el cambio requerido está integrado en `develop`; una rama o PR abierto no basta.
-3. Aplicar `status:ready` solo cuando se decida empezar una tarea desbloqueada. El resto permanece en backlog sin crear ramas.
+3. Al empezar una tarea desbloqueada, crear o reutilizar manualmente su rama desde `develop` y aplicar `status:in-progress`. El resto permanece en backlog sin crear ramas.
 4. Usar su prompt junto con [CONTEXTO_IA.md](CONTEXTO_IA.md), consultando solo el modelo/etapa necesarios. No pegar todo el roadmap en cada sesión.
 5. Probar el cambio en Docker, preparar el PR y detenerse antes de iniciar otra tarea.
 
@@ -264,7 +264,7 @@ Preparación del servidor objetivo, acceso técnico, staging, actualización y a
 - Correcciones de horas son condicionales: si el propietario las excluye, se cierran como no planificadas con referencia a la decisión, sin inventar endpoints.
 - Las operaciones sobre servidor, dominio, GHCR o datos reales describen entregas futuras y requieren autorización específica al ejecutarlas.
 - Se conserva el presupuesto orientativo de 300 horas de desarrollo; las metas estudiantiles son 300 internas y 300 externas. No se inventan horas consumidas ni fechas por etapa.
-- El flujo vigente usa tags `VMAJOR.MINOR.PATCH` por pipeline y PR a `develop`; no se crean por adelantado los tags de ejemplo del plan antiguo.
+- El flujo vigente usa PR a `develop` y comprobaciones locales documentadas. GitHub Actions y sus tags automáticos están suspendidos por facturación; no se crean por adelantado ni manualmente los tags de ejemplo del plan antiguo.
 
 ## Procedencia
 
