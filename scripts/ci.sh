@@ -18,8 +18,9 @@ bash scripts/dc-test.sh up -d --wait --wait-timeout 180 db api web
 bash scripts/migrate.sh test
 bash scripts/sqlc.sh generate
 bash scripts/sqlc.sh vet
-git diff --exit-code -- apps/api/internal/modules/admin/db
+git diff --exit-code -- apps/api/internal/modules/admin/db apps/api/internal/modules/catalogos/db
 bash scripts/check-db-roles.sh
+bash scripts/check-catalogs.sh
 bash scripts/check-admin.sh
 bash scripts/check-admin-cli.sh
 bash scripts/check.sh

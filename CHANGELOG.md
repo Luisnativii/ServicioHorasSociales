@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(catalogos): persistir tipos de proyecto y áreas independientes (#40), con nombres únicos sin distinguir mayúsculas, desactivación sin borrado, consultas sqlc y pruebas PostgreSQL sin semillas.
+
 - ci: desactivar los workflows de GitHub Actions bloqueados por facturación y trasladar creación de ramas, pruebas completas y versionado a un procedimiento manual verificable.
 
 - feat(web): gestión de cuentas administradoras (#33), listado paginado real, confirmación de activación/desactivación y reconciliación de cambios inciertos sin reintentar escrituras.
