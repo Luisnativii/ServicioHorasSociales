@@ -87,6 +87,8 @@ bash scripts/dc.sh --profile tools run --rm migrator status
 
 La migración 2 crea únicamente `horas_sociales.administrador` del contrato aceptado: UUID, correo canónico único, hash Argon2id, estado y fechas técnicas. No crea cuentas, credenciales de ejemplo, sesiones ni tablas de estudiantes/proyectos/horas. La herramienta de #23 calcula hashes reales; todavía no existe login web.
 
+La migración 3 crea los catálogos independientes `horas_sociales.tipo_proyecto` y `horas_sociales.area`: UUID, nombre visible único sin distinguir mayúsculas y estado activo. No precarga nombres, relaciona tipo con área ni adelanta la tabla de proyectos. `bash scripts/check-catalogs.sh` comprueba en PostgreSQL real la migración repetible, ausencia de semillas, restricciones y activación/desactivación.
+
 Las consultas se generan desde SQL mediante `bash scripts/sqlc.sh generate` (sqlc 1.31.1 fijado por digest, sin instalar Go/Node en el anfitrión). `bash scripts/sqlc.sh vet` valida las consultas; la validación local completa comprueba que regenerar no cambia los archivos versionados. El repositorio de administradores usa esas consultas y no incluye endpoints públicos.
 
 ## Separar cuentas de aplicación y migraciones
