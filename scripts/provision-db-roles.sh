@@ -4,19 +4,20 @@ cd "$(dirname "$0")/.."
 case "${1:-}" in
   dev) environment=hs-dev; dc() { bash scripts/dc.sh "$@"; };;
   test) environment=hs-test; dc() { bash scripts/dc-test.sh "$@"; };;
-  *) echo 'Uso: bash scripts/provision-db-roles.sh dev|test' >&2; exit 1;;
+  core-local) environment=hs-core-local; dc() { bash scripts/dc-core-local.sh "$@"; };;
+  *) echo 'Uso: bash scripts/provision-db-roles.sh dev|test|core-local' >&2; exit 1;;
 esac
 source scripts/db-roles-env.sh
 umask 077
 mkdir -p .secrets
 file=".secrets/$environment-db-roles.env"
-if [ ! -e "$file" ]; then
-  docker run --rm --user "$(id -u):$(id -g)" -e CONFIG_FILE="$environment-db-roles.env" \
-    -v "$PWD/.secrets:/config" node:22.23.4-bookworm-slim node -e '
-      const crypto = require("node:crypto"), fs = require("node:fs");
-      const contents = `HS_APP_DB_USER=hs_app\nHS_APP_DB_PASSWORD=${crypto.randomBytes(32).toString("hex")}\nHS_MIGRATOR_DB_USER=hs_migrator\nHS_MIGRATOR_DB_PASSWORD=${crypto.randomBytes(32).toString("hex")}\n`;
-      fs.writeFileSync("/config/" + process.env.CONFIG_FILE, contents, {flag:"wx", mode:0o600});
-    '
+if [ ! -e "$file" ] && [ ! -L "$file" ]; then
+  role_secrets=$(docker run --rm node:22.23.4-bookworm-slim node -e '
+    const { randomBytes } = require("node:crypto");
+    console.log(`HS_APP_DB_USER=hs_app\nHS_APP_DB_PASSWORD=${randomBytes(32).toString("hex")}\nHS_MIGRATOR_DB_USER=hs_migrator\nHS_MIGRATOR_DB_PASSWORD=${randomBytes(32).toString("hex")}`);
+  ')
+  (set -C; printf '%s\n' "$role_secrets" > "$file")
+  unset role_secrets
 fi
 check_db_roles_file "$file" || { echo 'Revisa la configuración protegida de roles; no se reemplazó.' >&2; exit 1; }
 while IFS='=' read -r key value; do
