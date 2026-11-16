@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	URL string
-	Max int32
+	URL              string
+	Max              int32
+	CheckCoreCatalog bool
 }
 
 func Load() (Config, error) {
@@ -26,5 +27,9 @@ func Load() (Config, error) {
 	if err != nil || n < 1 || n > 50 {
 		return Config{}, fmt.Errorf("DB_MAX_CONNS debe estar entre 1 y 50")
 	}
-	return Config{URL: raw, Max: int32(n)}, nil
+	coreCatalog := os.Getenv("CHECK_CORE_CATALOG")
+	if coreCatalog != "" && coreCatalog != "true" && coreCatalog != "false" {
+		return Config{}, fmt.Errorf("CHECK_CORE_CATALOG debe ser true o false")
+	}
+	return Config{URL: raw, Max: int32(n), CheckCoreCatalog: coreCatalog == "true"}, nil
 }

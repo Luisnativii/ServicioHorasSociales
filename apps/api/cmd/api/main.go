@@ -64,8 +64,12 @@ func run() error {
 		return errors.New("no se pudo conectar con PostgreSQL al iniciar")
 	}
 	defer pool.Close()
+	var readiness httpserver.Pinger = pool
+	if cfg.CheckCoreCatalog {
+		readiness = database.CoreCatalogProbe{Pool: pool}
+	}
 	srv := &http.Server{
-		Addr: ":8080", Handler: httpserver.Router(pool, httpserver.Options{
+		Addr: ":8080", Handler: httpserver.Router(readiness, httpserver.Options{
 			Tokens:   tokens,
 			Browser:  browser,
 			Buscador: admin.NewRepository(pool),
