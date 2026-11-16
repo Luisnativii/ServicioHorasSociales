@@ -22,6 +22,7 @@ func TestLoad(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Setenv("DATABASE_URL", test.url)
 			t.Setenv("DB_MAX_CONNS", test.max)
+			t.Setenv("CHECK_CORE_CATALOG", "")
 			cfg, err := Load()
 			if (err == nil) != test.valid {
 				t.Fatalf("valid=%v, error=%v", test.valid, err)
@@ -31,6 +32,29 @@ func TestLoad(t *testing.T) {
 			}
 			if test.valid && cfg.Max != 5 {
 				t.Fatalf("max=%d", cfg.Max)
+			}
+		})
+	}
+}
+
+func TestLoadCoreCatalog(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://hs:private@db/horas_sociales")
+	t.Setenv("DB_MAX_CONNS", "5")
+	for _, tc := range []struct {
+		value   string
+		enabled bool
+		invalid bool
+	}{
+		{value: ""},
+		{value: "false"},
+		{value: "true", enabled: true},
+		{value: "yes", invalid: true},
+	} {
+		t.Run("value="+tc.value, func(t *testing.T) {
+			t.Setenv("CHECK_CORE_CATALOG", tc.value)
+			cfg, err := Load()
+			if (err != nil) != tc.invalid || cfg.CheckCoreCatalog != tc.enabled {
+				t.Fatalf("enabled=%v, error=%v", cfg.CheckCoreCatalog, err)
 			}
 		})
 	}
