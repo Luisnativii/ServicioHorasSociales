@@ -28,4 +28,4 @@ GRANT SELECT ON TABLE public.faculties, public.careers TO hs_app;
 SQL
 
 dc up -d --build --wait --wait-timeout 180 db api web
-printf 'Portal local: http://127.0.0.1:%s/\n' "${HS_CORE_LOCAL_PORT:-8081}"
+printf 'Portal local: http://127.0.0.1:%s/\n' "${HS_CORE_LOCAL_PORT:-18081}"

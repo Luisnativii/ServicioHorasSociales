@@ -7,10 +7,10 @@ Ejecuta los comandos desde la raíz de ServicioHorasSociales con Docker Engine o
 ```bash
 bash scripts/start-core-local.sh
 bash scripts/dc-core-local.sh ps
-curl --fail --silent --show-error http://127.0.0.1:8081/api/health/ready
+curl --fail --silent --show-error http://127.0.0.1:18081/api/health/ready
 ```
 
-Abre [http://127.0.0.1:8081](http://127.0.0.1:8081). Usa esa dirección exacta para que coincida con el origen de las cookies y la protección CSRF. Si el puerto está ocupado, exporta `HS_CORE_LOCAL_PORT` con otro puerto y cambia la dirección que abres.
+Abre [http://127.0.0.1:18081](http://127.0.0.1:18081). Usa esa dirección exacta para que coincida con el origen de las cookies y la protección CSRF. Si el puerto está ocupado, exporta `HS_CORE_LOCAL_PORT` con otro puerto y cambia la dirección que abres.
 
 Para crear una cuenta en una terminal interactiva, indica tu correo de prueba y escribe la contraseña cuando la herramienta la solicite.
 

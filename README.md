@@ -12,7 +12,7 @@ Para continuar con OpenCode u otra IA, usa [la guía de relevo y próximos 20 is
 
 ## Preparar y arrancar
 
-Para usar PostgreSQL 16 y las migraciones del core en una sola base con el portal, sigue la [guía de base compartida](docs/BASE_COMPARTIDA_LOCAL.md). El comando `bash scripts/start-core-local.sh` levanta este entorno independiente en [http://127.0.0.1:8081](http://127.0.0.1:8081).
+Para usar PostgreSQL 16 y las migraciones del core en una sola base con el portal, sigue la [guía de base compartida](docs/BASE_COMPARTIDA_LOCAL.md). El comando `bash scripts/start-core-local.sh` levanta este entorno independiente en [http://127.0.0.1:18081](http://127.0.0.1:18081).
 
 En macOS abre Docker Desktop. En Ubuntu inicia Docker Engine con el plugin Compose; en Windows usa Bash dentro de Ubuntu/WSL2 con la integración de Docker Desktop activada. Trabaja desde la raíz de este repositorio, sin `sudo` si Docker ya está accesible al usuario.
 
