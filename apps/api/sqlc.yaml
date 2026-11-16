@@ -20,3 +20,13 @@ sql:
         sql_package: pgx/v5
         emit_empty_slices: true
         omit_unused_structs: true
+  - engine: postgresql
+    schema: ../../deploy/core-local/migrations/001_init_unified_schema.sql
+    queries: db/queries/catalogo_academico.sql
+    gen:
+      go:
+        package: academiadb
+        out: internal/modules/catalogos/academiadb
+        sql_package: pgx/v5
+        emit_empty_slices: true
+        omit_unused_structs: true

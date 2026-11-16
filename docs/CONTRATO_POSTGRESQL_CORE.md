@@ -30,6 +30,12 @@ La columna de escritura registra decisiones pendientes. En la prueba actual, el 
 | Dashboard y Excel | La vista de horas agrega por estudiante. Las participaciones y los movimientos tienen granularidades distintas. | Acordar filtros y fechas compartidos y cómo reportar historia incompleta. Conciliar contra datos de control del core. #74, #75, #79, #95 |
 | Citas, notificaciones y mapa | `citas`, `cita_eventos`, `correos`, `dias_bloqueados` y `map_markers` son objetos del core. | Fuera del alcance de integración inicial del portal. |
 
+## Lectura del catálogo académico en Go
+
+El repositorio académico de #34 consulta las tablas del core y conserva sus UUID. Los listados aplican búsqueda literal normalizada, orden estable por nombre e ID, paginación y filtro por facultad en carreras. Por defecto se ofrecen facultades activas y carreras activas con facultad activa. La búsqueda por ID y la opción de incluir inactivas permiten mostrar referencias históricas.
+
+Los cambios efectuados por el responsable del catálogo se reflejan en las siguientes lecturas del portal porque ambos usan la misma base. #35 conecta esas consultas con la API protegida. La autorización de cambios de catálogo se define en #139.
+
 ## Comprobaciones para completar #139
 
 1. Ejecutar `bash scripts/check-core-readiness.sh`. La comprobación, incluida en `scripts/ci.sh`, aplica SQL 001–003 y una facultad sintética en `hs-test-core`, con red y volumen separados de desarrollo y de las otras pruebas. Verifica readiness con el catálogo accesible, el esquema ausente y PostgreSQL detenido. También comprueba que la API conserva el catálogo y el registro de migraciones.
