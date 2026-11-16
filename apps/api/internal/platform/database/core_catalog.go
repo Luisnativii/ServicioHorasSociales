@@ -14,7 +14,7 @@ type CoreCatalogProbe struct {
 func (p CoreCatalogProbe) Ping(ctx context.Context) error {
 	var accessible bool
 	// An empty catalog is valid. Referencing both tables and the FK columns
-	// still verifies the schema and permissions before serving private routes.
+	// verifies the schema and permissions during readiness.
 	return p.Pool.QueryRow(ctx, `
 		SELECT EXISTS (
 			SELECT 1
