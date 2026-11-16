@@ -30,7 +30,7 @@ La columna de escritura registra decisiones pendientes. En la prueba actual, el 
 | Dashboard y Excel | La vista de horas agrega por estudiante. Las participaciones y los movimientos tienen granularidades distintas. | Acordar filtros y fechas compartidos y cómo reportar historia incompleta. Conciliar contra datos de control del core. #74, #75, #79, #95 |
 | Citas, notificaciones y mapa | `citas`, `cita_eventos`, `correos`, `dias_bloqueados` y `map_markers` son objetos del core. | Fuera del alcance de integración inicial del portal. |
 
-## Comprobaciones para completar #139
+
 
 1. Ejecutar `bash scripts/check-core-readiness.sh`. La comprobación, incluida en `scripts/ci.sh`, aplica SQL 001–003 y una facultad sintética en `hs-test-core`, con red y volumen separados de desarrollo y de las otras pruebas. Verifica readiness con el catálogo accesible, el esquema ausente y PostgreSQL detenido. También comprueba que la API conserva el catálogo y el registro de migraciones.
 2. El Compose de base compartida configura `CHECK_CORE_CATALOG=true`. Readiness consulta `public.careers` y `public.faculties` mediante la conexión de la API. Un catálogo vacío sigue siendo válido. Si la consulta falla, readiness responde 503 y la respuesta pública solo informa el estado.
