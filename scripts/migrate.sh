@@ -6,7 +6,8 @@ cd "$(dirname "$0")/.."
 case "${1:-}" in
   dev) dc() { bash scripts/dc.sh "$@"; };;
   test) dc() { bash scripts/dc-test.sh "$@"; };;
-  *) echo 'Uso: bash scripts/migrate.sh dev|test' >&2; exit 1;;
+  core-local) dc() { bash scripts/dc-core-local.sh "$@"; };;
+  *) echo 'Uso: bash scripts/migrate.sh dev|test|core-local' >&2; exit 1;;
 esac
 dc config --quiet
 dc build migrator

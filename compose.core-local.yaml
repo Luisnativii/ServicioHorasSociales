@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      TZ: America/El_Salvador
+      PGTZ: America/El_Salvador
+    volumes: !override
+      - pgdata:/var/lib/postgresql/data
+      - ./deploy/core-local/migrations:/opt/core-migrations:ro
+      - ./deploy/core-local/init-db.sh:/docker-entrypoint-initdb.d/10-core.sh:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          pg_isready -q -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" &&
+          psql -X -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -Atqc
+          "SELECT count(*) = 3 AND bool_and(checksum IS NOT NULL) FROM public.schema_migrations"
+          | grep -qx t
+
+  api:
+    image: hs-core-local-api:${APP_VERSION:-0.0.1}
+    environment:
+      APP_ORIGIN: http://127.0.0.1:${HS_CORE_LOCAL_PORT:-18081}
+      JWT_KEY_FILE: /run/hs-core-local/jwt.key
+    volumes:
+      - jwt:/run/hs-core-local:ro
+
+  web:
+    image: hs-core-local-web:${APP_VERSION:-0.0.1}
+    ports:
+      - "127.0.0.1:${HS_CORE_LOCAL_PORT:-18081}:8080"
+
+  migrator:
+    image: hs-core-local-migrator:${APP_VERSION:-0.0.1}
+
+  admin:
+    image: hs-core-local-admin:${APP_VERSION:-0.0.1}
+
+  jwt-init:
+    image: postgres:16-alpine
+    profiles: [tools]
+    network_mode: none
+    entrypoint: ["/bin/sh", "-eu", "-c"]
+    command:
+      - |
+        key=/keys/jwt.key
+        if [ ! -e "$$key" ] && [ ! -L "$$key" ]; then
+          umask 077
+          temporary=$$(mktemp /keys/jwt.XXXXXX)
+          trap 'rm -f "$$temporary"' EXIT
+          dd if=/dev/urandom of="$$temporary" bs=32 count=1 2>/dev/null
+          chown 65532:65532 "$$temporary"
+          chmod 400 "$$temporary"
+          ln "$$temporary" "$$key"
+        fi
+        [ -f "$$key" ] && [ ! -L "$$key" ] &&
+          [ "$$(stat -c '%u %a %s' "$$key")" = '65532 400 32' ]
+    volumes:
+      - jwt:/keys
+
+volumes:
+  jwt: {}
