@@ -32,7 +32,7 @@ La columna de escritura registra decisiones pendientes. En la prueba actual, el 
 
 ## Comprobaciones para completar #139
 
-1. Reutilizar el arranque reproducible de #141 con SQL 001–003. Trasladar el esquema fijado y los fixtures sintéticos a `hs-test` sin apuntar las pruebas al volumen del operador.
+1. Ejecutar `bash scripts/check-core-readiness.sh`. La comprobación, incluida en `scripts/ci.sh`, aplica SQL 001–003 y una facultad sintética en `hs-test-core`, con red y volumen separados de desarrollo y de las otras pruebas. Verifica readiness con el catálogo accesible, el esquema ausente y PostgreSQL detenido. También comprueba que la API conserva el catálogo y el registro de migraciones.
 2. El Compose de base compartida configura `CHECK_CORE_CATALOG=true`. Readiness consulta `public.careers` y `public.faculties` mediante la conexión de la API. Un catálogo vacío sigue siendo válido. Si la consulta falla, readiness responde 503 y la respuesta pública solo informa el estado.
 3. Comprobar en una instancia aislada que iniciar el portal conserva las filas del core y su registro de migraciones. Verificar nombres de esquemas, permisos y aislamiento con la cuenta real de ejecución de la API.
 4. Contrastar nombres, versión PostgreSQL y migraciones con la instancia de la laptop en una ventana coordinada con su operador. Registrar el resultado y las decisiones de la matriz antes de otorgar permisos de escritura.

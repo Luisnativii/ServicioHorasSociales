@@ -28,11 +28,10 @@ done
 unset value
 project=hs-test
 files=(-f compose.yaml -f compose.test.yaml)
-if [ "${1:-}" = --runtime ]; then
-  project=hs-test-runtime
-  files=(-f tests/compose.runtime.yaml)
-  shift
-fi
+case "${1:-}" in
+  --runtime) project=hs-test-runtime; files=(-f tests/compose.runtime.yaml); shift;;
+  --core) project=hs-test-core; files=(-f tests/compose.core.yaml); shift;;
+esac
 for arg in "$@"; do
   case "$arg" in
     -p|--project-name|--project-name=*|-p?*|-f|--file|--file=*|-f?*|--env-file|--env-file=*|--project-directory|--project-directory=*|--profile|--profile=*)
@@ -44,6 +43,7 @@ done
 APP_VERSION=$(bash scripts/version.sh)
 export APP_VERSION
 source scripts/db-roles-env.sh
-db_roles_env_args hs-test
+db_roles_args=()
+if [ "$project" != hs-test-core ]; then db_roles_env_args hs-test; fi
 exec docker compose --project-directory "$PWD" --env-file .secrets/hs-test.env \
   ${db_roles_args[@]+"${db_roles_args[@]}"} -p "$project" "${files[@]}" "$@"

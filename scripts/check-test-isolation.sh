@@ -55,6 +55,30 @@ dc config --format json | docker run --rm -i node:22.23.4-bookworm-slim node -e 
     console.log("hs-test: proyecto, base, redes, volumen, permisos y rechazos comprobados.");
   });
 '
+dc --core config --format json | docker run --rm -i node:22.23.4-bookworm-slim node -e '
+  const assert = require("node:assert/strict");
+  let input = "";
+  process.stdin.on("data", chunk => input += chunk);
+  process.stdin.on("end", () => {
+    const c = JSON.parse(input);
+    assert.equal(c.name, "hs-test-core");
+    assert.equal(c.services.db.environment.POSTGRES_DB, "horas_sociales_test");
+    assert.equal(c.volumes.pgdata.name, "hs-test-core_pgdata");
+    assert.equal(c.networks.data.name, "hs-test-core_data");
+    assert.equal(c.networks.data.internal, true);
+    assert.ok(!c.networks.data.external);
+    for (const service of Object.values(c.services)) {
+      assert.equal((service.ports || []).length, 0);
+      assert.ok(!service.container_name);
+      for (const mount of service.volumes || []) {
+        if (mount.type === "bind") assert.equal(mount.read_only, true);
+      }
+    }
+    assert.match(c.services.api.environment.DATABASE_URL, /^postgres:\/\/hs_core_probe:[^@]+@db:5432\/horas_sociales_test\?/);
+    assert.match(c.services["api-missing"].environment.DATABASE_URL, /@db:5432\/postgres\?/);
+    console.log("hs-test-core: red y volumen propios, rol de prueba y ausencia de puertos comprobados.");
+  });
+'
 dc --runtime config --format json | docker run --rm -i node:22.23.4-bookworm-slim node -e '
   const assert = require("node:assert/strict");
   let input = "";
