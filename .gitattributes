@@ -1,0 +1,3 @@
+scripts/*.sh text eol=lf
+deploy/core-local/*.sh text eol=lf
+deploy/core-local/migrations/*.sql text eol=lf
