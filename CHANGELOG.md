@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(catalogos): consultar facultades y carreras del core por la API privada (#35), con búsqueda, paginación, filtro por facultad y lectura histórica.
+
 - feat(catalogos): persistir tipos de proyecto y áreas independientes (#40), con nombres únicos sin distinguir mayúsculas, desactivación sin borrado, consultas sqlc y pruebas PostgreSQL sin semillas.
 
 - ci: desactivar los workflows de GitHub Actions bloqueados por facturación y trasladar creación de ramas, pruebas completas y versionado a un procedimiento manual verificable.

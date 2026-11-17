@@ -41,6 +41,18 @@ services:
       <<: *core-env
       DATABASE_URL: postgres://hs_core_probe:${POSTGRES_PASSWORD}@db:5432/postgres?sslmode=disable
 
+  catalogo-test:
+    profiles: [tools]
+    build:
+      context: .
+      dockerfile: deploy/docker/api.Dockerfile
+      target: dev
+    networks: [data]
+    environment:
+      HS_TEST_CORE_CATALOG: "1"
+      DATABASE_URL: postgres://hs_core_probe:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+    command: [go, test, -count=1, -run, '^TestCatalogoAcademicoPostgreSQL$', ./internal/platform/http]
+
   probe:
     image: node:22.23.4-bookworm-slim
     profiles: [tools]

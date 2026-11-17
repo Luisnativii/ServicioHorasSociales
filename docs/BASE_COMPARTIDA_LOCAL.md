@@ -21,7 +21,7 @@ bash scripts/dc-core-local.sh run --rm --no-deps admin create --email admin@port
 
 Si la terminal de Windows no admite el comando interactivo, ejecuta `winpty bash scripts/dc-core-local.sh run --rm --no-deps admin create --email admin@portal.test` desde Git Bash.
 
-El portal disponible incluye inicio de sesión, cierre de sesión y administración de cuentas. Los endpoints de negocio sobre los datos del core se implementarán en sus issues.
+El portal disponible incluye inicio de sesión, cierre de sesión y administración de cuentas. La API privada permite [consultar facultades y carreras del core](../api/README.md#catálogo-académico).
 
 ## Verificar PostgreSQL
 

@@ -35,11 +35,21 @@ GRANT SELECT ON public.faculties, public.careers TO hs_core_probe;
 INSERT INTO public.faculties (id, nombre)
 VALUES ('00000000-0000-4000-8000-000000000139', 'Facultad sintética de verificación')
 ON CONFLICT (id) DO NOTHING;
+INSERT INTO public.faculties (id, nombre, activo) VALUES
+  ('00000000-0000-4000-8000-000000035001', 'Facultad Académica A', true),
+  ('00000000-0000-4000-8000-000000035003', 'Facultad Académica B', false)
+ON CONFLICT (id) DO NOTHING;
+INSERT INTO public.careers (id, faculty_id, nombre, activo) VALUES
+  ('00000000-0000-4000-8000-000000035002', '00000000-0000-4000-8000-000000035001', 'Carrera Académica A', true),
+  ('00000000-0000-4000-8000-000000035004', '00000000-0000-4000-8000-000000035003', 'Carrera Académica B', true),
+  ('00000000-0000-4000-8000-000000035005', '00000000-0000-4000-8000-000000035001', 'Carrera Académica C', false)
+ON CONFLICT (id) DO NOTHING;
 DO $check$
 BEGIN
   IF (SELECT count(*) = 3 AND bool_and(length(trim(checksum)) = 64) FROM public.schema_migrations) IS NOT TRUE
      OR has_schema_privilege('hs_core_probe', 'public', 'CREATE')
-     OR has_table_privilege('hs_core_probe', 'public.careers', 'UPDATE')
+     OR has_table_privilege('hs_core_probe', 'public.faculties', 'INSERT, UPDATE, DELETE')
+     OR has_table_privilege('hs_core_probe', 'public.careers', 'INSERT, UPDATE, DELETE')
      OR has_table_privilege('hs_core_probe', 'public.users', 'SELECT')
      OR to_regclass('public.goose_db_version') IS NOT NULL THEN
     RAISE EXCEPTION 'Inventario o privilegios inesperados en hs-test-core';
@@ -52,6 +62,7 @@ before=$(snapshot)
 dc build api
 dc up -d --no-build --no-deps api api-missing
 dc run --rm --no-deps -T probe
+dc run --rm --no-deps --build -T catalogo-test
 [ "$(snapshot)" = "$before" ] || { echo 'La API alteró el catálogo o el registro de migraciones del core.' >&2; exit 1; }
 echo 'hs-test-core: se conservaron el catálogo y el registro de migraciones.'
 dc stop db
