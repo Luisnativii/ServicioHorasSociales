@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import Login from '../features/auth/Login';
 import ServiceStatus from './ServiceStatus';
 import Accounts from '../features/accounts/Accounts';
+import AcademicCatalog from '../features/academics/AcademicCatalog';
 import AdminLayout, { Home, MissingPage, SessionGuard } from './AdminLayout';
 
 export default function App() {
@@ -12,6 +13,7 @@ export default function App() {
       <Route element={<AdminLayout />}>
         <Route index element={<Home />} />
         <Route path="/administradores" element={<Accounts />} />
+        <Route path="/catalogos/academico" element={<AcademicCatalog />} />
         <Route path="/sistema/estado" element={<ServiceStatus />} />
         <Route path="*" element={<MissingPage />} />
       </Route>
