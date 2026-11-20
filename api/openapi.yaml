@@ -235,6 +235,121 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+  /api/v1/catalogos/facultades:
+    get:
+      operationId: listarFacultades
+      summary: Listar facultades
+      description: Orden por nombre normalizado e ID. Muestra facultades activas por defecto.
+      security:
+        - AdminCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/BusquedaAcademica'
+        - $ref: '#/components/parameters/IncluirInactivas'
+        - $ref: '#/components/parameters/OrdenAcademico'
+        - $ref: '#/components/parameters/DireccionAcademica'
+      responses:
+        '200':
+          description: Listado del core y metadatos de paginación.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListarFacultades'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/facultades/{id}:
+    get:
+      operationId: consultarFacultad
+      summary: Consultar una facultad del core
+      description: Incluye facultades inactivas para consultar referencias históricas.
+      security:
+        - AdminCookie: []
+      parameters:
+        - $ref: '#/components/parameters/UUIDCatalogo'
+      responses:
+        '200':
+          description: Registro del catálogo académico del core.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Facultad'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/carreras:
+    get:
+      operationId: listarCarreras
+      summary: Listar carreras
+      description: Orden por nombre normalizado e ID. Por defecto exige que la carrera y su facultad estén activas.
+      security:
+        - AdminCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/BusquedaAcademica'
+        - $ref: '#/components/parameters/IncluirInactivas'
+        - $ref: '#/components/parameters/OrdenAcademico'
+        - $ref: '#/components/parameters/DireccionAcademica'
+        - $ref: '#/components/parameters/FacultadID'
+      responses:
+        '200':
+          description: Listado del core y metadatos de paginación.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListarCarreras'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/carreras/{id}:
+    get:
+      operationId: consultarCarrera
+      summary: Consultar una carrera del core
+      description: Incluye carreras inactivas y carreras de facultades inactivas para consultar referencias históricas.
+      security:
+        - AdminCookie: []
+      parameters:
+        - $ref: '#/components/parameters/UUIDCatalogo'
+      responses:
+        '200':
+          description: Registro del catálogo académico del core.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carrera'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
   /api/health/live:
     get:
       operationId: getLiveness
@@ -337,6 +452,59 @@ components:
             $ref: '#/components/schemas/Cuenta'
         pagina:
           $ref: '#/components/schemas/PageMetadata'
+    Facultad:
+      type: object
+      additionalProperties: false
+      required: [id, nombre, activo]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        activo:
+          type: boolean
+    Carrera:
+      type: object
+      additionalProperties: false
+      required: [id, facultad_id, nombre, activo, facultad_activa]
+      properties:
+        id:
+          type: string
+          format: uuid
+        facultad_id:
+          type: string
+          format: uuid
+          description: UUID de la facultad propietaria en el core.
+        nombre:
+          type: string
+        activo:
+          type: boolean
+        facultad_activa:
+          type: boolean
+          description: Para nuevas altas deben estar activas tanto la carrera como su facultad.
+    ListarFacultades:
+      type: object
+      additionalProperties: false
+      required: [facultades, pagina]
+      properties:
+        facultades:
+          type: array
+          items:
+            $ref: '#/components/schemas/Facultad'
+        pagina:
+          $ref: '#/components/schemas/PageMetadata'
+    ListarCarreras:
+      type: object
+      additionalProperties: false
+      required: [carreras, pagina]
+      properties:
+        carreras:
+          type: array
+          items:
+            $ref: '#/components/schemas/Carrera'
+        pagina:
+          $ref: '#/components/schemas/PageMetadata'
     HealthOK:
       type: object
       additionalProperties: false
@@ -374,7 +542,7 @@ components:
             request_id:
               type: string
     PageMetadata:
-      description: Esquema reutilizable para listados futuros; no existe un endpoint de listado todavía.
+      description: Metadatos del listado. Total cuenta los registros que coinciden con los filtros antes de paginar.
       type: object
       additionalProperties: false
       required: [page, page_size, total]
@@ -392,6 +560,46 @@ components:
           format: int64
           minimum: 0
   parameters:
+    UUIDCatalogo:
+      name: id
+      in: path
+      required: true
+      description: UUID del core distinto de cero.
+      schema:
+        type: string
+        format: uuid
+    BusquedaAcademica:
+      name: q
+      in: query
+      description: Fragmento del nombre. La búsqueda ignora mayúsculas y tildes. Vacío equivale a omitir el filtro.
+      schema:
+        type: string
+    IncluirInactivas:
+      name: incluir_inactivas
+      in: query
+      description: Indica si el listado incluye opciones inactivas para consulta histórica.
+      schema:
+        type: boolean
+        default: false
+    FacultadID:
+      name: facultad_id
+      in: query
+      description: Restringe las carreras a una facultad del core.
+      schema:
+        type: string
+        format: uuid
+    OrdenAcademico:
+      name: sort
+      in: query
+      schema:
+        type: string
+        const: nombre
+    DireccionAcademica:
+      name: order
+      in: query
+      schema:
+        type: string
+        const: asc
     Page:
       name: page
       in: query
@@ -425,6 +633,12 @@ components:
         enum: [asc, desc]
         default: asc
   responses:
+    CatalogoNoDisponible:
+      description: 503 cuando la API no puede consultar el catálogo académico.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     LegacyInternalError:
       description: Error interno genérico en salud
       content:
