@@ -167,3 +167,25 @@ body { margin: 0; }
   .accounts-table { min-width: 340px; }
   .accounts-pagination { flex-wrap: wrap; }
 }
+
+.academic-views { display: flex; gap: 24px; border-bottom: 1px solid var(--rule); margin-top: 24px; }
+.academic-views a { color: var(--muted); padding: 12px 0; border-bottom: 2px solid transparent; }
+.academic-views a[aria-current] { color: var(--accent); border-color: var(--accent); }
+.academic-toolbar { align-items: end; }
+.academic-toolbar > button { margin-left: 0; }
+.academic-toolbar input[type="search"] {
+  width: 100%; min-height: 44px; padding: 9px 12px; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 4px; font-size: 14px;
+}
+.academic-toolbar .academic-checkbox { display: flex; flex: 0 0 auto; align-items: center; min-height: 44px; }
+.academic-checkbox input { accent-color: var(--accent); }
+.academic-detail { margin-top: 24px; padding: 20px; border: 1px solid var(--rule); background: var(--surface); }
+.academic-detail-heading, .academic-faculty-filter { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.academic-detail h2 { font-weight: 600; }
+.academic-detail p, .academic-detail > a { margin-top: 12px; }
+.academic-detail > a { display: inline-block; }
+.academic-detail a, .academic-table a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.academic-faculty-filter { margin-bottom: 16px; font-size: 14px; }
+.academic-table td:last-child { text-align: left; }
+.academic-table td small { display: block; color: var(--muted); margin-top: 4px; }
+.academic-table { min-width: 0; }

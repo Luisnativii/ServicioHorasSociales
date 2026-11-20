@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(web): consultar el catálogo académico del core (#36) desde la navegación privada, con búsqueda, paginación del servidor, filtro por facultad y detalle de registros activos e inactivos.
+
 - feat(catalogos): consultar facultades y carreras del core por la API privada (#35), con búsqueda, paginación, filtro por facultad y lectura histórica.
 
 - feat(catalogos): persistir tipos de proyecto y áreas independientes (#40), con nombres únicos sin distinguir mayúsculas, desactivación sin borrado, consultas sqlc y pruebas PostgreSQL sin semillas.

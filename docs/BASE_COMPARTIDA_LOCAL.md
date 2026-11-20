@@ -21,7 +21,7 @@ bash scripts/dc-core-local.sh run --rm --no-deps admin create --email admin@port
 
 Si la terminal de Windows no admite el comando interactivo, ejecuta `winpty bash scripts/dc-core-local.sh run --rm --no-deps admin create --email admin@portal.test` desde Git Bash.
 
-El portal disponible incluye inicio de sesión, cierre de sesión y administración de cuentas. La API privada permite [consultar facultades y carreras del core](../api/README.md#catálogo-académico).
+Después de iniciar sesión, abre **Catálogo académico** en el menú para consultar facultades y carreras. Desde una facultad puedes ver sus carreras, y el filtro **Incluir inactivas** permite consultar registros históricos. La pantalla usa la [API privada del catálogo](../api/README.md#catálogo-académico) con permisos de solo lectura.
 
 ## Verificar PostgreSQL
 
