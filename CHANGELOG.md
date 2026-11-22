@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(web): consultar la jerarquía territorial desde un selector reutilizable con referencias históricas separadas (#39).
+
 - feat(catalogos): consultar departamentos, municipios y distritos del core con JWT, filtros por padre y paginación (#38).
 
 - chore(db): documentar el catálogo territorial del core (#37) y preparar su inventario y carga idempotente a partir de los códigos del Censo 2024.

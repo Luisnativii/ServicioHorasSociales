@@ -189,3 +189,12 @@ body { margin: 0; }
 .academic-table td:last-child { text-align: left; }
 .academic-table td small { display: block; color: var(--muted); margin-top: 4px; }
 .academic-table { min-width: 0; }
+
+.territory-selector { margin-top: 24px; min-width: 0; padding: 20px; border: 1px solid var(--rule); background: var(--surface); }
+.territory-selector legend { padding: 0 8px; font-weight: 600; }
+.territory-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 20px; }
+.territory-field { display: grid; gap: 8px; align-content: start; }
+.territory-field label { font-weight: 600; }
+.territory-field select { width: 100%; min-height: 44px; padding: 8px; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); }
+.territory-field select:disabled, .territory-field p, .territory-note { color: var(--muted); }
+.territory-note { margin-top: 16px; overflow-wrap: anywhere; }
