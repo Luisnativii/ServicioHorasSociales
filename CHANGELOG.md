@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(catalogos): administrar tipos de proyecto y áreas con una API protegida, filtros paginados y consulta de inactivos (#42).
+
 - feat(web): consultar la jerarquía territorial desde un selector reutilizable con referencias históricas separadas (#39).
 
 - feat(catalogos): consultar departamentos, municipios y distritos del core con JWT, filtros por padre y paginación (#38).

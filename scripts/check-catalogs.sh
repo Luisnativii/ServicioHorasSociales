@@ -43,7 +43,15 @@ counts=$(dc exec -T db sh -c 'exec psql -X -U "$POSTGRES_USER" -d "$1" -Atc "SEL
 owners=$(dc exec -T db sh -c 'exec psql -X -U "$POSTGRES_USER" -d "$1" -Atc "SELECT string_agg(DISTINCT pg_get_userbyid(relowner), '\''|'\'') FROM pg_class WHERE oid IN ('\''horas_sociales.tipo_proyecto'\''::regclass, '\''horas_sociales.area'\''::regclass);"' sh "$database")
 [ "$owners" = hs_migrator ]
 dc exec -T db sh -c 'exec psql -X -q -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$1" -c "GRANT USAGE ON SCHEMA horas_sociales TO hs_app; GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA horas_sociales TO hs_app;"' sh "$database"
+# Referencia sintética exclusiva de esta base efímera. No pertenece al esquema del portal.
+dc exec -T db sh -c 'exec psql -X -q -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$1"' sh "$database" <<'SQL'
+CREATE TABLE public.hs_catalogs_reference (
+    tipo_id uuid NOT NULL REFERENCES horas_sociales.tipo_proyecto (id),
+    area_id uuid NOT NULL REFERENCES horas_sociales.area (id)
+);
+GRANT SELECT, INSERT ON public.hs_catalogs_reference TO hs_app;
+SQL
 app_url="postgres://hs_app:$app_password@db:5432/$database?sslmode=disable&connect_timeout=3"
-dc run --rm --no-deps -e HS_TEST_CATALOGS=1 -e "DATABASE_URL=$app_url" api go test -race ./internal/modules/catalogos
+dc run --rm --no-deps -e HS_TEST_CATALOGS=1 -e "DATABASE_URL=$app_url" api go test -race ./internal/modules/catalogos ./internal/platform/http
 unset app_password migration_password app_url
-printf 'Catálogos: migración vacía/repetida, sin semillas, propietario migrator, unicidad, estados y repositorio real comprobados.\n'
+printf 'Catálogos: migración vacía/repetida, sin semillas, propietario migrator, unicidad, estados, endpoints y referencias con PostgreSQL comprobados.\n'

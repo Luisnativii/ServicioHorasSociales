@@ -113,6 +113,136 @@ func (q *Queries) ListTiposProyecto(ctx context.Context, incluirInactivos bool) 
 	return items, nil
 }
 
+const pageAreas = `-- name: PageAreas :many
+WITH filtrado AS (
+    SELECT id, nombre, activo
+    FROM horas_sociales.area
+    WHERE (activo OR $3::boolean)
+      AND strpos(lower(nombre), lower($4::text)) > 0
+)
+SELECT pagina.id,
+       COALESCE(pagina.nombre, '')::text AS nombre,
+       COALESCE(pagina.activo, false)::boolean AS activo,
+       total.cantidad
+FROM (SELECT count(*) AS cantidad FROM filtrado) AS total
+LEFT JOIN (
+    SELECT id, nombre, activo
+    FROM filtrado
+    ORDER BY lower(nombre), id
+    LIMIT $2::integer OFFSET $1::bigint
+) AS pagina ON true
+ORDER BY lower(pagina.nombre), pagina.id
+`
+
+type PageAreasParams struct {
+	Desplazamiento   int64
+	Limite           int32
+	IncluirInactivos bool
+	Busqueda         string
+}
+
+type PageAreasRow struct {
+	ID       pgtype.UUID
+	Nombre   string
+	Activo   bool
+	Cantidad int64
+}
+
+func (q *Queries) PageAreas(ctx context.Context, arg PageAreasParams) ([]PageAreasRow, error) {
+	rows, err := q.db.Query(ctx, pageAreas,
+		arg.Desplazamiento,
+		arg.Limite,
+		arg.IncluirInactivos,
+		arg.Busqueda,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PageAreasRow{}
+	for rows.Next() {
+		var i PageAreasRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Nombre,
+			&i.Activo,
+			&i.Cantidad,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const pageTiposProyecto = `-- name: PageTiposProyecto :many
+WITH filtrado AS (
+    SELECT id, nombre, activo
+    FROM horas_sociales.tipo_proyecto
+    WHERE (activo OR $3::boolean)
+      AND strpos(lower(nombre), lower($4::text)) > 0
+)
+SELECT pagina.id,
+       COALESCE(pagina.nombre, '')::text AS nombre,
+       COALESCE(pagina.activo, false)::boolean AS activo,
+       total.cantidad
+FROM (SELECT count(*) AS cantidad FROM filtrado) AS total
+LEFT JOIN (
+    SELECT id, nombre, activo
+    FROM filtrado
+    ORDER BY lower(nombre), id
+    LIMIT $2::integer OFFSET $1::bigint
+) AS pagina ON true
+ORDER BY lower(pagina.nombre), pagina.id
+`
+
+type PageTiposProyectoParams struct {
+	Desplazamiento   int64
+	Limite           int32
+	IncluirInactivos bool
+	Busqueda         string
+}
+
+type PageTiposProyectoRow struct {
+	ID       pgtype.UUID
+	Nombre   string
+	Activo   bool
+	Cantidad int64
+}
+
+func (q *Queries) PageTiposProyecto(ctx context.Context, arg PageTiposProyectoParams) ([]PageTiposProyectoRow, error) {
+	rows, err := q.db.Query(ctx, pageTiposProyecto,
+		arg.Desplazamiento,
+		arg.Limite,
+		arg.IncluirInactivos,
+		arg.Busqueda,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PageTiposProyectoRow{}
+	for rows.Next() {
+		var i PageTiposProyectoRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Nombre,
+			&i.Activo,
+			&i.Cantidad,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setAreaActivo = `-- name: SetAreaActivo :one
 UPDATE horas_sociales.area
 SET activo = $2

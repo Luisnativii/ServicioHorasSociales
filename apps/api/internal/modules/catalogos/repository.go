@@ -175,3 +175,48 @@ func storageError(err error) error {
 	}
 	return ErrStorage
 }
+
+type FiltrosClasificacion struct {
+	IncluirInactivos bool
+	Busqueda         string
+	Limite           int32
+	Desplazamiento   int64
+}
+
+func (r *Repository) PageTipos(ctx context.Context, filtros FiltrosClasificacion) ([]TipoProyecto, int64, error) {
+	rows, err := r.queries.PageTiposProyecto(ctx, catalogdb.PageTiposProyectoParams{
+		IncluirInactivos: filtros.IncluirInactivos, Busqueda: filtros.Busqueda,
+		Limite: filtros.Limite, Desplazamiento: filtros.Desplazamiento,
+	})
+	if err != nil {
+		return nil, 0, storageError(err)
+	}
+	items := make([]TipoProyecto, 0, len(rows))
+	var total int64
+	for _, row := range rows {
+		total = row.Cantidad
+		if row.ID.Valid {
+			items = append(items, TipoProyecto{ID: row.ID, Nombre: row.Nombre, Activo: row.Activo})
+		}
+	}
+	return items, total, nil
+}
+
+func (r *Repository) PageAreas(ctx context.Context, filtros FiltrosClasificacion) ([]Area, int64, error) {
+	rows, err := r.queries.PageAreas(ctx, catalogdb.PageAreasParams{
+		IncluirInactivos: filtros.IncluirInactivos, Busqueda: filtros.Busqueda,
+		Limite: filtros.Limite, Desplazamiento: filtros.Desplazamiento,
+	})
+	if err != nil {
+		return nil, 0, storageError(err)
+	}
+	items := make([]Area, 0, len(rows))
+	var total int64
+	for _, row := range rows {
+		total = row.Cantidad
+		if row.ID.Valid {
+			items = append(items, Area{ID: row.ID, Nombre: row.Nombre, Activo: row.Activo})
+		}
+	}
+	return items, total, nil
+}
