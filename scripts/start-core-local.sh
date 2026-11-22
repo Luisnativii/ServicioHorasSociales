@@ -20,11 +20,11 @@ dc up -d --wait --wait-timeout 180 db
 dc run --rm --no-deps -T jwt-init
 bash scripts/migrate.sh core-local
 
-# El rol de la API conserva el acceso a sus tablas. Del core solo lee el catálogo
-# académico en esta prueba. PostgreSQL y el backend quedan en la red de Docker.
+# El rol de la API conserva el acceso a sus tablas y solo lee los catálogos del core. PostgreSQL y el backend quedan en la red de Docker.
 dc exec -T db sh -c 'exec psql -X -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' <<'SQL'
 GRANT USAGE ON SCHEMA public TO hs_app;
-GRANT SELECT ON TABLE public.faculties, public.careers TO hs_app;
+GRANT SELECT ON TABLE public.faculties, public.careers,
+    public.geo_departments, public.geo_municipalities, public.geo_districts TO hs_app;
 SQL
 
 dc up -d --build --wait --wait-timeout 180 db api web

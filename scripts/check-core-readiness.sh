@@ -10,6 +10,9 @@ snapshot() {
 SELECT md5(string_agg(to_jsonb(m)::text, ',' ORDER BY name)) FROM public.schema_migrations AS m;
 SELECT md5(string_agg(to_jsonb(f)::text, ',' ORDER BY id)) FROM public.faculties AS f;
 SELECT md5(string_agg(to_jsonb(c)::text, ',' ORDER BY id)) FROM public.careers AS c;
+SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_departments AS d;
+SELECT md5(string_agg(to_jsonb(m)::text, ',' ORDER BY id)) FROM public.geo_municipalities AS m;
+SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_districts AS d;
 SELECT to_regclass('public.goose_db_version') IS NULL;
 SQL
 }
@@ -31,7 +34,8 @@ SELECT pg_advisory_xact_lock(139);
 SELECT format('CREATE ROLE hs_core_probe LOGIN PASSWORD %L', :'password')
 WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'hs_core_probe') \gexec
 GRANT USAGE ON SCHEMA public TO hs_core_probe;
-GRANT SELECT ON public.faculties, public.careers TO hs_core_probe;
+GRANT SELECT ON public.faculties, public.careers,
+  public.geo_departments, public.geo_municipalities, public.geo_districts TO hs_core_probe;
 INSERT INTO public.faculties (id, nombre)
 VALUES ('00000000-0000-4000-8000-000000000139', 'Facultad sintética de verificación')
 ON CONFLICT (id) DO NOTHING;
@@ -50,6 +54,9 @@ BEGIN
      OR has_schema_privilege('hs_core_probe', 'public', 'CREATE')
      OR has_table_privilege('hs_core_probe', 'public.faculties', 'INSERT, UPDATE, DELETE')
      OR has_table_privilege('hs_core_probe', 'public.careers', 'INSERT, UPDATE, DELETE')
+     OR has_table_privilege('hs_core_probe', 'public.geo_departments', 'INSERT, UPDATE, DELETE, TRUNCATE')
+     OR has_table_privilege('hs_core_probe', 'public.geo_municipalities', 'INSERT, UPDATE, DELETE, TRUNCATE')
+     OR has_table_privilege('hs_core_probe', 'public.geo_districts', 'INSERT, UPDATE, DELETE, TRUNCATE')
      OR has_table_privilege('hs_core_probe', 'public.users', 'SELECT')
      OR to_regclass('public.goose_db_version') IS NOT NULL THEN
     RAISE EXCEPTION 'Inventario o privilegios inesperados en hs-test-core';
@@ -58,6 +65,7 @@ END
 $check$;
 COMMIT;
 SQL
+db_sql < deploy/core-local/territory/load.sql
 before=$(snapshot)
 dc build api
 dc up -d --no-build --no-deps api api-missing

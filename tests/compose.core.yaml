@@ -51,7 +51,7 @@ services:
     environment:
       HS_TEST_CORE_CATALOG: "1"
       DATABASE_URL: postgres://hs_core_probe:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
-    command: [go, test, -count=1, -run, '^TestCatalogoAcademicoPostgreSQL$', ./internal/platform/http]
+    command: [go, test, -count=1, -run, '^TestCatalogo(Academico|Territorial)PostgreSQL$', ./internal/platform/http]
 
   probe:
     image: node:22.23.4-bookworm-slim

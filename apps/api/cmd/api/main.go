@@ -11,6 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+
 	"horas-sociales/api/internal/config"
 	"horas-sociales/api/internal/modules/admin"
 	"horas-sociales/api/internal/modules/catalogos"
@@ -71,10 +73,13 @@ func run() error {
 	}
 	srv := &http.Server{
 		Addr: ":8080", Handler: httpserver.Router(readiness, httpserver.Options{
-			Tokens:          tokens,
-			Browser:         browser,
-			Buscador:        admin.NewRepository(pool),
-			RegisterPrivate: httpserver.CatalogoAcademicoRoutes(catalogos.NewAcademiaRepository(pool)),
+			Tokens:   tokens,
+			Browser:  browser,
+			Buscador: admin.NewRepository(pool),
+			RegisterPrivate: func(r chi.Router) {
+				httpserver.CatalogoAcademicoRoutes(catalogos.NewAcademiaRepository(pool))(r)
+				httpserver.CatalogoTerritorialRoutes(catalogos.NewTerritorioRepository(pool))(r)
+			},
 		}),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second,
 		WriteTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second,

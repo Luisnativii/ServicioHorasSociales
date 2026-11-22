@@ -9,13 +9,15 @@ import (
 	"os"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"horas-sociales/api/internal/modules/catalogos"
 	"horas-sociales/api/internal/platform/auth"
 )
 
-func TestCatalogoAcademicoPostgreSQL(t *testing.T) {
+func catalogoIntegracion(t *testing.T, register func(*pgxpool.Pool) func(chi.Router)) (http.Handler, string) {
+	t.Helper()
 	if os.Getenv("HS_TEST_CORE_CATALOG") != "1" {
 		t.Skip("requiere PostgreSQL aislado con los datos de scripts/check-core-readiness.sh")
 	}
@@ -23,7 +25,7 @@ func TestCatalogoAcademicoPostgreSQL(t *testing.T) {
 	if err != nil {
 		t.Fatal("no se pudo preparar PostgreSQL de pruebas")
 	}
-	defer pool.Close()
+	t.Cleanup(pool.Close)
 
 	key := make([]byte, 32)
 	if _, err := rand.Read(key); err != nil {
@@ -43,7 +45,14 @@ func TestCatalogoAcademicoPostgreSQL(t *testing.T) {
 	}
 	router := Router(pool, Options{
 		Tokens: tokens, Browser: browser,
-		RegisterPrivate: CatalogoAcademicoRoutes(catalogos.NewAcademiaRepository(pool)),
+		RegisterPrivate: register(pool),
+	})
+	return router, cookie
+}
+
+func TestCatalogoAcademicoPostgreSQL(t *testing.T) {
+	router, cookie := catalogoIntegracion(t, func(pool *pgxpool.Pool) func(chi.Router) {
+		return CatalogoAcademicoRoutes(catalogos.NewAcademiaRepository(pool))
 	})
 	const base = "/api/v1/catalogos"
 	const facultad = "00000000-0000-4000-8000-000000035001"

@@ -394,6 +394,96 @@ paths:
                     const: unavailable
         '500':
           $ref: '#/components/responses/LegacyInternalError'
+  /api/v1/catalogos/departamentos:
+    get:
+      operationId: listarDepartamentos
+      summary: Listar departamentos
+      description: Lista los departamentos del catálogo canónico. Orden por código e ID.
+      security:
+        - AdminCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Página de lugares canónicos. Un filtro sin coincidencias devuelve una lista vacía.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListarLugaresTerritoriales'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/municipios:
+    get:
+      operationId: listarMunicipios
+      summary: Listar municipios
+      description: Lista los municipios vinculados al departamento indicado. Orden por código e ID.
+      security:
+        - AdminCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: departamento_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Página de lugares canónicos. Un filtro sin coincidencias devuelve una lista vacía.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListarLugaresTerritoriales'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/distritos:
+    get:
+      operationId: listarDistritos
+      summary: Listar distritos
+      description: Lista los distritos vinculados al municipio indicado. Orden por código e ID.
+      security:
+        - AdminCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: municipio_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Página de lugares canónicos. Un filtro sin coincidencias devuelve una lista vacía.
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/RequestID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListarLugaresTerritoriales'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
 components:
   securitySchemes:
     CSRFHeader:
@@ -412,6 +502,33 @@ components:
       schema:
         type: string
   schemas:
+    LugarTerritorial:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, nombre]
+      properties:
+        id:
+          type: string
+          format: uuid
+        codigo:
+          type: string
+        nombre:
+          type: string
+        padre_id:
+          type: string
+          format: uuid
+          description: UUID del departamento para municipios y del municipio para distritos. Se omite en departamentos.
+    ListarLugaresTerritoriales:
+      type: object
+      additionalProperties: false
+      required: [lugares, pagina]
+      properties:
+        lugares:
+          type: array
+          items:
+            $ref: '#/components/schemas/LugarTerritorial'
+        pagina:
+          $ref: '#/components/schemas/PageMetadata'
     Identidad:
       type: object
       additionalProperties: false

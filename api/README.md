@@ -45,3 +45,17 @@ El portal consulta directamente las facultades y carreras del core, con una sesi
 | `GET /api/v1/catalogos/carreras/{id}` | Consulta por UUID, con el identificador y estado de su facultad. |
 
 Ambos listados aceptan `q` para buscar por nombre sin distinguir mayúsculas ni tildes, `page` y `page_size` para paginar y `incluir_inactivas=true` para consultar el historial. El orden es ascendente por nombre normalizado, con desempate por UUID. `pagina.total` cuenta las coincidencias antes de paginar.
+
+## Catálogo territorial
+
+Las tres rutas de lectura bajo `/api/v1/catalogos` requieren la cookie JWT de administrador.
+
+| Ruta GET | Filtro obligatorio |
+| --- | --- |
+| `/departamentos` | Ninguno |
+| `/municipios` | `departamento_id` |
+| `/distritos` | `municipio_id` |
+
+Se aceptan `page` y `page_size` (25 por omisión, máximo 100). La respuesta contiene `lugares` y `pagina`. Cada lugar incluye `id`, `codigo` y `nombre`. Los municipios y distritos incluyen también `padre_id`. Los listados se ordenan por código y UUID. Un filtro ausente o con UUID inválido devuelve 400. Un UUID válido sin coincidencias devuelve 200 con un listado vacío.
+
+La API lee los UUID canónicos de las tres tablas `public.geo_*`. Los nombres libres heredados conservan su tratamiento de legado. El rol de la API necesita `SELECT` sobre esas tablas, como configura `scripts/start-core-local.sh` para el entorno local. La carga del catálogo se ejecuta de forma explícita con el [procedimiento de inventario y carga](../docs/CATALOGO_TERRITORIAL_CORE.md).
