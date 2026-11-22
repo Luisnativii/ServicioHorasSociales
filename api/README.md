@@ -59,3 +59,19 @@ Las tres rutas de lectura bajo `/api/v1/catalogos` requieren la cookie JWT de ad
 Se aceptan `page` y `page_size` (25 por omisión, máximo 100). La respuesta contiene `lugares` y `pagina`. Cada lugar incluye `id`, `codigo` y `nombre`. Los municipios y distritos incluyen también `padre_id`. Los listados se ordenan por código y UUID. Un filtro ausente o con UUID inválido devuelve 400. Un UUID válido sin coincidencias devuelve 200 con un listado vacío.
 
 La API lee los UUID canónicos de las tres tablas `public.geo_*`. Los nombres libres heredados conservan su tratamiento de legado. El rol de la API necesita `SELECT` sobre esas tablas, como configura `scripts/start-core-local.sh` para el entorno local. La carga del catálogo se ejecuta de forma explícita con el [procedimiento de inventario y carga](../docs/CATALOGO_TERRITORIAL_CORE.md).
+
+## Catálogos de clasificación
+
+Tipos de proyecto y áreas se administran por separado. Usa la base `/api/v1/catalogos/tipos-proyecto` o `/api/v1/catalogos/areas`.
+
+| Método | Ruta relativa | Resultado |
+| --- | --- | --- |
+| GET | Base | Lista opciones activas, ordenadas por nombre e ID. |
+| POST | Base | Crea una opción activa con `{"nombre":"…"}`. |
+| GET | `/{id}` | Consulta una opción por UUID, incluso si está inactiva. |
+| PATCH | `/{id}` | Cambia el nombre con `{"nombre":"…"}`. |
+| POST | `/{id}/desactivar` | Marca la opción como inactiva sin eliminarla. |
+
+Las rutas requieren JWT y las mutaciones exigen origen válido y CSRF. Los nombres se recortan y admiten hasta 200 caracteres. Los duplicados dentro del mismo catálogo devuelven 409 aunque cambie la capitalización. La respuesta de una opción contiene `id`, `nombre` y `activo`.
+
+El listado devuelve `opciones` y `pagina`. Acepta `q` como fragmento literal del nombre sin distinguir mayúsculas, `incluir_inactivos=true`, `page` y `page_size` (25 por omisión y máximo de 100). La desactivación conserva el UUID y las referencias existentes. La API opera sobre los catálogos del portal en `horas_sociales`.

@@ -484,6 +484,234 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '503':
           $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/tipos-proyecto:
+    get:
+      operationId: listarTiposProyecto
+      summary: Listar tipos de proyecto
+      security:
+        - AdminCookie: []
+      description: Activos por defecto. Orden ascendente por nombre e ID.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/BusquedaClasificacion'
+        - $ref: '#/components/parameters/IncluirInactivosClasificacion'
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginaClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+    post:
+      operationId: crearTipoProyecto
+      summary: Crear tipo de proyecto
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        $ref: '#/components/requestBodies/NombreClasificacion'
+      responses:
+        '201':
+          $ref: '#/components/responses/OpcionClasificacionCreada'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/tipos-proyecto/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UUIDClasificacion'
+    get:
+      operationId: consultarTipoProyecto
+      summary: Consultar tipo de proyecto
+      security:
+        - AdminCookie: []
+      responses:
+        '200':
+          $ref: '#/components/responses/OpcionClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+    patch:
+      operationId: editarTipoProyecto
+      summary: Editar nombre de tipo de proyecto
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        $ref: '#/components/requestBodies/NombreClasificacion'
+      responses:
+        '200':
+          $ref: '#/components/responses/OpcionClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/tipos-proyecto/{id}/desactivar:
+    parameters:
+      - $ref: '#/components/parameters/UUIDClasificacion'
+    post:
+      operationId: desactivarTipoProyecto
+      summary: Desactivar tipo de proyecto
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      responses:
+        '200':
+          $ref: '#/components/responses/OpcionClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/areas:
+    get:
+      operationId: listarAreas
+      summary: Listar áreas
+      security:
+        - AdminCookie: []
+      description: Activos por defecto. Orden ascendente por nombre e ID.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/BusquedaClasificacion'
+        - $ref: '#/components/parameters/IncluirInactivosClasificacion'
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginaClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+    post:
+      operationId: crearArea
+      summary: Crear área
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        $ref: '#/components/requestBodies/NombreClasificacion'
+      responses:
+        '201':
+          $ref: '#/components/responses/OpcionClasificacionCreada'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/areas/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UUIDClasificacion'
+    get:
+      operationId: consultarArea
+      summary: Consultar área
+      security:
+        - AdminCookie: []
+      responses:
+        '200':
+          $ref: '#/components/responses/OpcionClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+    patch:
+      operationId: editarArea
+      summary: Editar nombre de área
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        $ref: '#/components/requestBodies/NombreClasificacion'
+      responses:
+        '200':
+          $ref: '#/components/responses/OpcionClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/areas/{id}/desactivar:
+    parameters:
+      - $ref: '#/components/parameters/UUIDClasificacion'
+    post:
+      operationId: desactivarArea
+      summary: Desactivar área
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      responses:
+        '200':
+          $ref: '#/components/responses/OpcionClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
 components:
   securitySchemes:
     CSRFHeader:
@@ -501,7 +729,44 @@ components:
       description: Identificador de correlación de la petición
       schema:
         type: string
+  requestBodies:
+    NombreClasificacion:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [nombre]
+            properties:
+              nombre:
+                type: string
+                minLength: 1
+                description: Nombre de hasta 200 caracteres después de recortar espacios exteriores.
   schemas:
+    OpcionClasificacion:
+      type: object
+      additionalProperties: false
+      required: [id, nombre, activo]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        activo:
+          type: boolean
+    PaginaClasificacion:
+      type: object
+      additionalProperties: false
+      required: [opciones, pagina]
+      properties:
+        opciones:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpcionClasificacion'
+        pagina:
+          $ref: '#/components/schemas/PageMetadata'
     LugarTerritorial:
       type: object
       additionalProperties: false
@@ -677,6 +942,27 @@ components:
           format: int64
           minimum: 0
   parameters:
+    UUIDClasificacion:
+      name: id
+      in: path
+      required: true
+      description: UUID de la opción del portal distinto de cero.
+      schema:
+        type: string
+        format: uuid
+    BusquedaClasificacion:
+      name: q
+      in: query
+      description: Fragmento literal del nombre sin distinguir mayúsculas. Vacío equivale a omitir el filtro.
+      schema:
+        type: string
+        maxLength: 200
+    IncluirInactivosClasificacion:
+      name: incluir_inactivos
+      in: query
+      schema:
+        type: boolean
+        default: false
     UUIDCatalogo:
       name: id
       in: path
@@ -750,8 +1036,26 @@ components:
         enum: [asc, desc]
         default: asc
   responses:
+    OpcionClasificacion:
+      description: Opción vigente o histórica del catálogo.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OpcionClasificacion'
+    OpcionClasificacionCreada:
+      description: Opción creada como activa.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OpcionClasificacion'
+    PaginaClasificacion:
+      description: Opciones del catálogo y metadatos de paginación.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PaginaClasificacion'
     CatalogoNoDisponible:
-      description: 503 cuando la API no puede consultar el catálogo académico.
+      description: 503 cuando la API no puede operar sobre el catálogo.
       content:
         application/json:
           schema:
