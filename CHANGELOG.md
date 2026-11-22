@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(catalogos): consultar departamentos, municipios y distritos del core con JWT, filtros por padre y paginación (#38).
+
 - chore(db): documentar el catálogo territorial del core (#37) y preparar su inventario y carga idempotente a partir de los códigos del Censo 2024.
 
 - feat(web): consultar el catálogo académico del core (#36) desde la navegación privada, con búsqueda, paginación del servidor, filtro por facultad y detalle de registros activos e inactivos.
