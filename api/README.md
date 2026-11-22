@@ -75,3 +75,11 @@ Tipos de proyecto y áreas se administran por separado. Usa la base `/api/v1/cat
 Las rutas requieren JWT y las mutaciones exigen origen válido y CSRF. Los nombres se recortan y admiten hasta 200 caracteres. Los duplicados dentro del mismo catálogo devuelven 409 aunque cambie la capitalización. La respuesta de una opción contiene `id`, `nombre` y `activo`.
 
 El listado devuelve `opciones` y `pagina`. Acepta `q` como fragmento literal del nombre sin distinguir mayúsculas, `incluir_inactivos=true`, `page` y `page_size` (25 por omisión y máximo de 100). La desactivación conserva el UUID y las referencias existentes. La API opera sobre los catálogos del portal en `horas_sociales`.
+
+## Coordinador de carrera
+
+`GET /api/v1/catalogos/carreras/{id}/coordinador` consulta el nombre opcional mediante el UUID canónico de la carrera. Devuelve `carrera_id` y `coordinador_nombre`, que es `null` si la carrera existe y el dato está vacío. Las carreras inactivas siguen disponibles para lectura.
+
+`PUT` en la misma ruta acepta `{"coordinador_nombre":"…"}` o `{"coordinador_nombre":null}` para retirar el nombre. Requiere JWT, origen válido y CSRF. El nombre admite hasta 200 caracteres después de recortar espacios exteriores. Un UUID inválido devuelve 400 y una carrera inexistente, 404.
+
+La API verifica la carrera al guardar y mantiene como máximo un nombre por UUID en el esquema del portal. Varias carreras pueden tener el mismo nombre. La unión con el catálogo canónico mantiene visibles únicamente carreras existentes y evita otorgar permisos de escritura sobre el core.

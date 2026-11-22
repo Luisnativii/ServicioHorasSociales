@@ -46,7 +46,7 @@ SELECT has_table_privilege('hs_app', 'public.careers', 'SELECT') AS lee_carreras
 SQL
 ```
 
-Espera tres migraciones del core con SHA-256, tres facultades, 22 carreras, las versiones 1–3 de Goose aplicadas y ambos objetos de consulta visibles. El rol de la API puede leer las carreras. La escritura al catálogo del core requiere su propio acuerdo en #139.
+Espera tres migraciones del core con SHA-256, tres facultades, 22 carreras, las versiones 1–4 de Goose aplicadas y ambos objetos de consulta visibles. El rol de la API puede leer las carreras. La escritura al catálogo del core requiere su propio acuerdo en #139.
 
 ## Detener y reanudar
 

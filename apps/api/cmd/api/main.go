@@ -80,6 +80,7 @@ func run() error {
 				httpserver.CatalogoAcademicoRoutes(catalogos.NewAcademiaRepository(pool))(r)
 				httpserver.CatalogoTerritorialRoutes(catalogos.NewTerritorioRepository(pool))(r)
 				httpserver.CatalogoClasificacionRoutes(catalogos.NewRepository(pool))(r)
+				httpserver.CoordinadorCarreraRoutes(catalogos.NewCoordinadorRepository(pool))(r)
 			},
 		}),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second,
