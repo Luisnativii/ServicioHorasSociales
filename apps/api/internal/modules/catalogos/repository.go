@@ -33,6 +33,8 @@ type Area struct {
 	Activo bool
 }
 
+type Modalidad Area
+
 type Repository struct{ queries *catalogdb.Queries }
 
 func NewRepository(db catalogdb.DBTX) *Repository { return &Repository{catalogdb.New(db)} }
@@ -169,7 +171,7 @@ func storageError(err error) error {
 	var postgres *pgconn.PgError
 	if errors.As(err, &postgres) && postgres.Code == "23505" {
 		switch postgres.ConstraintName {
-		case "tipo_proyecto_nombre_canonico_unique", "area_nombre_canonico_unique":
+		case "tipo_proyecto_nombre_canonico_unique", "area_nombre_canonico_unique", "modalidad_nombre_canonico_unique":
 			return ErrDuplicate
 		}
 	}
@@ -219,4 +221,64 @@ func (r *Repository) PageAreas(ctx context.Context, filtros FiltrosClasificacion
 		}
 	}
 	return items, total, nil
+}
+
+func (r *Repository) CreateModalidad(ctx context.Context, nombre string) (Modalidad, error) {
+	visible, err := VisibleName(nombre)
+	if err != nil {
+		return Modalidad{}, err
+	}
+	row, err := r.queries.CreateModalidad(ctx, visible)
+	return fromModalidadRow(row), storageError(err)
+}
+
+func (r *Repository) FindModalidadByID(ctx context.Context, id pgtype.UUID) (Modalidad, error) {
+	if !validID(id) {
+		return Modalidad{}, ErrInvalidID
+	}
+	row, err := r.queries.GetModalidadPorID(ctx, id)
+	return fromModalidadRow(row), storageError(err)
+}
+
+func (r *Repository) RenameModalidad(ctx context.Context, id pgtype.UUID, nombre string) (Modalidad, error) {
+	if !validID(id) {
+		return Modalidad{}, ErrInvalidID
+	}
+	visible, err := VisibleName(nombre)
+	if err != nil {
+		return Modalidad{}, err
+	}
+	row, err := r.queries.UpdateModalidadNombre(ctx, catalogdb.UpdateModalidadNombreParams{ID: id, Nombre: visible})
+	return fromModalidadRow(row), storageError(err)
+}
+
+func (r *Repository) SetModalidadActive(ctx context.Context, id pgtype.UUID, active bool) (Modalidad, error) {
+	if !validID(id) {
+		return Modalidad{}, ErrInvalidID
+	}
+	row, err := r.queries.SetModalidadActivo(ctx, catalogdb.SetModalidadActivoParams{ID: id, Activo: active})
+	return fromModalidadRow(row), storageError(err)
+}
+
+func (r *Repository) PageModalidades(ctx context.Context, filtros FiltrosClasificacion) ([]Modalidad, int64, error) {
+	rows, err := r.queries.PageModalidades(ctx, catalogdb.PageModalidadesParams{
+		IncluirInactivos: filtros.IncluirInactivos, Busqueda: filtros.Busqueda,
+		Limite: filtros.Limite, Desplazamiento: filtros.Desplazamiento,
+	})
+	if err != nil {
+		return nil, 0, storageError(err)
+	}
+	items := make([]Modalidad, 0, len(rows))
+	var total int64
+	for _, row := range rows {
+		total = row.Cantidad
+		if row.ID.Valid {
+			items = append(items, Modalidad{ID: row.ID, Nombre: row.Nombre, Activo: row.Activo})
+		}
+	}
+	return items, total, nil
+}
+
+func fromModalidadRow(row catalogdb.HorasSocialesModalidad) Modalidad {
+	return Modalidad{ID: row.ID, Nombre: row.Nombre, Activo: row.Activo}
 }

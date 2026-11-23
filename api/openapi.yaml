@@ -712,6 +712,173 @@ paths:
           $ref: '#/components/responses/NotFound'
         '503':
           $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/modalidades:
+    get:
+      operationId: listarModalidades
+      summary: Listar modalidades
+      security:
+        - AdminCookie: []
+      description: Activos por defecto. Orden ascendente por nombre e ID.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/BusquedaClasificacion'
+        - $ref: '#/components/parameters/IncluirInactivosClasificacion'
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginaClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+    post:
+      operationId: crearModalidad
+      summary: Crear modalidad
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        $ref: '#/components/requestBodies/NombreClasificacion'
+      responses:
+        '201':
+          $ref: '#/components/responses/OpcionClasificacionCreada'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/modalidades/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UUIDClasificacion'
+    get:
+      operationId: consultarModalidad
+      summary: Consultar modalidad
+      security:
+        - AdminCookie: []
+      responses:
+        '200':
+          $ref: '#/components/responses/OpcionClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+    patch:
+      operationId: editarModalidad
+      summary: Editar nombre de modalidad
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        $ref: '#/components/requestBodies/NombreClasificacion'
+      responses:
+        '200':
+          $ref: '#/components/responses/OpcionClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/modalidades/{id}/desactivar:
+    parameters:
+      - $ref: '#/components/parameters/UUIDClasificacion'
+    post:
+      operationId: desactivarModalidad
+      summary: Desactivar modalidad
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      responses:
+        '200':
+          $ref: '#/components/responses/OpcionClasificacion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/proyectos:
+    get:
+      operationId: listarProyectos
+      summary: Buscar proyectos por título, institución o correlativo CSS
+      security: [{AdminCookie: []}]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - {name: q, in: query, schema: {type: string, maxLength: 200}}
+        - {name: institucion_id, in: query, schema: {type: string, format: uuid}}
+        - {name: estado, in: query, schema: {type: string}}
+        - {name: area_id, in: query, style: form, explode: true, schema: {type: array, maxItems: 50, items: {type: string, format: uuid}}}
+      responses:
+        '200': {description: Proyectos y paginación.}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '503': {description: Catálogo del core no disponible.}
+    post:
+      operationId: crearProyecto
+      summary: Registrar un proyecto activo
+      security: [{AdminCookie: [], CSRFHeader: []}]
+      requestBody: {$ref: '#/components/requestBodies/DatosProyecto'}
+      responses:
+        '201': {description: Proyecto creado.}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '503': {description: Escrituras deshabilitadas o base de datos no disponible.}
+  /api/v1/proyectos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+    get:
+      operationId: consultarProyecto
+      summary: Consultar proyecto y sus referencias vigentes e históricas
+      security: [{AdminCookie: []}]
+      responses:
+        '200': {description: Detalle del proyecto.}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      operationId: editarProyecto
+      summary: Editar un proyecto conservando institución y estado
+      security: [{AdminCookie: [], CSRFHeader: []}]
+      requestBody: {$ref: '#/components/requestBodies/DatosProyecto'}
+      responses:
+        '200': {description: Proyecto guardado.}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '503': {description: Escrituras deshabilitadas o base de datos no disponible.}
   /api/v1/catalogos/carreras/{id}/coordinador:
     parameters:
       - $ref: '#/components/parameters/UUIDCatalogo'
@@ -1028,6 +1195,34 @@ components:
       schema:
         type: string
   requestBodies:
+    DatosProyecto:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [titulo, institucion_id, distrito_id, tipo_id, area_id, modalidad_id, responsable]
+            properties:
+              titulo: {type: string, minLength: 1, maxLength: 300}
+              descripcion: {type: string, maxLength: 10000}
+              institucion_id: {type: string, format: uuid}
+              distrito_id: {type: string, format: uuid}
+              tipo_id: {type: string, format: uuid}
+              area_id: {type: string, format: uuid}
+              modalidad_id: {type: string, format: uuid}
+              naturaleza: {type: string, enum: [EXTERNA, INTERNA], default: EXTERNA}
+              fecha_inicio: {type: [string, 'null'], format: date}
+              cupo: {type: [integer, 'null'], minimum: 1, maximum: 2147483647}
+              responsable:
+                type: object
+                additionalProperties: false
+                required: [nombre]
+                properties:
+                  nombre: {type: string, minLength: 1, maxLength: 200}
+                  correo: {type: [string, 'null'], format: email}
+                  telefono: {type: [string, 'null']}
+                  extension: {type: [string, 'null']}
     DatosInstitucion:
       required: true
       content:

@@ -16,7 +16,7 @@ import (
 )
 
 type opcionClasificacion interface {
-	catalogos.TipoProyecto | catalogos.Area
+	catalogos.TipoProyecto | catalogos.Area | catalogos.Modalidad
 }
 
 type operacionesClasificacion[T opcionClasificacion] struct {
@@ -38,6 +38,10 @@ func CatalogoClasificacionRoutes(repo *catalogos.Repository) func(chi.Router) {
 		rutasClasificacion(r, "/catalogos/tipos-proyecto", operacionesClasificacion[catalogos.TipoProyecto]{
 			pagina: repo.PageTipos, buscar: repo.FindTipoByID, crear: repo.CreateTipo,
 			editar: repo.RenameTipo, estado: repo.SetTipoActive,
+		})
+		rutasClasificacion(r, "/catalogos/modalidades", operacionesClasificacion[catalogos.Modalidad]{
+			pagina: repo.PageModalidades, buscar: repo.FindModalidadByID, crear: repo.CreateModalidad,
+			editar: repo.RenameModalidad, estado: repo.SetModalidadActive,
 		})
 		rutasClasificacion(r, "/catalogos/areas", operacionesClasificacion[catalogos.Area]{
 			pagina: repo.PageAreas, buscar: repo.FindAreaByID, crear: repo.CreateArea,

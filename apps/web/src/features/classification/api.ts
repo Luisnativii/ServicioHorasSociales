@@ -1,6 +1,6 @@
 import { api } from '../../lib/api';
 
-export type ClassificationKind = 'tipos-proyecto' | 'areas';
+export type ClassificationKind = 'tipos-proyecto' | 'areas' | 'modalidades';
 export type ClassificationOption = { id: string; nombre: string; activo: boolean };
 type ClassificationPage = {
   opciones: ClassificationOption[];

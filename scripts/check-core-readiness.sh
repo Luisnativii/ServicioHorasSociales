@@ -14,7 +14,7 @@ SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_depar
 SELECT md5(string_agg(to_jsonb(m)::text, ',' ORDER BY id)) FROM public.geo_municipalities AS m;
 SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_districts AS d;
 SELECT md5(string_agg(to_jsonb(u)::text, ',' ORDER BY id)) FROM public.users AS u;
-SELECT md5(string_agg(to_jsonb(p)::text, ',' ORDER BY id)) FROM public.projects AS p;
+SELECT md5(string_agg(to_jsonb(p)::text, ',' ORDER BY id)) FROM public.projects AS p WHERE p.titulo <> 'Proyecto API #50';
 SELECT to_regclass('public.goose_db_version') IS NULL;
 SQL
 }
@@ -84,6 +84,31 @@ db_sql <<'SQL'
 GRANT USAGE ON SCHEMA horas_sociales TO hs_core_probe;
 GRANT SELECT, INSERT, UPDATE ON horas_sociales.coordinador_carrera TO hs_core_probe;
 SQL
+if [ "$(db_sql <<'SQL'
+SELECT to_regclass('horas_sociales.proyecto_clasificacion') IS NOT NULL;
+SQL
+)" != t ]; then
+  {
+    printf 'BEGIN;\n'
+    sed '/^-- +goose Down/,$d' apps/api/db/migrations/00003_catalogos_clasificacion.sql
+    sed '/^-- +goose Down/,$d' apps/api/db/migrations/00005_proyectos.sql
+    printf 'COMMIT;\n'
+  } | db_sql
+fi
+db_sql <<'SQL'
+GRANT SELECT, UPDATE ON horas_sociales.tipo_proyecto, horas_sociales.area, horas_sociales.modalidad TO hs_core_probe;
+GRANT SELECT, INSERT ON horas_sociales.proyecto_clasificacion TO hs_core_probe;
+GRANT SELECT, INSERT, UPDATE ON horas_sociales.proyecto_responsable TO hs_core_probe;
+INSERT INTO horas_sociales.tipo_proyecto (id,nombre) VALUES ('00000000-0000-4000-8000-000000050001','Tipo sintético #50') ON CONFLICT (id) DO NOTHING;
+INSERT INTO horas_sociales.area (id,nombre) VALUES
+ ('00000000-0000-4000-8000-000000050002','Área sintética A #50'),
+ ('00000000-0000-4000-8000-000000050003','Área sintética B #50') ON CONFLICT (id) DO NOTHING;
+INSERT INTO horas_sociales.modalidad (id,nombre) VALUES ('00000000-0000-4000-8000-000000050004','Modalidad sintética #50') ON CONFLICT (id) DO NOTHING;
+DELETE FROM horas_sociales.proyecto_responsable WHERE proyecto_id IN (SELECT id FROM public.projects WHERE titulo='Proyecto API #50');
+DELETE FROM horas_sociales.proyecto_clasificacion WHERE proyecto_id IN (SELECT id FROM public.projects WHERE titulo='Proyecto API #50');
+DELETE FROM public.projects WHERE titulo='Proyecto API #50';
+SQL
+db_sql < deploy/core-local/proyectos-permisos.sql
 db_sql < deploy/core-local/contacto-institucional.sql
 db_sql < deploy/core-local/estudiantes-vigencias.sql
 db_sql <<'SQL'
@@ -120,10 +145,12 @@ ON CONFLICT (id) DO UPDATE SET activo = true WHERE NOT institutions.activo;
 INSERT INTO public.institutions (id, nombre, ubicacion)
 VALUES ('00000000-0000-4000-8000-000000046002', 'Institución sintética histórica', 'Descripción histórica de sede')
 ON CONFLICT (id) DO NOTHING;
-INSERT INTO public.projects (id, institution_id, district_id, titulo, descripcion)
+INSERT INTO public.projects (id, institution_id, district_id, titulo, descripcion, correlativo_css, atributos, ubicacion)
 VALUES ('00000000-0000-4000-8000-000000046003', '00000000-0000-4000-8000-000000046001',
-        (SELECT id FROM public.geo_districts WHERE nombre = 'Jujutla'), 'Proyecto sintético', 'Prueba de conservación')
-ON CONFLICT (id) DO NOTHING;
+        (SELECT id FROM public.geo_districts WHERE nombre = 'Jujutla'), 'Proyecto sintético', 'Prueba de conservación', '00050',
+        '{"area_css":"Área histórica literal"}', 'Ubicación heredada')
+ON CONFLICT (id) DO UPDATE SET correlativo_css=EXCLUDED.correlativo_css,
+  atributos=EXCLUDED.atributos, ubicacion=EXCLUDED.ubicacion;
 
 DO $check$
 BEGIN
@@ -159,6 +186,14 @@ dc run --rm --no-deps -T probe
 dc run --rm --no-deps --build -T catalogo-test
 db_sql <<'SQL'
 BEGIN;
+DO $check$
+BEGIN
+  IF (SELECT count(*) FROM horas_sociales.proyecto_clasificacion h JOIN public.projects p ON p.id=h.proyecto_id
+      WHERE p.titulo='Proyecto API #50') <> 2 THEN
+    RAISE EXCEPTION 'No se conservó la anterior clasificación del proyecto';
+  END IF;
+END
+$check$;
 SELECT set_config('app.actor', 'core:synthetic', true);
 UPDATE public.students SET career_id = '00000000-0000-4000-8000-000000035002'
 WHERE carnet = '00550001';

@@ -18,6 +18,7 @@ import (
 	"horas-sociales/api/internal/modules/catalogos"
 	"horas-sociales/api/internal/modules/estudiantes"
 	"horas-sociales/api/internal/modules/instituciones"
+	"horas-sociales/api/internal/modules/proyectos"
 	"horas-sociales/api/internal/platform/auth"
 	"horas-sociales/api/internal/platform/database"
 	httpserver "horas-sociales/api/internal/platform/http"
@@ -85,6 +86,7 @@ func run() error {
 				httpserver.CoordinadorCarreraRoutes(catalogos.NewCoordinadorRepository(pool))(r)
 				httpserver.InstitucionesRoutes(instituciones.NewRepository(pool))(r)
 				httpserver.EstudiantesRoutes(estudiantes.NewRepository(pool))(r)
+				httpserver.ProyectosRoutes(proyectos.New(pool), os.Getenv("PROJECTS_WRITES_ENABLED") == "true")(r)
 			},
 		}),
 		ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second,

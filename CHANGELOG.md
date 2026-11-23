@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(proyectos): consultar, registrar y editar proyectos y administrar su modalidad (#50).
+
 - feat(estudiantes): buscar, crear y editar expedientes del core y consultar la historia académica (#55).
 
 - feat(web): gestionar instituciones, su sede y contacto principal desde el portal privado (#49).
