@@ -87,7 +87,9 @@ func run() error {
 				httpserver.CoordinadorCarreraRoutes(catalogos.NewCoordinadorRepository(pool))(r)
 				httpserver.InstitucionesRoutes(instituciones.NewRepository(pool))(r)
 				httpserver.EstudiantesRoutes(estudiantes.NewRepository(pool))(r)
-				httpserver.ParticipacionesRoutes(participaciones.New(pool), os.Getenv("ENROLLMENTS_WRITES_ENABLED") == "true")(r)
+				participationRepository := participaciones.New(pool)
+				httpserver.ParticipacionesRoutes(participationRepository, os.Getenv("ENROLLMENTS_WRITES_ENABLED") == "true")(r)
+				httpserver.CierresRoutes(participationRepository, os.Getenv("CLOSURES_WRITES_ENABLED") == "true")(r)
 				httpserver.ProyectosRoutes(proyectos.New(pool), os.Getenv("PROJECTS_WRITES_ENABLED") == "true")(r)
 			},
 		}),

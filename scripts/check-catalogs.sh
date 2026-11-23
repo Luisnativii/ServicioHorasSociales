@@ -37,7 +37,7 @@ for attempt in 1 2; do
   fi
 done
 version=$(dc exec -T db sh -c 'exec psql -X -U "$POSTGRES_USER" -d "$1" -Atc "SELECT max(version_id) FROM public.goose_db_version WHERE is_applied;"' sh "$database")
-[ "$version" = 5 ]
+[ "$version" = 6 ]
 counts=$(dc exec -T db sh -c 'exec psql -X -U "$POSTGRES_USER" -d "$1" -Atc "SELECT (SELECT count(*) FROM horas_sociales.tipo_proyecto), (SELECT count(*) FROM horas_sociales.area);"' sh "$database")
 [ "$counts" = '0|0' ]
 owners=$(dc exec -T db sh -c 'exec psql -X -U "$POSTGRES_USER" -d "$1" -Atc "SELECT string_agg(DISTINCT pg_get_userbyid(relowner), '\''|'\'') FROM pg_class WHERE oid IN ('\''horas_sociales.tipo_proyecto'\''::regclass, '\''horas_sociales.area'\''::regclass);"' sh "$database")

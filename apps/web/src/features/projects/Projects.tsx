@@ -4,12 +4,14 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { api, ApiError } from '../../lib/api';
 import { listClassification, type ClassificationKind, type ClassificationOption } from '../classification/api';
 import { listInstitutions, type Institution } from '../institutions/api';
+import CloseAction from '../participations/CloseAction';
 import Participations from '../participations/Participations';
 import TerritorySelector from '../territory/TerritorySelector';
 
 type Contact = { nombre: string; correo: string | null; telefono: string | null; extension: string | null };
 type Project = {
   id: string; titulo: string; descripcion: string; estado: string; naturaleza: string; cupo: number | null;
+  cerrado_por: string | null; motivo_cierre: string | null;
   fecha_inicio: string | null; fecha_cierre: string | null; correlativo_css: string | null;
   institucion_id: string; institucion: string; sede: string | null; distrito_id: string | null;
   distrito: string | null; ubicacion_heredada: string | null; area_css: string | null;
@@ -136,12 +138,17 @@ function Detail({ project, edit }: { project: Project; edit: () => void }) {
     ['Ubicación histórica', project.ubicacion_heredada], ['Correlativo CSS', project.correlativo_css], ['Área histórica CSS', project.area_css],
     ['Tipo', project.tipo], ['Área', project.area], ['Modalidad', project.modalidad],
     ['Naturaleza', project.naturaleza], ['Estado', project.estado], ['Cupo solicitado', project.cupo],
-    ['Inicio', project.fecha_inicio], ['Cierre', project.fecha_cierre], ['Responsable', project.responsable?.nombre],
+    ['Inicio', project.fecha_inicio], ['Cierre', project.fecha_cierre], ['Responsable del cierre', project.cerrado_por], ['Motivo del cierre', project.motivo_cierre], ['Responsable', project.responsable?.nombre],
     ['Correo', project.responsable?.correo], ['Teléfono', project.responsable?.telefono], ['Extensión', project.responsable?.extension],
   ];
   return <section className="institution-panel"><h2>{project.titulo}</h2><p>{project.descripcion}</p>
     <dl className="institution-facts">{facts.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value ?? 'Sin registrar'}</dd></div>)}</dl>
-    <button type="button" className="shell-secondary" onClick={edit}>Editar proyecto</button>
+    {!['FINALIZADO', 'CANCELADO', 'ABANDONADO'].includes(project.estado) &&
+      <button type="button" className="shell-secondary" onClick={edit}>Editar proyecto</button>}
+    {project.estado === 'ACTIVO' && <>
+      <CloseAction project={project.id} action="finalizar" />
+      <CloseAction project={project.id} action="cancelar" />
+    </>}
     <Participations key={project.id} view="proyecto" id={project.id} eligible={project.estado === 'ACTIVO'} />
   </section>;
 }
@@ -184,7 +191,7 @@ export default function Projects() {
     {creating && <ProjectForm key="new" saved={saved} cancel={() => setParams(next({ vista: '' }))} />}
     {!creating && id && <>
       {detail.isPending && <p role="status">Cargando proyecto…</p>}
-      {detail.isError ? <p role="alert">{message(detail.error)}</p> : detail.data && (view === 'editar'
+      {detail.isError ? <p role="alert">{message(detail.error)}</p> : detail.data && (view === 'editar' && !['FINALIZADO', 'CANCELADO', 'ABANDONADO'].includes(detail.data.estado)
         ? <ProjectForm key={id} project={detail.data} saved={saved} cancel={() => setParams(next({ vista: '' }))} />
         : <Detail project={detail.data} edit={() => setParams(next({ vista: 'editar' }))} />)}
     </>}

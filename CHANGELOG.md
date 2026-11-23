@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(cierres): retirar, cancelar y finalizar con historial y conservación de horas (#53).
+
 - feat(participaciones): asignar estudiantes desde proyectos o expedientes y consultar su historial (#59).
 
 - feat(proyectos): consultar, registrar y editar proyectos y administrar su modalidad (#50).
