@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(web): administrar tipos y áreas de proyecto con búsqueda paginada y consulta de inactivos (#43).
+
 - feat(web): consultar y editar el nombre del coordinador desde el detalle de carrera (#45).
 
 - feat(catalogos): guardar el nombre opcional del coordinador por carrera en el esquema del portal (#44).
