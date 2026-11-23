@@ -5,6 +5,7 @@ import Accounts from '../features/accounts/Accounts';
 import AcademicCatalog from '../features/academics/AcademicCatalog';
 import ClassificationCatalog from '../features/classification/ClassificationCatalog';
 import TerritoryCatalog from '../features/territory/TerritoryCatalog';
+import Institutions from '../features/institutions/Institutions';
 import AdminLayout, { Home, MissingPage, SessionGuard } from './AdminLayout';
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
       <Route element={<AdminLayout />}>
         <Route index element={<Home />} />
         <Route path="/administradores" element={<Accounts />} />
+        <Route path="/instituciones" element={<Institutions />} />
         <Route path="/catalogos/academico" element={<AcademicCatalog />} />
         <Route path="/catalogos/territorial" element={<TerritoryCatalog />} />
         <Route path="/catalogos/clasificacion" element={<ClassificationCatalog />} />
