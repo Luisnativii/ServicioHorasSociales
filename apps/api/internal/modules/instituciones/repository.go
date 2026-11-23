@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -13,6 +14,8 @@ import (
 var (
 	ErrInvalidID    = errors.New("identificador de institución inválido")
 	ErrInvalidActor = errors.New("identificador de administrador inválido")
+	ErrDuplicate    = errors.New("nombre de institución duplicado")
+	ErrInvalidSede  = errors.New("distrito de sede inexistente")
 	ErrNotFound     = errors.New("institución no encontrada")
 	ErrStorage      = errors.New("no se pudo completar la operación de instituciones")
 )
@@ -50,6 +53,13 @@ func (r *Repository) Deactivate(ctx context.Context, id, actor pgtype.UUID) (Ins
 	if !validID(id) {
 		return Institucion{}, ErrInvalidID
 	}
+	return r.write(ctx, actor, func(tx pgx.Tx) (pgtype.UUID, error) {
+		_, err := tx.Exec(ctx, `UPDATE public.institutions SET activo = false WHERE id = $1 AND activo`, id)
+		return id, err
+	})
+}
+
+func (r *Repository) write(ctx context.Context, actor pgtype.UUID, mutate func(pgx.Tx) (pgtype.UUID, error)) (Institucion, error) {
 	if !validID(actor) {
 		return Institucion{}, ErrInvalidActor
 	}
@@ -68,9 +78,8 @@ func (r *Repository) Deactivate(ctx context.Context, id, actor pgtype.UUID) (Ins
 		       pg_catalog.set_config('app.actor', $1, true)`, "admin:"+actor.String()); err != nil {
 		return Institucion{}, storageError(err)
 	}
-	if _, err := tx.Exec(ctx, `
-		UPDATE public.institutions SET activo = false
-		WHERE id = $1 AND activo`, id); err != nil {
+	id, err := mutate(tx)
+	if err != nil {
 		return Institucion{}, storageError(err)
 	}
 	result, err := findByID(ctx, tx, id)
@@ -87,21 +96,32 @@ type rowQuerier interface {
 	QueryRow(context.Context, string, ...any) pgx.Row
 }
 
+const institutionColumns = "i.id, i.nombre, i.codigo_css, i.activo, d.id, d.nombre, i.ubicacion"
+const institutionJoin = "LEFT JOIN public.geo_districts AS d ON d.id = i.district_id"
+
 func findByID(ctx context.Context, db rowQuerier, id pgtype.UUID) (Institucion, error) {
+	return scanInstitution(db.QueryRow(ctx, `
+		SELECT `+institutionColumns+`
+		FROM public.institutions AS i
+		`+institutionJoin+`
+		WHERE i.id = $1`, id))
+}
+
+type scanner interface{ Scan(...any) error }
+
+func scanInstitution(row scanner, extra ...any) (Institucion, error) {
 	var result Institucion
+	var nombre pgtype.Text
+	var activo pgtype.Bool
 	var distritoID pgtype.UUID
 	var distritoNombre pgtype.Text
-	err := db.QueryRow(ctx, `
-		SELECT i.id, i.nombre, i.codigo_css, i.activo, d.id, d.nombre, i.ubicacion
-		FROM public.institutions AS i
-		LEFT JOIN public.geo_districts AS d ON d.id = i.district_id
-		WHERE i.id = $1`, id).Scan(
-		&result.ID, &result.Nombre, &result.CodigoCSS, &result.Activo,
-		&distritoID, &distritoNombre, &result.UbicacionHeredada,
-	)
+	err := row.Scan(append([]any{
+		&result.ID, &nombre, &result.CodigoCSS, &activo, &distritoID, &distritoNombre, &result.UbicacionHeredada,
+	}, extra...)...)
 	if err != nil {
 		return Institucion{}, storageError(err)
 	}
+	result.Nombre, result.Activo = nombre.String, activo.Bool
 	if distritoID.Valid {
 		result.Sede = &Sede{DistritoID: distritoID, Nombre: distritoNombre.String}
 	}
@@ -118,7 +138,15 @@ func storageError(err error) error {
 		return ErrNotFound
 	case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
 		return err
-	default:
-		return ErrStorage
 	}
+	var db *pgconn.PgError
+	if errors.As(err, &db) {
+		switch {
+		case db.Code == "23505" && db.ConstraintName == "uq_institutions_nombre":
+			return ErrDuplicate
+		case db.Code == "23503" && db.ConstraintName == "fk_institutions_district":
+			return ErrInvalidSede
+		}
+	}
+	return ErrStorage
 }

@@ -86,11 +86,14 @@ GRANT SELECT, INSERT, UPDATE ON horas_sociales.coordinador_carrera TO hs_core_pr
 SQL
 db_sql <<'SQL'
 BEGIN;
-GRANT SELECT (id, nombre, codigo_css, activo, district_id, ubicacion), UPDATE (activo)
+GRANT SELECT (id, nombre, codigo_css, activo, district_id, ubicacion),
+  INSERT (nombre, district_id), UPDATE (activo, nombre, district_id)
   ON public.institutions TO hs_core_probe;
 GRANT INSERT (tabla, registro_id, operacion, datos_antes, datos_despues, actor)
   ON public.auditoria TO hs_core_probe;
 
+DELETE FROM public.institutions
+WHERE nombre IN ('Institución API prueba', 'Institución API editada', 'Institución API sin sede');
 INSERT INTO public.institutions (id, nombre, codigo_css, district_id)
 VALUES ('00000000-0000-4000-8000-000000046001', 'Institución sintética con sede', '00046',
         (SELECT id FROM public.geo_districts WHERE nombre = 'San Francisco Menéndez'))
@@ -107,8 +110,12 @@ DO $check$
 BEGIN
   IF NOT has_column_privilege('hs_core_probe', 'public.institutions', 'activo', 'UPDATE')
      OR has_table_privilege('hs_core_probe', 'public.institutions', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE')
-     OR has_column_privilege('hs_core_probe', 'public.institutions', 'nombre', 'UPDATE')
-     OR has_column_privilege('hs_core_probe', 'public.institutions', 'district_id', 'UPDATE')
+     OR NOT has_column_privilege('hs_core_probe', 'public.institutions', 'nombre', 'INSERT')
+     OR NOT has_column_privilege('hs_core_probe', 'public.institutions', 'nombre', 'UPDATE')
+     OR NOT has_column_privilege('hs_core_probe', 'public.institutions', 'district_id', 'INSERT')
+     OR NOT has_column_privilege('hs_core_probe', 'public.institutions', 'district_id', 'UPDATE')
+     OR has_column_privilege('hs_core_probe', 'public.institutions', 'codigo_css', 'INSERT, UPDATE')
+     OR has_column_privilege('hs_core_probe', 'public.institutions', 'ubicacion', 'INSERT, UPDATE')
      OR has_table_privilege('hs_core_probe', 'public.projects', 'INSERT, UPDATE, DELETE')
      OR has_table_privilege('hs_core_probe', 'public.auditoria', 'SELECT, UPDATE, DELETE') THEN
     RAISE EXCEPTION 'Privilegios de instituciones inesperados en hs-test-core';

@@ -83,3 +83,19 @@ El listado devuelve `opciones` y `pagina`. Acepta `q` como fragmento literal del
 `PUT` en la misma ruta acepta `{"coordinador_nombre":"…"}` o `{"coordinador_nombre":null}` para retirar el nombre. Requiere JWT, origen válido y CSRF. El nombre admite hasta 200 caracteres después de recortar espacios exteriores. Un UUID inválido devuelve 400 y una carrera inexistente, 404.
 
 La API verifica la carrera al guardar y mantiene como máximo un nombre por UUID en el esquema del portal. Varias carreras pueden tener el mismo nombre. La unión con el catálogo canónico mantiene visibles únicamente carreras existentes y evita otorgar permisos de escritura sobre el core.
+
+## Instituciones
+
+| Método y ruta | Resultado |
+| --- | --- |
+| `GET /api/v1/instituciones` | Lista instituciones activas por omisión, ordenadas por nombre y UUID. |
+| `POST /api/v1/instituciones` | Crea una institución activa. |
+| `GET /api/v1/instituciones/{id}` | Consulta por UUID, incluso si está inactiva. |
+| `PUT /api/v1/instituciones/{id}` | Reemplaza el nombre y la sede opcional. |
+| `POST /api/v1/instituciones/{id}/desactivar` | Desactiva conservando la institución y sus proyectos. |
+
+GET acepta `q` como fragmento literal del nombre o código CSS sin distinguir mayúsculas, `incluir_inactivas=true`, `page` y `page_size` (25 por omisión, máximo de 100). Devuelve `instituciones` y `pagina`.
+
+POST y PUT aceptan `nombre` y el UUID opcional `distrito_id`. Omitir el distrito o enviar `null` deja la institución sin sede canónica. El código CSS y la ubicación heredada son de lectura. Un nombre duplicado devuelve 409 con `error.field=nombre`. Un distrito inválido o inexistente devuelve 400 con `error.field=distrito_id`.
+
+Las rutas requieren JWT. Las mutaciones exigen origen válido y CSRF. Las escrituras usan los permisos por columna del [contrato con el core](../docs/CONTRATO_POSTGRESQL_CORE.md#instituciones). El contacto principal se incorpora en #48.
