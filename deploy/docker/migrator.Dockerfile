@@ -1,4 +1,4 @@
-FROM golang:1.27.3-bookworm AS build
+FROM golang:1.27.4-bookworm AS build
 ENV CGO_ENABLED=0 GOTOOLCHAIN=local
 RUN go install -tags='no_clickhouse no_libsql no_mssql no_mysql no_sqlite3 no_vertica no_ydb no_azuresql' github.com/pressly/goose/v3/cmd/goose@v3.28.0
 

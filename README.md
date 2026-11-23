@@ -212,7 +212,7 @@ El apagado permite 30 s a PostgreSQL y 15 s a API/web; la API dispone de 10 s in
 
 ```bash
 # Actualizar dependencias Go solo tras editar go.mod intencionalmente.
-docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e GOPATH=/tmp/go -e GOCACHE=/tmp/cache -v "$PWD/apps/api:/src" -w /src golang:1.27.3-bookworm go mod tidy
+docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e GOPATH=/tmp/go -e GOCACHE=/tmp/cache -v "$PWD/apps/api:/src" -w /src golang:1.27.4-bookworm go mod tidy
 # Actualizar el lockfile web solo tras editar package.json intencionalmente.
 docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD/apps/web:/src" -w /src node:22.23.4-bookworm-slim npm install --package-lock-only --ignore-scripts
 bash scripts/dc.sh --profile tools build api web migrator
@@ -249,7 +249,7 @@ La infraestructura de sesión, navegación y acceso del frontend se describe en 
 
 | Componente | Versión |
 | --- | --- |
-| Go | 1.27.3 |
+| Go | 1.27.4 |
 | chi / pgx | 5.5.0 / 5.11.0 |
 | golang-jwt/jwt v5 | 5.3.1 |
 | x/crypto / x/term | 0.58.0 / 0.47.0 |
