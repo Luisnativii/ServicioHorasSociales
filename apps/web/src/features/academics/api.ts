@@ -20,3 +20,16 @@ export async function listCatalog(kind: CatalogKind, params: URLSearchParams, si
 export function getCatalogEntry(kind: CatalogKind, id: string, signal: AbortSignal) {
   return api.request<CatalogEntry>(`${base}/${kind}/${encodeURIComponent(id)}`, { signal });
 }
+
+export type CareerCoordinator = { carrera_id: string; coordinador_nombre: string | null };
+
+export function getCareerCoordinator(id: string, signal: AbortSignal) {
+  return api.request<CareerCoordinator>(`${base}/carreras/${encodeURIComponent(id)}/coordinador`, { signal });
+}
+
+export function saveCareerCoordinator(id: string, name: string | null) {
+  return api.request<CareerCoordinator>(`${base}/carreras/${encodeURIComponent(id)}/coordinador`, {
+    method: 'PUT',
+    body: { coordinador_nombre: name },
+  });
+}
