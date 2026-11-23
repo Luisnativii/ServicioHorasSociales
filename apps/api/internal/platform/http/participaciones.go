@@ -113,6 +113,12 @@ func writeParticipation(w http.ResponseWriter, r *http.Request, status int, item
 		writeFieldError(w, r, "conflict", "estado_estudiante")
 	case errors.Is(err, participaciones.ErrDuplicate):
 		writeFieldError(w, r, "conflict", "participacion")
+	case errors.Is(err, participaciones.ErrClosedParticipation):
+		writeFieldError(w, r, "conflict", "estado_participacion")
+	case errors.Is(err, participaciones.ErrInvalidCloseDate):
+		writeFieldError(w, r, "bad_request", "fecha_cierre")
+	case errors.Is(err, participaciones.ErrCannotFinish):
+		writeFieldError(w, r, "conflict", "participaciones_abiertas")
 	case errors.Is(err, participaciones.ErrCapacity):
 		writeFieldError(w, r, "conflict", "cupo")
 	default:

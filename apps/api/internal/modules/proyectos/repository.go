@@ -9,6 +9,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+var ErrTerminal = errors.New("proyecto cerrado")
+
 type FieldError string
 
 func (e FieldError) Error() string { return string(e) }
@@ -42,6 +44,7 @@ const selectProject = `
 SELECT jsonb_build_object(
   'id',p.id,'titulo',p.titulo,'descripcion',p.descripcion,'correlativo_css',p.correlativo_css,
   'naturaleza',p.naturaleza,'estado',p.estado,'fecha_inicio',p.fecha_inicio,'fecha_cierre',p.fecha_cierre,
+  'cerrado_en',c.cerrada_en,'cerrado_por',c.actor_id,'motivo_cierre',c.motivo,
   'cupo',p.cupos,'area_css',p.atributos->>'area_css','ubicacion_heredada',p.ubicacion,
   'institucion_id',i.id,'institucion',i.nombre,'sede',sede.nombre,'distrito_id',p.district_id,'distrito',d.nombre,
   'tipo_id',t.id,'tipo',t.nombre,'area_id',a.id,'area',a.nombre,'modalidad_id',m.id,'modalidad',m.nombre,
@@ -57,7 +60,8 @@ LEFT JOIN LATERAL (
 LEFT JOIN horas_sociales.tipo_proyecto t ON t.id=cfg.tipo_id
 LEFT JOIN horas_sociales.area a ON a.id=cfg.area_id
 LEFT JOIN horas_sociales.modalidad m ON m.id=cfg.modalidad_id
-LEFT JOIN horas_sociales.proyecto_responsable r ON r.proyecto_id=p.id`
+LEFT JOIN horas_sociales.proyecto_responsable r ON r.proyecto_id=p.id
+LEFT JOIN horas_sociales.cierre_evento c ON c.proyecto_id=p.id AND c.participacion_id IS NULL`
 
 func (r *Repository) Get(ctx context.Context, id string) (json.RawMessage, error) {
 	var result json.RawMessage
@@ -100,10 +104,13 @@ func (r *Repository) Save(ctx context.Context, id, actor string, input Input) (s
 	creating := id == ""
 	var oldType, oldArea, oldMode string
 	if !creating {
-		var institution string
-		err = tx.QueryRow(ctx, `SELECT institution_id::text FROM public.projects WHERE id=$1::text::uuid FOR UPDATE`, id).Scan(&institution)
+		var institution, state string
+		err = tx.QueryRow(ctx, `SELECT institution_id::text, estado FROM public.projects WHERE id=$1::text::uuid FOR UPDATE`, id).Scan(&institution, &state)
 		if err != nil {
 			return "", err
+		}
+		if state == "FINALIZADO" || state == "CANCELADO" || state == "ABANDONADO" {
+			return "", ErrTerminal
 		}
 		if institution != input.Institution {
 			return "", FieldError("institucion_id")

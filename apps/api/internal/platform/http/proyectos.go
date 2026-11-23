@@ -190,6 +190,8 @@ func writeProject(w http.ResponseWriter, r *http.Request, status int, item any, 
 	switch {
 	case err == nil:
 		WriteJSON(w, r, status, item)
+	case errors.Is(err, proyectos.ErrTerminal):
+		writeFieldError(w, r, "conflict", "estado_proyecto")
 	case errors.Is(err, pgx.ErrNoRows):
 		WriteError(w, r, "not_found")
 	case errors.As(err, &field):

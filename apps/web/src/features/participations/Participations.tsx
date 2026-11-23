@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api, ApiError } from '../../lib/api';
+import CloseAction from './CloseAction';
 import { listStudents } from '../students/api';
 
 type Participant = {
@@ -14,6 +15,10 @@ type Participant = {
   estado: string;
   asignada_en: string;
   cerrada_en: string | null;
+  fecha_cierre: string | null;
+  cerrada_por: string | null;
+  motivo: string | null;
+  estado_proyecto: string;
 };
 type Candidate = { id: string; label: string; eligible: boolean };
 type Pagination = { total: number };
@@ -156,13 +161,20 @@ export default function Participations({ view, id, eligible }: { view: View; id:
     {query.data && !query.isError && <>
       {query.data.participaciones.length ? <div className="accounts-table-wrap"><table className="accounts-table">
         <thead><tr><th scope="col">{view === 'proyecto' ? 'Estudiante' : 'Proyecto'}</th><th scope="col">Estado</th>
-          <th scope="col">Asignación</th><th scope="col">Cierre</th></tr></thead>
+          <th scope="col">Asignación</th><th scope="col">Cierre</th><th scope="col">Acciones</th></tr></thead>
         <tbody>{query.data.participaciones.map(row => <tr key={row.id}>
           <th scope="row">{view === 'proyecto'
             ? <Link to={`/estudiantes?estudiante=${row.estudiante_id}`}>{row.estudiante} · {row.carnet}</Link>
             : <Link to={`/proyectos?proyecto=${row.proyecto_id}`}>{row.proyecto}</Link>}</th>
           <td>{labels[row.estado] ?? row.estado}</td><td>{dates.format(new Date(row.asignada_en))}</td>
-          <td>{row.cerrada_en ? dates.format(new Date(row.cerrada_en)) : 'Sin cierre'}</td>
+          <td>{row.fecha_cierre ?? (row.cerrada_en ? dates.format(new Date(row.cerrada_en)) : 'Sin cierre')}
+            {row.cerrada_por && <p>Responsable: {row.cerrada_por}</p>}
+            {row.motivo && <p>{row.motivo}</p>}
+          </td>
+          <td>{row.estado_proyecto === 'ACTIVO' && ['ASIGNADA', 'EN_CURSO'].includes(row.estado) && <>
+            <CloseAction project={row.proyecto_id} enrollment={row.id} action="retirar" />
+            <CloseAction project={row.proyecto_id} enrollment={row.id} action="finalizar" />
+          </>}</td>
         </tr>)}</tbody>
       </table></div> : <p>Sin participaciones en esta página.</p>}
       <Pager page={page} total={query.data.pagina.total} change={setPage} label="Páginas de participaciones" />

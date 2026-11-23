@@ -1244,6 +1244,79 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
         '404': {$ref: '#/components/responses/NotFound'}
         '503': {description: Base de datos del core no disponible.}
+  /api/v1/proyectos/{id}/cierre:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+    post:
+      operationId: cerrarProyecto
+      summary: Cancelar o finalizar un proyecto
+      security: [{AdminCookie: [], CSRFHeader: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [accion, fecha_cierre]
+              properties:
+                accion: {type: string, enum: [cancelar, finalizar]}
+                fecha_cierre: {type: string, format: date}
+                motivo: {type: string, maxLength: 500, description: Obligatorio para cancelar o retirar.}
+      responses:
+        '200':
+          description: Estado resultante después de guardar el cierre.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [estado_proyecto]
+                properties:
+                  estado_proyecto: {type: string, enum: [ACTIVO, ABANDONADO, CANCELADO, FINALIZADO]}
+                  estado_participacion: {type: string, enum: [RETIRADA, FINALIZADA]}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '503': {description: Escrituras deshabilitadas o base de datos no disponible.}
+  /api/v1/proyectos/{id}/participaciones/{participacion}/cierre:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+      - {name: participacion, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: cerrarParticipacion
+      summary: Retirar o finalizar una participación
+      security: [{AdminCookie: [], CSRFHeader: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [accion, fecha_cierre]
+              properties:
+                accion: {type: string, enum: [retirar, finalizar]}
+                fecha_cierre: {type: string, format: date}
+                motivo: {type: string, maxLength: 500, description: Obligatorio para cancelar o retirar.}
+      responses:
+        '200':
+          description: Estado resultante después de guardar el cierre.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [estado_proyecto]
+                properties:
+                  estado_proyecto: {type: string, enum: [ACTIVO, ABANDONADO, CANCELADO, FINALIZADO]}
+                  estado_participacion: {type: string, enum: [RETIRADA, FINALIZADA]}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '503': {description: Escrituras deshabilitadas o base de datos no disponible.}
 components:
   securitySchemes:
     CSRFHeader:

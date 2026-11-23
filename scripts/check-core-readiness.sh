@@ -14,7 +14,7 @@ SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_depar
 SELECT md5(string_agg(to_jsonb(m)::text, ',' ORDER BY id)) FROM public.geo_municipalities AS m;
 SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_districts AS d;
 SELECT md5(string_agg(to_jsonb(u)::text, ',' ORDER BY id)) FROM public.users AS u;
-SELECT md5(string_agg(to_jsonb(p)::text, ',' ORDER BY id)) FROM public.projects AS p WHERE p.titulo <> 'Proyecto API #50';
+SELECT md5(string_agg(to_jsonb(p)::text, ',' ORDER BY id)) FROM public.projects AS p WHERE p.titulo <> 'Proyecto API #50' AND p.titulo NOT LIKE 'Proyecto prueba cierre #53 %';
 SELECT to_regclass('public.goose_db_version') IS NULL;
 SQL
 }
@@ -190,13 +190,48 @@ VALUES ('00000000-0000-4000-8000-000000059002','00000000-0000-4000-8000-00000005
 ON CONFLICT ON CONSTRAINT uq_project_enrollments_student_project DO NOTHING;
 DO $check$
 BEGIN
-  IF has_table_privilege('hs_core_probe','public.project_enrollments','UPDATE, DELETE')
+  IF has_table_privilege('hs_core_probe','public.project_enrollments','DELETE')
     OR has_column_privilege('hs_core_probe','public.project_enrollments','estado','INSERT')
     OR has_column_privilege('hs_core_probe','public.project_enrollments','asignada_en','INSERT') THEN
     RAISE EXCEPTION 'Permisos de participación exceden el alta';
   END IF;
 END
 $check$;
+COMMIT;
+SQL
+if [ "$(db_sql <<'SQL'
+SELECT to_regclass('horas_sociales.cierre_evento') IS NOT NULL;
+SQL
+)" != t ]; then
+  {
+    printf 'BEGIN;\n'
+    sed '/^-- +goose Down/,$d' apps/api/db/migrations/00006_cierres.sql
+    printf 'COMMIT;\n'
+  } | db_sql
+fi
+db_sql < deploy/core-local/cierres-permisos.sql
+db_sql <<'SQL'
+GRANT SELECT, INSERT ON horas_sociales.cierre_evento TO hs_core_probe;
+BEGIN;
+DELETE FROM horas_sociales.cierre_evento WHERE proyecto_id BETWEEN
+  '00000000-0000-4000-8000-000000053001' AND '00000000-0000-4000-8000-000000053004';
+DELETE FROM public.hour_movements WHERE enrollment_id IN
+  (SELECT id FROM public.project_enrollments WHERE project_id BETWEEN
+  '00000000-0000-4000-8000-000000053001' AND '00000000-0000-4000-8000-000000053004');
+DELETE FROM public.project_enrollments WHERE project_id BETWEEN
+  '00000000-0000-4000-8000-000000053001' AND '00000000-0000-4000-8000-000000053004';
+INSERT INTO public.projects(id,institution_id,titulo,descripcion,estado,fecha_inicio)
+SELECT ('00000000-0000-4000-8000-00000005300'||n)::uuid,
+  '00000000-0000-4000-8000-000000046002','Proyecto prueba cierre #53 '||n,'Datos sintéticos','ACTIVO',current_date-2
+FROM generate_series(1,4) n
+ON CONFLICT (id) DO UPDATE SET estado='ACTIVO',fecha_inicio=EXCLUDED.fecha_inicio,fecha_cierre=NULL;
+INSERT INTO public.project_enrollments(id,project_id,student_id,asignada_en)
+SELECT ('00000000-0000-4000-8000-0000000530'||p||n)::uuid,
+  ('00000000-0000-4000-8000-00000005300'||p)::uuid,
+  ('00000000-0000-4000-8000-00000005901'||n)::uuid, now()-interval '2 days'
+FROM generate_series(1,3) p CROSS JOIN generate_series(1,2) n;
+INSERT INTO public.hour_movements(enrollment_id,horas,naturaleza,fecha_horas)
+VALUES ('00000000-0000-4000-8000-000000053032',2,'EXTERNA',(now() AT TIME ZONE 'America/El_Salvador')::date);
 COMMIT;
 SQL
 institution_audit_count() {
@@ -220,6 +255,14 @@ BEGIN
   IF (SELECT count(*) FROM horas_sociales.proyecto_clasificacion h JOIN public.projects p ON p.id=h.proyecto_id
       WHERE p.titulo='Proyecto API #50') <> 2 THEN
     RAISE EXCEPTION 'No se conservó la anterior clasificación del proyecto';
+  END IF;
+END
+$check$;
+DO $check$
+BEGIN
+  IF (SELECT sum(h.horas) FROM public.hour_movements h
+      WHERE h.enrollment_id='00000000-0000-4000-8000-000000053032') IS DISTINCT FROM 2::bigint THEN
+    RAISE EXCEPTION 'El cierre alteró las horas existentes';
   END IF;
 END
 $check$;

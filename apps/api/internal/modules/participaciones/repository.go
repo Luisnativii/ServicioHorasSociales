@@ -18,15 +18,19 @@ var (
 )
 
 type Item struct {
-	ID        string     `json:"id"`
-	ProjectID string     `json:"proyecto_id"`
-	StudentID string     `json:"estudiante_id"`
-	Project   string     `json:"proyecto"`
-	Student   string     `json:"estudiante"`
-	Carnet    string     `json:"carnet"`
-	Estado    string     `json:"estado"`
-	Asignada  time.Time  `json:"asignada_en"`
-	Cerrada   *time.Time `json:"cerrada_en"`
+	ProjectState string     `json:"estado_proyecto"`
+	ID           string     `json:"id"`
+	ProjectID    string     `json:"proyecto_id"`
+	StudentID    string     `json:"estudiante_id"`
+	Project      string     `json:"proyecto"`
+	Student      string     `json:"estudiante"`
+	Carnet       string     `json:"carnet"`
+	Estado       string     `json:"estado"`
+	Asignada     time.Time  `json:"asignada_en"`
+	Cerrada      *time.Time `json:"cerrada_en"`
+	FechaCierre  *string    `json:"fecha_cierre"`
+	Actor        *string    `json:"cerrada_por"`
+	Motivo       *string    `json:"motivo"`
 }
 
 type Repository struct{ pool *pgxpool.Pool }
@@ -37,6 +41,7 @@ const participants = `
 FROM public.project_enrollments e
 JOIN public.projects p ON p.id=e.project_id
 JOIN public.students s ON s.id=e.student_id
+LEFT JOIN horas_sociales.cierre_evento c ON c.participacion_id=e.id
 WHERE ($1::uuid IS NULL OR p.id=$1) AND ($2::uuid IS NULL OR s.id=$2)`
 
 func (r *Repository) List(ctx context.Context, project, student pgtype.UUID, limit int, offset int64) ([]Item, int64, error) {
@@ -56,7 +61,7 @@ func (r *Repository) List(ctx context.Context, project, student pgtype.UUID, lim
 		return nil, 0, pgx.ErrNoRows
 	}
 	rows, err := tx.Query(ctx, `SELECT e.id::text,p.id::text,s.id::text,p.titulo,s.nombre_completo,s.carnet,
-		e.estado,e.asignada_en,e.cerrada_en `+participants+
+		e.estado,p.estado,e.asignada_en,e.cerrada_en,c.fecha_cierre::text,c.actor_id::text,c.motivo `+participants+
 		` ORDER BY e.asignada_en DESC,e.id LIMIT $3 OFFSET $4`, project, student, limit, offset)
 	if err != nil {
 		return nil, 0, err
@@ -65,7 +70,7 @@ func (r *Repository) List(ctx context.Context, project, student pgtype.UUID, lim
 	for rows.Next() {
 		var item Item
 		if err := rows.Scan(&item.ID, &item.ProjectID, &item.StudentID, &item.Project, &item.Student, &item.Carnet,
-			&item.Estado, &item.Asignada, &item.Cerrada); err != nil {
+			&item.Estado, &item.ProjectState, &item.Asignada, &item.Cerrada, &item.FechaCierre, &item.Actor, &item.Motivo); err != nil {
 			rows.Close()
 			return nil, 0, err
 		}
