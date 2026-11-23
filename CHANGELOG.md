@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(reportes): consultar y exportar actividad a Excel con los mismos filtros e indicadores (#74).
+
 - feat(horas): acreditar con idempotencia y consultar el avance separado por naturaleza (#65).
 
 - feat(cierres): retirar, cancelar y finalizar con historial y conservación de horas (#53).
