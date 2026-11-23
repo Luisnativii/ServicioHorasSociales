@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(web): gestionar instituciones, su sede y contacto principal desde el portal privado (#49).
+
 - feat(instituciones): consultar y editar el contacto principal conservando el teléfono y la extensión como texto (#48).
 
 - feat(instituciones): exponer detalle, búsqueda paginada, alta, edición de nombre y sede, y desactivación auditada (#47).

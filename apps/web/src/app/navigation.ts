@@ -1,6 +1,7 @@
 // Add only implemented, protected destinations here; never infer a return URL.
 export const navigation = [
   { path: '/', label: 'Inicio', title: 'Inicio' },
+  { path: '/instituciones', label: 'Instituciones', title: 'Instituciones' },
   { path: '/catalogos/academico', label: 'Catálogo académico', title: 'Catálogo académico' },
   { path: '/catalogos/territorial', label: 'Catálogo territorial', title: 'Catálogo territorial' },
   { path: '/catalogos/clasificacion', label: 'Tipos y áreas', title: 'Tipos y áreas de proyecto' },
