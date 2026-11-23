@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import Hours from '../hours/Hours';
 import Participations from '../participations/Participations';
 import { Link, useSearchParams } from 'react-router-dom';
 import { academicOptions, getStudent, listStudents, saveStudent, studentError, studentKey,
@@ -76,8 +77,7 @@ function Detail({ student, edit }: { student: StudentDetail; edit: () => void })
           {period.motivo && <p>{period.motivo}</p>}
         </li>)}</ul>}
     <Participations key={student.id} view="estudiante" id={student.id} eligible={student.activo} />
-    <h3>Horas</h3>
-    <p>La consulta de horas todavía no está disponible en el portal.</p>
+    <Hours key={student.id} student={student.id} />
     <button type="button" className="shell-secondary" onClick={edit}>Editar expediente</button>
   </section>;
 }

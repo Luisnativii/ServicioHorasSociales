@@ -26,6 +26,7 @@ services:
       PROJECTS_WRITES_ENABLED: "true"
       ENROLLMENTS_WRITES_ENABLED: "true"
       CLOSURES_WRITES_ENABLED: "true"
+      HOURS_WRITES_ENABLED: "true"
     volumes:
       - jwt:/run/hs-core-local:ro
 

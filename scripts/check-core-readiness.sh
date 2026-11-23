@@ -14,7 +14,7 @@ SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_depar
 SELECT md5(string_agg(to_jsonb(m)::text, ',' ORDER BY id)) FROM public.geo_municipalities AS m;
 SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_districts AS d;
 SELECT md5(string_agg(to_jsonb(u)::text, ',' ORDER BY id)) FROM public.users AS u;
-SELECT md5(string_agg(to_jsonb(p)::text, ',' ORDER BY id)) FROM public.projects AS p WHERE p.titulo <> 'Proyecto API #50' AND p.titulo NOT LIKE 'Proyecto prueba cierre #53 %';
+SELECT md5(string_agg(to_jsonb(p)::text, ',' ORDER BY id)) FROM public.projects AS p WHERE p.titulo <> 'Proyecto API #50' AND p.titulo NOT LIKE 'Proyecto prueba cierre #53 %' AND p.titulo NOT LIKE 'Proyecto prueba horas #65 %';
 SELECT to_regclass('public.goose_db_version') IS NULL;
 SQL
 }
@@ -210,6 +210,20 @@ SQL
   } | db_sql
 fi
 db_sql < deploy/core-local/cierres-permisos.sql
+db_sql < deploy/core-local/horas-permisos.sql
+if [ "$(db_sql <<'SQL'
+SELECT to_regclass('horas_sociales.autor_movimiento') IS NOT NULL;
+SQL
+)" != t ]; then
+  {
+    printf 'BEGIN;\n'
+    sed '/^-- +goose Down/,$d' apps/api/db/migrations/00007_autor_movimiento.sql
+    printf 'COMMIT;\n'
+  } | db_sql
+fi
+db_sql <<'SQL'
+GRANT SELECT, INSERT ON horas_sociales.autor_movimiento TO hs_core_probe;
+SQL
 db_sql <<'SQL'
 GRANT SELECT, INSERT ON horas_sociales.cierre_evento TO hs_core_probe;
 BEGIN;
@@ -230,8 +244,37 @@ SELECT ('00000000-0000-4000-8000-0000000530'||p||n)::uuid,
   ('00000000-0000-4000-8000-00000005300'||p)::uuid,
   ('00000000-0000-4000-8000-00000005901'||n)::uuid, now()-interval '2 days'
 FROM generate_series(1,3) p CROSS JOIN generate_series(1,2) n;
-INSERT INTO public.hour_movements(enrollment_id,horas,naturaleza,fecha_horas)
-VALUES ('00000000-0000-4000-8000-000000053032',2,'EXTERNA',(now() AT TIME ZONE 'America/El_Salvador')::date);
+INSERT INTO public.hour_movements(enrollment_id,horas,naturaleza,fecha_horas,origen)
+VALUES ('00000000-0000-4000-8000-000000053032',2,'EXTERNA',(now() AT TIME ZONE 'America/El_Salvador')::date,'IMPORTACION');
+COMMIT;
+SQL
+db_sql <<'SQL'
+BEGIN;
+DELETE FROM horas_sociales.cierre_evento WHERE proyecto_id IN
+  ('00000000-0000-4000-8000-000000065001','00000000-0000-4000-8000-000000065002');
+DELETE FROM horas_sociales.autor_movimiento WHERE movimiento_id IN (
+    SELECT id FROM public.hour_movements WHERE enrollment_id IN
+      ('00000000-0000-4000-8000-000000065011','00000000-0000-4000-8000-000000065012'));
+DELETE FROM public.hour_movements WHERE enrollment_id IN
+      ('00000000-0000-4000-8000-000000065011','00000000-0000-4000-8000-000000065012');
+INSERT INTO public.projects (id,institution_id,titulo,descripcion,naturaleza,estado)
+VALUES ('00000000-0000-4000-8000-000000065001','00000000-0000-4000-8000-000000046002','Proyecto prueba horas #65 1','Datos sintéticos','INTERNA','ACTIVO'),
+       ('00000000-0000-4000-8000-000000065002','00000000-0000-4000-8000-000000046002','Proyecto prueba horas #65 2','Datos sintéticos','EXTERNA','ACTIVO')
+ON CONFLICT(id) DO UPDATE SET estado='ACTIVO',fecha_cierre=NULL;
+INSERT INTO public.project_enrollments(id,project_id,student_id,asignada_en)
+VALUES ('00000000-0000-4000-8000-000000065011','00000000-0000-4000-8000-000000065001','00000000-0000-4000-8000-000000059011',now()-interval '1 day'),
+       ('00000000-0000-4000-8000-000000065012','00000000-0000-4000-8000-000000065002','00000000-0000-4000-8000-000000059011',now()-interval '1 day')
+ON CONFLICT (id) DO UPDATE SET estado='ASIGNADA',cerrada_en=NULL,asignada_en=EXCLUDED.asignada_en;
+INSERT INTO public.hour_movements(enrollment_id,horas,naturaleza,fecha_horas,origen)
+VALUES ('00000000-0000-4000-8000-000000065011',20,'EXTERNA',(now() AT TIME ZONE 'America/El_Salvador')::date-80,'IMPORTACION');
+DO $check$
+BEGIN
+  IF has_table_privilege('hs_core_probe','public.hour_movements','UPDATE, DELETE')
+     OR has_column_privilege('hs_core_probe','public.hour_movements','registrado_por','INSERT') THEN
+    RAISE EXCEPTION 'Privilegios del libro demasiado amplios';
+  END IF;
+END
+$check$;
 COMMIT;
 SQL
 institution_audit_count() {

@@ -1317,6 +1317,90 @@ paths:
         '404': {$ref: '#/components/responses/NotFound'}
         '409': {$ref: '#/components/responses/Conflict'}
         '503': {description: Escrituras deshabilitadas o base de datos no disponible.}
+  /api/v1/estudiantes/{id}/horas:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+    get:
+      operationId: consultarLibroHoras
+      summary: Consultar movimientos y avance independiente por naturaleza
+      security: [{AdminCookie: []}]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Libro paginado. El avance se calcula sobre todos los movimientos del estudiante.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [movimientos, avance, pagina]
+                properties:
+                  movimientos:
+                    type: array
+                    items: {$ref: '#/components/schemas/MovimientoHoras'}
+                  avance:
+                    type: object
+                    required: [internas, externas, internas_pendientes, externas_pendientes, meta_por_categoria]
+                    properties:
+                      internas: {type: integer, minimum: 0}
+                      externas: {type: integer, minimum: 0}
+                      internas_pendientes: {type: integer, minimum: 0}
+                      externas_pendientes: {type: integer, minimum: 0}
+                      meta_por_categoria: {type: integer, const: 300}
+                  pagina:
+                    type: object
+                    required: [page, page_size, total]
+                    properties:
+                      page: {type: integer, minimum: 1}
+                      page_size: {type: integer, minimum: 1, maximum: 100}
+                      total: {type: integer, minimum: 0}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {description: Base de datos del core no disponible.}
+  /api/v1/proyectos/{id}/participaciones/{participacion}/horas:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+      - {name: participacion, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: acreditarHoras
+      summary: Acreditar horas enteras en una participación abierta
+      security: [{AdminCookie: [], CSRFHeader: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [horas, fecha_horas, concepto, solicitud_id]
+              properties:
+                horas: {type: integer, minimum: 1, maximum: 2147483647}
+                fecha_horas: {type: string, format: date, description: Desde la asignación hasta hoy en El Salvador.}
+                concepto: {type: string, minLength: 1, maxLength: 500}
+                solicitud_id: {type: string, format: uuid, description: Reutilizar la misma clave al reintentar con los mismos datos.}
+      responses:
+        '200':
+          description: Reintento idéntico. Devuelve el movimiento ya guardado.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReciboHoras'}
+        '201':
+          description: Movimiento registrado.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReciboHoras'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409':
+          description: Participación cerrada o clave usada con otros datos.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '503': {description: Acreditación deshabilitada o base de datos no disponible.}
 components:
   securitySchemes:
     CSRFHeader:
@@ -1417,6 +1501,27 @@ components:
                 minLength: 1
                 description: Nombre de hasta 200 caracteres después de recortar espacios exteriores.
   schemas:
+    MovimientoHoras:
+      type: object
+      required: [id, proyecto_id, proyecto, horas, naturaleza, fecha_horas, registrado_en, origen, concepto, administrador_id, usuario_core_id]
+      properties:
+        id: {type: string, format: uuid}
+        proyecto_id: {type: string, format: uuid}
+        proyecto: {type: string}
+        horas: {type: integer, minimum: 1}
+        naturaleza: {type: string, enum: [INTERNA, EXTERNA]}
+        fecha_horas: {type: string, format: date}
+        registrado_en: {type: string, format: date-time}
+        origen: {type: string, enum: [IMPORTACION, MANUAL]}
+        concepto: {type: [string, 'null']}
+        administrador_id: {type: [string, 'null'], format: uuid}
+        usuario_core_id: {type: [string, 'null'], format: uuid}
+    ReciboHoras:
+      type: object
+      required: [id, repetida]
+      properties:
+        id: {type: string, format: uuid}
+        repetida: {type: boolean}
     ReferenciaAcademica:
       type: object
       required: [id, nombre]
