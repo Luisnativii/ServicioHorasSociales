@@ -712,6 +712,60 @@ paths:
           $ref: '#/components/responses/NotFound'
         '503':
           $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/catalogos/carreras/{id}/coordinador:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+    get:
+      operationId: consultarCoordinadorCarrera
+      summary: Consultar el nombre de coordinador de una carrera
+      security:
+        - AdminCookie: []
+      responses:
+        '200':
+          $ref: '#/components/responses/CoordinadorCarrera'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
+    put:
+      operationId: guardarCoordinadorCarrera
+      summary: Guardar o retirar el nombre de coordinador
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [coordinador_nombre]
+              properties:
+                coordinador_nombre:
+                  type: [string, 'null']
+                  description: Nombre de hasta 200 caracteres después de recortar espacios exteriores. Enviar null para retirarlo.
+      responses:
+        '200':
+          $ref: '#/components/responses/CoordinadorCarrera'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '503':
+          $ref: '#/components/responses/CatalogoNoDisponible'
 components:
   securitySchemes:
     CSRFHeader:
@@ -1036,6 +1090,20 @@ components:
         enum: [asc, desc]
         default: asc
   responses:
+    CoordinadorCarrera:
+      description: Nombre opcional de coordinador guardado por el portal.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [carrera_id, coordinador_nombre]
+            properties:
+              carrera_id:
+                type: string
+                format: uuid
+              coordinador_nombre:
+                type: [string, 'null']
     OpcionClasificacion:
       description: Opción vigente o histórica del catálogo.
       content:

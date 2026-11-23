@@ -13,6 +13,7 @@ SELECT md5(string_agg(to_jsonb(c)::text, ',' ORDER BY id)) FROM public.careers A
 SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_departments AS d;
 SELECT md5(string_agg(to_jsonb(m)::text, ',' ORDER BY id)) FROM public.geo_municipalities AS m;
 SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_districts AS d;
+SELECT md5(string_agg(to_jsonb(u)::text, ',' ORDER BY id)) FROM public.users AS u;
 SELECT to_regclass('public.goose_db_version') IS NULL;
 SQL
 }
@@ -57,7 +58,7 @@ BEGIN
      OR has_table_privilege('hs_core_probe', 'public.geo_departments', 'INSERT, UPDATE, DELETE, TRUNCATE')
      OR has_table_privilege('hs_core_probe', 'public.geo_municipalities', 'INSERT, UPDATE, DELETE, TRUNCATE')
      OR has_table_privilege('hs_core_probe', 'public.geo_districts', 'INSERT, UPDATE, DELETE, TRUNCATE')
-     OR has_table_privilege('hs_core_probe', 'public.users', 'SELECT')
+     OR has_table_privilege('hs_core_probe', 'public.users', 'SELECT, INSERT, UPDATE, DELETE')
      OR to_regclass('public.goose_db_version') IS NOT NULL THEN
     RAISE EXCEPTION 'Inventario o privilegios inesperados en hs-test-core';
   END IF;
@@ -66,6 +67,22 @@ $check$;
 COMMIT;
 SQL
 db_sql < deploy/core-local/territory/load.sql
+# Probar el SQL de la migración del portal en el core aislado. El arranque
+# local aplica la misma migración con Goose y su propia cuenta de migrador.
+if [ "$(db_sql <<'SQL'
+SELECT to_regclass('horas_sociales.coordinador_carrera') IS NOT NULL;
+SQL
+)" != t ]; then
+  {
+    printf 'BEGIN;\nCREATE SCHEMA IF NOT EXISTS horas_sociales;\n'
+    sed '/^-- +goose Down/,$d' apps/api/db/migrations/00004_coordinador_carrera.sql
+    printf 'COMMIT;\n'
+  } | db_sql
+fi
+db_sql <<'SQL'
+GRANT USAGE ON SCHEMA horas_sociales TO hs_core_probe;
+GRANT SELECT, INSERT, UPDATE ON horas_sociales.coordinador_carrera TO hs_core_probe;
+SQL
 before=$(snapshot)
 dc build api
 dc up -d --no-build --no-deps api api-missing
