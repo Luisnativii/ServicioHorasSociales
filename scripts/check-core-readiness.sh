@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 dc() { bash scripts/dc-test.sh --core "$@"; }
 db_sql() {
-  dc exec -T db sh -c 'exec psql -X -qAt -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+  dc exec -T db sh -c 'exec psql -X -qAt -v ON_ERROR_STOP=1 -v app_role=hs_core_probe -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 }
 snapshot() {
   db_sql <<'SQL'
@@ -84,14 +84,9 @@ db_sql <<'SQL'
 GRANT USAGE ON SCHEMA horas_sociales TO hs_core_probe;
 GRANT SELECT, INSERT, UPDATE ON horas_sociales.coordinador_carrera TO hs_core_probe;
 SQL
+db_sql < deploy/core-local/contacto-institucional.sql
 db_sql <<'SQL'
 BEGIN;
-GRANT SELECT (id, nombre, codigo_css, activo, district_id, ubicacion),
-  INSERT (nombre, district_id), UPDATE (activo, nombre, district_id)
-  ON public.institutions TO hs_core_probe;
-GRANT INSERT (tabla, registro_id, operacion, datos_antes, datos_despues, actor)
-  ON public.auditoria TO hs_core_probe;
-
 DELETE FROM public.institutions
 WHERE nombre IN ('Institución API prueba', 'Institución API editada', 'Institución API sin sede');
 INSERT INTO public.institutions (id, nombre, codigo_css, district_id)

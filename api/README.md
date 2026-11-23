@@ -98,4 +98,4 @@ GET acepta `q` como fragmento literal del nombre o código CSS sin distinguir ma
 
 POST y PUT aceptan `nombre` y el UUID opcional `distrito_id`. Omitir el distrito o enviar `null` deja la institución sin sede canónica. El código CSS y la ubicación heredada son de lectura. Un nombre duplicado devuelve 409 con `error.field=nombre`. Un distrito inválido o inexistente devuelve 400 con `error.field=distrito_id`.
 
-Las rutas requieren JWT. Las mutaciones exigen origen válido y CSRF. Las escrituras usan los permisos por columna del [contrato con el core](../docs/CONTRATO_POSTGRESQL_CORE.md#instituciones). El contacto principal se incorpora en #48.
+Las rutas requieren JWT. Las mutaciones exigen origen válido y CSRF. Las escrituras usan los permisos por columna del [contrato con el core](../docs/CONTRATO_POSTGRESQL_CORE.md#instituciones). Alta y edición aceptan un bloque opcional `contacto` con `nombre` obligatorio y `correo`, `telefono` y `extension` opcionales. La extensión requiere teléfono. Ambos valores se conservan como texto. En la edición, omitir el bloque o enviar `null` conserva el contacto existente. Las respuestas incluyen el bloque o `null`.

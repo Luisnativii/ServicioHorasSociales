@@ -95,6 +95,15 @@ func TestInstitucionesAPIPostgreSQL(t *testing.T) {
 	if item.Nombre != "Institución API editada" || item.Sede != nil || !item.Activo {
 		t.Fatalf("edición inesperada: %+v", item)
 	}
+	assertField(call("PUT", itemPath, `{"nombre":"Institución API editada","contacto":{"nombre":"Ana","correo":"inválido"}}`, session, true, 400), "contacto.correo")
+	assertField(call("PUT", itemPath, `{"nombre":"Institución API editada","contacto":{"nombre":"Ana","extension":"004"}}`, session, true, 400), "contacto.extension")
+	call("PUT", itemPath, `{"nombre":"Institución API editada","contacto":{"nombre":"Ana","telefono":"+503 2222-0000","extension":"004"}}`, session, true, 200)
+	call("PUT", itemPath, `{"nombre":"Institución API editada"}`, session, true, 200)
+	decode(call("GET", itemPath, "", session, false, 200), &item)
+	if item.Contacto == nil || item.Contacto.Telefono == nil || *item.Contacto.Telefono != "+503 2222-0000" ||
+		item.Contacto.Extension == nil || *item.Contacto.Extension != "004" {
+		t.Fatalf("contacto inesperado: %+v", item.Contacto)
+	}
 	page := func(query string) (items []institucionRespuesta, meta paginaCatalogo) {
 		t.Helper()
 		var result struct {

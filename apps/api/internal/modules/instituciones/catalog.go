@@ -10,6 +10,7 @@ import (
 type DatosInstitucion struct {
 	Nombre     string
 	DistritoID pgtype.UUID
+	Contacto   *Contacto
 }
 
 type Filtros struct {
@@ -22,9 +23,14 @@ type Filtros struct {
 func (r *Repository) Create(ctx context.Context, actor pgtype.UUID, datos DatosInstitucion) (Institucion, error) {
 	return r.write(ctx, actor, func(tx pgx.Tx) (pgtype.UUID, error) {
 		var id pgtype.UUID
+		var contacto Contacto
+		if datos.Contacto != nil {
+			contacto = *datos.Contacto
+		}
 		err := tx.QueryRow(ctx, `
-			INSERT INTO public.institutions (nombre, district_id)
-			VALUES ($1, $2) RETURNING id`, datos.Nombre, datos.DistritoID).Scan(&id)
+			INSERT INTO public.institutions (nombre, district_id, contacto_nombre, contacto_email, telefono, contacto_extension)
+			VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`, datos.Nombre, datos.DistritoID,
+			contacto.Nombre, contacto.Correo, contacto.Telefono, contacto.Extension).Scan(&id)
 		return id, err
 	})
 }
@@ -34,6 +40,14 @@ func (r *Repository) Update(ctx context.Context, id, actor pgtype.UUID, datos Da
 		return Institucion{}, ErrInvalidID
 	}
 	return r.write(ctx, actor, func(tx pgx.Tx) (pgtype.UUID, error) {
+		if datos.Contacto != nil {
+			contacto := datos.Contacto
+			_, err := tx.Exec(ctx, `UPDATE public.institutions
+    SET nombre = $2, district_id = $3, contacto_nombre = $4, contacto_email = $5,
+        telefono = $6, contacto_extension = $7 WHERE id = $1`,
+				id, datos.Nombre, datos.DistritoID, contacto.Nombre, contacto.Correo, contacto.Telefono, contacto.Extension)
+			return id, err
+		}
 		var updated pgtype.UUID
 		err := tx.QueryRow(ctx, `
 			UPDATE public.institutions SET nombre = $2, district_id = $3
@@ -45,7 +59,8 @@ func (r *Repository) Update(ctx context.Context, id, actor pgtype.UUID, datos Da
 func (r *Repository) List(ctx context.Context, filtros Filtros) ([]Institucion, int64, error) {
 	rows, err := r.pool.Query(ctx, `
 		WITH filtradas AS (
-			SELECT id, nombre, codigo_css, activo, district_id, ubicacion
+			SELECT id, nombre, codigo_css, activo, district_id, ubicacion,
+ contacto_nombre, contacto_email, telefono, contacto_extension
 			FROM public.institutions
 			WHERE (activo OR $1)
 			  AND (strpos(lower(nombre), lower($2)) > 0

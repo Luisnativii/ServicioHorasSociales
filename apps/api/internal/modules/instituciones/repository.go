@@ -25,7 +25,12 @@ type Sede struct {
 	Nombre     string
 }
 
+type Contacto struct {
+	Nombre, Correo, Telefono, Extension *string
+}
+
 type Institucion struct {
+	Contacto          Contacto
 	ID                pgtype.UUID
 	Nombre            string
 	CodigoCSS         *string
@@ -96,7 +101,7 @@ type rowQuerier interface {
 	QueryRow(context.Context, string, ...any) pgx.Row
 }
 
-const institutionColumns = "i.id, i.nombre, i.codigo_css, i.activo, d.id, d.nombre, i.ubicacion"
+const institutionColumns = "i.id, i.nombre, i.codigo_css, i.activo, d.id, d.nombre, i.ubicacion, i.contacto_nombre, i.contacto_email, i.telefono, i.contacto_extension"
 const institutionJoin = "LEFT JOIN public.geo_districts AS d ON d.id = i.district_id"
 
 func findByID(ctx context.Context, db rowQuerier, id pgtype.UUID) (Institucion, error) {
@@ -117,6 +122,7 @@ func scanInstitution(row scanner, extra ...any) (Institucion, error) {
 	var distritoNombre pgtype.Text
 	err := row.Scan(append([]any{
 		&result.ID, &nombre, &result.CodigoCSS, &activo, &distritoID, &distritoNombre, &result.UbicacionHeredada,
+		&result.Contacto.Nombre, &result.Contacto.Correo, &result.Contacto.Telefono, &result.Contacto.Extension,
 	}, extra...)...)
 	if err != nil {
 		return Institucion{}, storageError(err)
