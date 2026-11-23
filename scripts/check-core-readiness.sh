@@ -14,6 +14,7 @@ SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_depar
 SELECT md5(string_agg(to_jsonb(m)::text, ',' ORDER BY id)) FROM public.geo_municipalities AS m;
 SELECT md5(string_agg(to_jsonb(d)::text, ',' ORDER BY id)) FROM public.geo_districts AS d;
 SELECT md5(string_agg(to_jsonb(u)::text, ',' ORDER BY id)) FROM public.users AS u;
+SELECT md5(string_agg(to_jsonb(p)::text, ',' ORDER BY id)) FROM public.projects AS p;
 SELECT to_regclass('public.goose_db_version') IS NULL;
 SQL
 }
@@ -83,11 +84,66 @@ db_sql <<'SQL'
 GRANT USAGE ON SCHEMA horas_sociales TO hs_core_probe;
 GRANT SELECT, INSERT, UPDATE ON horas_sociales.coordinador_carrera TO hs_core_probe;
 SQL
+db_sql <<'SQL'
+BEGIN;
+GRANT SELECT (id, nombre, codigo_css, activo, district_id, ubicacion), UPDATE (activo)
+  ON public.institutions TO hs_core_probe;
+GRANT INSERT (tabla, registro_id, operacion, datos_antes, datos_despues, actor)
+  ON public.auditoria TO hs_core_probe;
+
+INSERT INTO public.institutions (id, nombre, codigo_css, district_id)
+VALUES ('00000000-0000-4000-8000-000000046001', 'Institución sintética con sede', '00046',
+        (SELECT id FROM public.geo_districts WHERE nombre = 'San Francisco Menéndez'))
+ON CONFLICT (id) DO UPDATE SET activo = true WHERE NOT institutions.activo;
+INSERT INTO public.institutions (id, nombre, ubicacion)
+VALUES ('00000000-0000-4000-8000-000000046002', 'Institución sintética histórica', 'Descripción histórica de sede')
+ON CONFLICT (id) DO NOTHING;
+INSERT INTO public.projects (id, institution_id, district_id, titulo, descripcion)
+VALUES ('00000000-0000-4000-8000-000000046003', '00000000-0000-4000-8000-000000046001',
+        (SELECT id FROM public.geo_districts WHERE nombre = 'Jujutla'), 'Proyecto sintético', 'Prueba de conservación')
+ON CONFLICT (id) DO NOTHING;
+
+DO $check$
+BEGIN
+  IF NOT has_column_privilege('hs_core_probe', 'public.institutions', 'activo', 'UPDATE')
+     OR has_table_privilege('hs_core_probe', 'public.institutions', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE')
+     OR has_column_privilege('hs_core_probe', 'public.institutions', 'nombre', 'UPDATE')
+     OR has_column_privilege('hs_core_probe', 'public.institutions', 'district_id', 'UPDATE')
+     OR has_table_privilege('hs_core_probe', 'public.projects', 'INSERT, UPDATE, DELETE')
+     OR has_table_privilege('hs_core_probe', 'public.auditoria', 'SELECT, UPDATE, DELETE') THEN
+    RAISE EXCEPTION 'Privilegios de instituciones inesperados en hs-test-core';
+  END IF;
+END
+$check$;
+COMMIT;
+SQL
+institution_audit_count() {
+  db_sql <<'SQL'
+SELECT count(*) FROM public.auditoria
+WHERE tabla = 'institutions' AND registro_id = '00000000-0000-4000-8000-000000046001'
+  AND operacion = 'UPDATE' AND actor = 'admin:00000000-0000-4000-8000-000000000046'
+  AND datos_antes->>'activo' = 'true' AND datos_despues->>'activo' = 'false';
+SQL
+}
+audit_before=$(institution_audit_count)
 before=$(snapshot)
 dc build api
 dc up -d --no-build --no-deps api api-missing
 dc run --rm --no-deps -T probe
 dc run --rm --no-deps --build -T catalogo-test
+[ "$(institution_audit_count)" -eq "$((audit_before + 1))" ]
+institution_result=$(db_sql <<'SQL'
+SELECT NOT i.activo AND i.codigo_css = '00046'
+       AND sede.nombre = 'San Francisco Menéndez' AND ejecucion.nombre = 'Jujutla'
+FROM public.institutions AS i
+JOIN public.projects AS p ON p.institution_id = i.id
+JOIN public.geo_districts AS sede ON sede.id = i.district_id
+JOIN public.geo_districts AS ejecucion ON ejecucion.id = p.district_id
+WHERE i.id = '00000000-0000-4000-8000-000000046001' AND p.id = '00000000-0000-4000-8000-000000046003';
+SQL
+)
+[ "$institution_result" = t ]
+echo 'hs-test-core: institución inactiva con auditoría única y proyecto vinculado intacto.'
 [ "$(snapshot)" = "$before" ] || { echo 'La API alteró el catálogo o el registro de migraciones del core.' >&2; exit 1; }
 echo 'hs-test-core: se conservaron el catálogo y el registro de migraciones.'
 dc stop db

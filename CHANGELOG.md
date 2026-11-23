@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(instituciones): leer instituciones históricas del core y desactivarlas desde el repositorio sin romper vínculos con proyectos (#46).
+
 - feat(web): administrar tipos y áreas de proyecto con búsqueda paginada y consulta de inactivos (#43).
 
 - feat(web): consultar y editar el nombre del coordinador desde el detalle de carrera (#45).

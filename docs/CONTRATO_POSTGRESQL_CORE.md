@@ -15,13 +15,13 @@ Confirmar con el operador el host o alias de la red Docker, puerto interno, base
 
 ## Matriz de datos
 
-La columna de escritura registra decisiones pendientes. En la prueba actual, el permiso de lectura del core se limita a facultades y carreras.
+La columna de escritura registra decisiones pendientes. El entorno local habilita lectura académica y territorial. Los permisos de escritura institucional se ensayan en el entorno aislado `hs-test-core`.
 
 | Módulo | Contrato observado | Decisión de escritura o compatibilidad |
 | --- | --- | --- |
 | Facultades y carreras | `public.faculties.id` y `public.careers.id` son UUID. `careers.faculty_id` referencia a la facultad. Ambos tienen estado activo. | Catálogos de solo lectura para el portal, según la decisión del propietario del 16 de noviembre de 2026. El equipo del core administra los valores existentes. El nombre opcional de coordinador se guarda en `horas_sociales.coordinador_carrera` por UUID canónico (#44). La API consulta directamente la base compartida y permite recuperar referencias inactivas para el historial. #34, #35 |
 | Territorio | `geo_departments` → `geo_municipalities` → `geo_districts`, con UUID. | El operador verifica cobertura y concilia faltantes con el [procedimiento del catálogo territorial](CATALOGO_TERRITORIAL_CORE.md). |
-| Instituciones y contactos | `institutions.district_id` representa sede. La 002 agrega `codigo_css` único. `project_team_members` pertenece al proyecto. | Acordar alta y desactivación. Resolver la representación de contactos institucionales sin asignarles cuentas de acceso. #46–#48 |
+| Instituciones y contactos | `institutions.district_id` representa sede. La 002 agrega `codigo_css` único. `project_team_members` pertenece al proyecto. | El propietario aprobó para #46 el repositorio de lectura y desactivación con ensayo aislado. Las altas y los contactos se concretan en #47 y #48. |
 | Proyectos y clasificación | `projects` referencia institución y admite distrito de ejecución. `project_careers` vincula carreras. La 002 identifica históricos con `(institution_id, correlativo_css)`. El ETL usa `atributos.area_css`. | Confirmar cuándo mostrar sede heredada, qué campos edita cada servicio y cómo enlazar tipo/área del portal con la clasificación previa. #41, #50, #51 |
 | Estudiantes | `students.id` UUID, carnet textual de ocho dígitos y `career_id` del core. La 002 permite nombres y apellidos nulos juntos y conserva el nombre completo histórico. | Acordar campos editables e historia académica. Mantener los campos de DUI fuera de consultas ordinarias y de los DTO. #55, #56 |
 | Participaciones y cierres | `project_enrollments` impone unicidad por estudiante/proyecto y coherencia entre estado terminal y `cerrada_en`. Express bloquea el proyecto al asignar y rechaza cupo lleno. | Acordar un protocolo transaccional compartido y resolver cupo bloqueante frente a aviso, transiciones, retiro y cierre. #53, #59, #60, #62, #64, #81 |
@@ -36,3 +36,11 @@ La columna de escritura registra decisiones pendientes. En la prueba actual, el 
 2. El Compose de base compartida configura `CHECK_CORE_CATALOG=true`. Readiness consulta `public.careers` y `public.faculties` mediante la conexión de la API. Un catálogo vacío sigue siendo válido. Si la consulta falla, readiness responde 503 y la respuesta pública solo informa el estado.
 3. Comprobar en una instancia aislada que iniciar el portal conserva las filas del core y su registro de migraciones. Verificar nombres de esquemas, permisos y aislamiento con la cuenta real de ejecución de la API.
 4. Contrastar nombres, versión PostgreSQL y migraciones con la instancia de la laptop en una ventana coordinada con su operador. Registrar el resultado y las decisiones de la matriz antes de otorgar permisos de escritura.
+
+### Instituciones en #46
+
+El repositorio Go consulta por UUID en `public.institutions`. Lee `codigo_css` como texto nullable y resuelve la sede opcional con `public.geo_districts`. Conserva el texto heredado de `institutions.ubicacion` por separado. El lugar de ejecución sigue perteneciendo a `projects.district_id`.
+
+La desactivación establece `activo=false` solo si la institución estaba activa. La transacción fija `app.actor` al UUID del ADMIN del portal con prefijo `admin:` y deja que el trigger existente registre el cambio. La institución y sus relaciones con proyectos siguen disponibles para consulta histórica.
+
+`scripts/check-core-readiness.sh` ensaya los permisos por columna. El rol de prueba lee `id`, `nombre`, `codigo_css`, `activo`, `district_id` y `ubicacion`, actualiza únicamente `activo` y puede insertar en las columnas de auditoría usadas por el trigger. Los permisos de una instancia compartida se coordinan con su operador. La API HTTP de instituciones queda para #47.
