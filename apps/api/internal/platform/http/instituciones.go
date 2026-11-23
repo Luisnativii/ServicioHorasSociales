@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"net/mail"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -20,13 +22,43 @@ type sedeInstitucion struct {
 	Nombre     string `json:"nombre"`
 }
 
+type contactoInstitucion struct {
+	Nombre    *string `json:"nombre"`
+	Correo    *string `json:"correo"`
+	Telefono  *string `json:"telefono"`
+	Extension *string `json:"extension"`
+}
+
+var correoInstitucional = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
+var telefonoInstitucional = regexp.MustCompile(`^[0-9+\-[:space:]]{8,20}$`)
+
+func (c contactoInstitucion) campoInvalido() string {
+	if c.Nombre == nil || strings.TrimSpace(*c.Nombre) == "" || !textoClasificacionValido(*c.Nombre) {
+		return "contacto.nombre"
+	}
+	if c.Correo != nil {
+		parsed, err := mail.ParseAddress(*c.Correo)
+		if err != nil || parsed.Address != *c.Correo || !correoInstitucional.MatchString(*c.Correo) {
+			return "contacto.correo"
+		}
+	}
+	if c.Telefono != nil && (!telefonoInstitucional.MatchString(*c.Telefono) || !strings.ContainsAny(*c.Telefono, "0123456789")) {
+		return "contacto.telefono"
+	}
+	if c.Extension != nil && (c.Telefono == nil || strings.TrimSpace(*c.Extension) == "" || !textoClasificacionValido(*c.Extension)) {
+		return "contacto.extension"
+	}
+	return ""
+}
+
 type institucionRespuesta struct {
-	ID                string           `json:"id"`
-	Nombre            string           `json:"nombre"`
-	CodigoCSS         *string          `json:"codigo_css"`
-	Activo            bool             `json:"activo"`
-	Sede              *sedeInstitucion `json:"sede"`
-	UbicacionHeredada *string          `json:"ubicacion_heredada"`
+	Contacto          *contactoInstitucion `json:"contacto"`
+	ID                string               `json:"id"`
+	Nombre            string               `json:"nombre"`
+	CodigoCSS         *string              `json:"codigo_css"`
+	Activo            bool                 `json:"activo"`
+	Sede              *sedeInstitucion     `json:"sede"`
+	UbicacionHeredada *string              `json:"ubicacion_heredada"`
 }
 
 func InstitucionesRoutes(repo *instituciones.Repository) func(chi.Router) {
@@ -128,8 +160,9 @@ func cambiarInstitucion(repo *instituciones.Repository, status int, requiereID, 
 			return
 		}
 		var body struct {
-			Nombre     string  `json:"nombre"`
-			DistritoID *string `json:"distrito_id"`
+			Nombre     string               `json:"nombre"`
+			DistritoID *string              `json:"distrito_id"`
+			Contacto   *contactoInstitucion `json:"contacto"`
 		}
 		if err := ReadJSON(w, r, &body); err != nil {
 			WriteInputError(w, r, err)
@@ -145,6 +178,16 @@ func cambiarInstitucion(repo *instituciones.Repository, status int, requiereID, 
 			if err != nil {
 				writeFieldError(w, r, "bad_request", "distrito_id")
 				return
+			}
+		}
+		if body.Contacto != nil {
+			if field := body.Contacto.campoInvalido(); field != "" {
+				writeFieldError(w, r, "bad_request", field)
+				return
+			}
+			datos.Contacto = &instituciones.Contacto{
+				Nombre: body.Contacto.Nombre, Correo: body.Contacto.Correo,
+				Telefono: body.Contacto.Telefono, Extension: body.Contacto.Extension,
 			}
 		}
 		var item instituciones.Institucion
@@ -164,6 +207,10 @@ func institucionDesdeModelo(item instituciones.Institucion) institucionRespuesta
 	}
 	if item.Sede != nil {
 		res.Sede = &sedeInstitucion{item.Sede.DistritoID.String(), item.Sede.Nombre}
+	}
+	contacto := item.Contacto
+	if contacto.Nombre != nil || contacto.Correo != nil || contacto.Telefono != nil || contacto.Extension != nil {
+		res.Contacto = &contactoInstitucion{contacto.Nombre, contacto.Correo, contacto.Telefono, contacto.Extension}
 	}
 	return res
 }

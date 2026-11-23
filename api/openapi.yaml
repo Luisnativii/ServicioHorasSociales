@@ -915,6 +915,29 @@ components:
                 type: [string, 'null']
                 format: uuid
                 description: UUID del distrito canónico de la sede. Omitirlo o enviar null deja la institución sin sede canónica.
+              contacto:
+                description: Bloque opcional. Si se omite o es null durante la edición, se conserva el contacto existente.
+                anyOf:
+                  - type: object
+                    additionalProperties: false
+                    required: [nombre]
+                    properties:
+                      nombre:
+                        type: string
+                        minLength: 1
+                        maxLength: 200
+                      correo:
+                        type: [string, 'null']
+                        format: email
+                      telefono:
+                        type: [string, 'null']
+                        minLength: 8
+                        maxLength: 20
+                      extension:
+                        type: [string, 'null']
+                        maxLength: 200
+                        description: Requiere teléfono. Se conserva como texto.
+                  - type: 'null'
     NombreClasificacion:
       required: true
       content:
@@ -932,7 +955,7 @@ components:
     Institucion:
       type: object
       additionalProperties: false
-      required: [id, nombre, codigo_css, activo, sede, ubicacion_heredada]
+      required: [id, nombre, codigo_css, activo, sede, ubicacion_heredada, contacto]
       properties:
         id:
           type: string
@@ -955,6 +978,19 @@ components:
               type: string
         ubicacion_heredada:
           type: [string, 'null']
+        contacto:
+          type: [object, 'null']
+          additionalProperties: false
+          required: [nombre, correo, telefono, extension]
+          properties:
+            nombre:
+              type: [string, 'null']
+            correo:
+              type: [string, 'null']
+            telefono:
+              type: [string, 'null']
+            extension:
+              type: [string, 'null']
     PaginaInstituciones:
       type: object
       additionalProperties: false

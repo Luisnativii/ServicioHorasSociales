@@ -20,12 +20,15 @@ dc up -d --wait --wait-timeout 180 db
 dc run --rm --no-deps -T jwt-init
 bash scripts/migrate.sh core-local
 
-# El rol de la API conserva el acceso a sus tablas y solo lee los catálogos del core. PostgreSQL y el backend quedan en la red de Docker.
+# Los catálogos del core son de solo lectura. Los permisos institucionales se conceden por columna.
 dc exec -T db sh -c 'exec psql -X -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' <<'SQL'
 GRANT USAGE ON SCHEMA public TO hs_app;
 GRANT SELECT ON TABLE public.faculties, public.careers,
     public.geo_departments, public.geo_municipalities, public.geo_districts TO hs_app;
 SQL
+
+dc exec -T db sh -c 'exec psql -X -v ON_ERROR_STOP=1 -v app_role=hs_app -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
+  < deploy/core-local/contacto-institucional.sql
 
 dc up -d --build --wait --wait-timeout 180 db api web
 printf 'Portal local: http://127.0.0.1:%s/\n' "${HS_CORE_LOCAL_PORT:-18081}"
