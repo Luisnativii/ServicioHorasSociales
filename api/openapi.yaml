@@ -1401,6 +1401,61 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/Error'}
         '503': {description: Acreditación deshabilitada o base de datos no disponible.}
+  /api/v1/reportes/actividad:
+    get:
+      operationId: consultarActividad
+      summary: Consultar actividad por fecha efectiva e indicadores por estudiante
+      security: [{AdminCookie: []}]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - {name: desde, in: query, schema: {type: string, format: date}}
+        - {name: hasta, in: query, schema: {type: string, format: date}}
+        - {name: estado, in: query, schema: {type: string}}
+        - {name: departamento_id, in: query, schema: {type: string, format: uuid}}
+        - {name: municipio_id, in: query, schema: {type: string, format: uuid}}
+        - {name: distrito_id, in: query, schema: {type: string, format: uuid}}
+        - {name: carrera_id, in: query, schema: {type: string, format: uuid}}
+        - {name: tipo_id, in: query, schema: {type: string, format: uuid}}
+        - {name: area_id, in: query, style: form, explode: true, schema: {type: array, maxItems: 50, items: {type: string, format: uuid}}}
+      responses:
+        '200':
+          description: Resumen y movimientos paginados. Las dimensiones sin evidencia histórica son nulas.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReporteActividad'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '503': {description: El core no pudo atender la consulta.}
+  /api/v1/reportes/actividad.xlsx:
+    get:
+      operationId: exportarActividad
+      summary: Descargar resumen y movimientos del mismo informe
+      security: [{AdminCookie: []}]
+      parameters:
+        - {name: desde, in: query, schema: {type: string, format: date}}
+        - {name: hasta, in: query, schema: {type: string, format: date}}
+        - {name: estado, in: query, schema: {type: string}}
+        - {name: departamento_id, in: query, schema: {type: string, format: uuid}}
+        - {name: municipio_id, in: query, schema: {type: string, format: uuid}}
+        - {name: distrito_id, in: query, schema: {type: string, format: uuid}}
+        - {name: carrera_id, in: query, schema: {type: string, format: uuid}}
+        - {name: tipo_id, in: query, schema: {type: string, format: uuid}}
+        - {name: area_id, in: query, style: form, explode: true, schema: {type: array, maxItems: 50, items: {type: string, format: uuid}}}
+      responses:
+        '200':
+          description: Archivo XLSX con hojas Resumen y Movimientos.
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema: {type: string, format: binary}
+        '413':
+          description: El resultado supera 5000 movimientos. Reduce el intervalo o aplica más filtros.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '503': {description: El core no pudo atender la consulta.}
 components:
   securitySchemes:
     CSRFHeader:
@@ -1501,6 +1556,46 @@ components:
                 minLength: 1
                 description: Nombre de hasta 200 caracteres después de recortar espacios exteriores.
   schemas:
+    ReporteActividad:
+      type: object
+      required: [resumen, movimientos, pagina]
+      properties:
+        resumen:
+          type: object
+          required: [estudiantes, participaciones, proyectos, internas, externas, cumplimientos_conocidos]
+          properties:
+            estudiantes: {type: integer, minimum: 0}
+            participaciones: {type: integer, minimum: 0}
+            proyectos: {type: integer, minimum: 0}
+            internas: {type: integer, minimum: 0}
+            externas: {type: integer, minimum: 0}
+            cumplimientos_conocidos: {type: integer, minimum: 0}
+        movimientos:
+          type: array
+          items:
+            type: object
+            required: [carnet, estudiante, proyecto, fecha_horas, horas, naturaleza, facultad, carrera, tipo, area, area_css, distrito, estado]
+            properties:
+              carnet: {type: string}
+              estudiante: {type: string}
+              proyecto: {type: string}
+              fecha_horas: {type: string, format: date}
+              horas: {type: integer, minimum: 1}
+              naturaleza: {type: string, enum: [INTERNA, EXTERNA]}
+              facultad: {type: [string, 'null']}
+              carrera: {type: [string, 'null']}
+              tipo: {type: [string, 'null']}
+              area: {type: [string, 'null']}
+              area_css: {type: [string, 'null']}
+              distrito: {type: [string, 'null']}
+              estado: {type: string}
+        pagina:
+          type: object
+          required: [page, page_size, total]
+          properties:
+            page: {type: integer, minimum: 1}
+            page_size: {type: integer, minimum: 1, maximum: 100}
+            total: {type: integer, minimum: 0}
     MovimientoHoras:
       type: object
       required: [id, proyecto_id, proyecto, horas, naturaleza, fecha_horas, registrado_en, origen, concepto, administrador_id, usuario_core_id]

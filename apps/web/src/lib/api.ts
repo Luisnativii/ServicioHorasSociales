@@ -15,6 +15,7 @@ type RequestOptions = {
   body?: unknown;
   signal?: AbortSignal;
   authenticated?: boolean;
+  responseType?: 'blob';
 };
 
 export function readCSRF(): string | undefined {
@@ -113,7 +114,8 @@ export class ApiClient {
       }
       throw error;
     }
-    const result = response.status === 204 ? undefined : await response.json();
+    const result = response.status === 204 ? undefined
+      : options.responseType === 'blob' ? await response.blob() : await response.json();
     if (sessionScoped && generation !== this.generation) throw new StaleSessionError();
     return result as T;
   }

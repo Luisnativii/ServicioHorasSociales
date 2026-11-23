@@ -21,6 +21,7 @@ import (
 	"horas-sociales/api/internal/modules/instituciones"
 	"horas-sociales/api/internal/modules/participaciones"
 	"horas-sociales/api/internal/modules/proyectos"
+	"horas-sociales/api/internal/modules/reportes"
 	"horas-sociales/api/internal/platform/auth"
 	"horas-sociales/api/internal/platform/database"
 	httpserver "horas-sociales/api/internal/platform/http"
@@ -92,6 +93,7 @@ func run() error {
 				httpserver.ParticipacionesRoutes(participationRepository, os.Getenv("ENROLLMENTS_WRITES_ENABLED") == "true")(r)
 				httpserver.CierresRoutes(participationRepository, os.Getenv("CLOSURES_WRITES_ENABLED") == "true")(r)
 				httpserver.HorasRoutes(horas.New(pool), os.Getenv("HOURS_WRITES_ENABLED") == "true")(r)
+				httpserver.ReportesRoutes(reportes.New(pool))(r)
 				httpserver.ProyectosRoutes(proyectos.New(pool), os.Getenv("PROJECTS_WRITES_ENABLED") == "true")(r)
 			},
 		}),
