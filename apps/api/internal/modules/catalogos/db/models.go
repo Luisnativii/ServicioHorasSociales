@@ -14,6 +14,12 @@ type HorasSocialesArea struct {
 	Activo bool
 }
 
+type HorasSocialesModalidad struct {
+	ID     pgtype.UUID
+	Nombre string
+	Activo bool
+}
+
 type HorasSocialesTipoProyecto struct {
 	ID     pgtype.UUID
 	Nombre string

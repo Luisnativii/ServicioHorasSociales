@@ -24,6 +24,19 @@ func (q *Queries) CreateArea(ctx context.Context, nombre string) (HorasSocialesA
 	return i, err
 }
 
+const createModalidad = `-- name: CreateModalidad :one
+INSERT INTO horas_sociales.modalidad (nombre)
+VALUES ($1)
+RETURNING id, nombre, activo
+`
+
+func (q *Queries) CreateModalidad(ctx context.Context, nombre string) (HorasSocialesModalidad, error) {
+	row := q.db.QueryRow(ctx, createModalidad, nombre)
+	var i HorasSocialesModalidad
+	err := row.Scan(&i.ID, &i.Nombre, &i.Activo)
+	return i, err
+}
+
 const createTipoProyecto = `-- name: CreateTipoProyecto :one
 INSERT INTO horas_sociales.tipo_proyecto (nombre)
 VALUES ($1)
@@ -44,6 +57,17 @@ SELECT id, nombre, activo FROM horas_sociales.area WHERE id = $1
 func (q *Queries) GetAreaPorID(ctx context.Context, id pgtype.UUID) (HorasSocialesArea, error) {
 	row := q.db.QueryRow(ctx, getAreaPorID, id)
 	var i HorasSocialesArea
+	err := row.Scan(&i.ID, &i.Nombre, &i.Activo)
+	return i, err
+}
+
+const getModalidadPorID = `-- name: GetModalidadPorID :one
+SELECT id, nombre, activo FROM horas_sociales.modalidad WHERE id = $1
+`
+
+func (q *Queries) GetModalidadPorID(ctx context.Context, id pgtype.UUID) (HorasSocialesModalidad, error) {
+	row := q.db.QueryRow(ctx, getModalidadPorID, id)
+	var i HorasSocialesModalidad
 	err := row.Scan(&i.ID, &i.Nombre, &i.Activo)
 	return i, err
 }
@@ -178,6 +202,71 @@ func (q *Queries) PageAreas(ctx context.Context, arg PageAreasParams) ([]PageAre
 	return items, nil
 }
 
+const pageModalidades = `-- name: PageModalidades :many
+WITH filtrado AS (
+    SELECT id, nombre, activo
+    FROM horas_sociales.modalidad
+    WHERE (activo OR $3::boolean)
+      AND strpos(lower(nombre), lower($4::text)) > 0
+)
+SELECT pagina.id,
+       COALESCE(pagina.nombre, '')::text AS nombre,
+       COALESCE(pagina.activo, false)::boolean AS activo,
+       total.cantidad
+FROM (SELECT count(*) AS cantidad FROM filtrado) AS total
+LEFT JOIN (
+    SELECT id, nombre, activo
+    FROM filtrado
+    ORDER BY lower(nombre), id
+    LIMIT $2::integer OFFSET $1::bigint
+) AS pagina ON true
+ORDER BY lower(pagina.nombre), pagina.id
+`
+
+type PageModalidadesParams struct {
+	Desplazamiento   int64
+	Limite           int32
+	IncluirInactivos bool
+	Busqueda         string
+}
+
+type PageModalidadesRow struct {
+	ID       pgtype.UUID
+	Nombre   string
+	Activo   bool
+	Cantidad int64
+}
+
+func (q *Queries) PageModalidades(ctx context.Context, arg PageModalidadesParams) ([]PageModalidadesRow, error) {
+	rows, err := q.db.Query(ctx, pageModalidades,
+		arg.Desplazamiento,
+		arg.Limite,
+		arg.IncluirInactivos,
+		arg.Busqueda,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PageModalidadesRow{}
+	for rows.Next() {
+		var i PageModalidadesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Nombre,
+			&i.Activo,
+			&i.Cantidad,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const pageTiposProyecto = `-- name: PageTiposProyecto :many
 WITH filtrado AS (
     SELECT id, nombre, activo
@@ -262,6 +351,25 @@ func (q *Queries) SetAreaActivo(ctx context.Context, arg SetAreaActivoParams) (H
 	return i, err
 }
 
+const setModalidadActivo = `-- name: SetModalidadActivo :one
+UPDATE horas_sociales.modalidad
+SET activo = $2
+WHERE id = $1
+RETURNING id, nombre, activo
+`
+
+type SetModalidadActivoParams struct {
+	ID     pgtype.UUID
+	Activo bool
+}
+
+func (q *Queries) SetModalidadActivo(ctx context.Context, arg SetModalidadActivoParams) (HorasSocialesModalidad, error) {
+	row := q.db.QueryRow(ctx, setModalidadActivo, arg.ID, arg.Activo)
+	var i HorasSocialesModalidad
+	err := row.Scan(&i.ID, &i.Nombre, &i.Activo)
+	return i, err
+}
+
 const setTipoProyectoActivo = `-- name: SetTipoProyectoActivo :one
 UPDATE horas_sociales.tipo_proyecto
 SET activo = $2
@@ -296,6 +404,25 @@ type UpdateAreaNombreParams struct {
 func (q *Queries) UpdateAreaNombre(ctx context.Context, arg UpdateAreaNombreParams) (HorasSocialesArea, error) {
 	row := q.db.QueryRow(ctx, updateAreaNombre, arg.ID, arg.Nombre)
 	var i HorasSocialesArea
+	err := row.Scan(&i.ID, &i.Nombre, &i.Activo)
+	return i, err
+}
+
+const updateModalidadNombre = `-- name: UpdateModalidadNombre :one
+UPDATE horas_sociales.modalidad
+SET nombre = $2
+WHERE id = $1
+RETURNING id, nombre, activo
+`
+
+type UpdateModalidadNombreParams struct {
+	ID     pgtype.UUID
+	Nombre string
+}
+
+func (q *Queries) UpdateModalidadNombre(ctx context.Context, arg UpdateModalidadNombreParams) (HorasSocialesModalidad, error) {
+	row := q.db.QueryRow(ctx, updateModalidadNombre, arg.ID, arg.Nombre)
+	var i HorasSocialesModalidad
 	err := row.Scan(&i.ID, &i.Nombre, &i.Activo)
 	return i, err
 }

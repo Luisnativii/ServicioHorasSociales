@@ -18,12 +18,14 @@ function errorMessage(error: Error) {
 
 export default function ClassificationCatalog() {
   const [params] = useSearchParams();
-  const kind = params.get('vista') === 'areas' ? 'areas' : 'tipos-proyecto';
+  const view = params.get('vista');
+  const kind = view === 'areas' || view === 'modalidades' ? view : 'tipos-proyecto';
   return <section className="accounts-page">
-    <h1>Tipos y áreas de proyecto</h1>
+    <h1>Clasificación de proyectos</h1>
     <nav className="academic-views" aria-label="Catálogo de clasificación">
       <Link to={path} aria-current={kind === 'tipos-proyecto' ? 'page' : undefined}>Tipos de proyecto</Link>
       <Link to={`${path}?vista=areas`} aria-current={kind === 'areas' ? 'page' : undefined}>Áreas</Link>
+      <Link to={`${path}?vista=modalidades`} aria-current={kind === 'modalidades' ? 'page' : undefined}>Modalidades</Link>
     </nav>
     <ClassificationList key={kind} kind={kind} />
   </section>;
@@ -114,8 +116,8 @@ function ClassificationList({ kind }: { kind: ClassificationKind }) {
   }
 
   const isArea = kind === 'areas';
-  const label = isArea ? 'área' : 'tipo de proyecto';
-  const plural = isArea ? 'áreas' : 'tipos de proyecto';
+  const label = kind === 'modalidades' ? 'modalidad' : isArea ? 'área' : 'tipo de proyecto';
+  const plural = kind === 'modalidades' ? 'modalidades' : isArea ? 'áreas' : 'tipos de proyecto';
   const total = listing.data?.pagina.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / size));
 
@@ -141,7 +143,7 @@ function ClassificationList({ kind }: { kind: ClassificationKind }) {
         </select>
       </label>
       <button ref={createButton} type="button" className="shell-secondary"
-        onClick={event => open({ action: 'create' }, event.currentTarget)}>{isArea ? 'Nueva área' : 'Nuevo tipo'}</button>
+        onClick={event => open({ action: 'create' }, event.currentTarget)}>{kind === 'modalidades' ? 'Nueva modalidad' : isArea ? 'Nueva área' : 'Nuevo tipo'}</button>
     </form>
 
     {notice && <p role="status" className="accounts-success">{notice}</p>}

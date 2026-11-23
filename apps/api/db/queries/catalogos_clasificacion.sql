@@ -89,3 +89,43 @@ LEFT JOIN (
     LIMIT sqlc.arg(limite)::integer OFFSET sqlc.arg(desplazamiento)::bigint
 ) AS pagina ON true
 ORDER BY lower(pagina.nombre), pagina.id;
+
+-- name: CreateModalidad :one
+INSERT INTO horas_sociales.modalidad (nombre)
+VALUES ($1)
+RETURNING *;
+
+-- name: GetModalidadPorID :one
+SELECT * FROM horas_sociales.modalidad WHERE id = $1;
+
+-- name: UpdateModalidadNombre :one
+UPDATE horas_sociales.modalidad
+SET nombre = $2
+WHERE id = $1
+RETURNING *;
+
+-- name: SetModalidadActivo :one
+UPDATE horas_sociales.modalidad
+SET activo = $2
+WHERE id = $1
+RETURNING *;
+
+-- name: PageModalidades :many
+WITH filtrado AS (
+    SELECT id, nombre, activo
+    FROM horas_sociales.modalidad
+    WHERE (activo OR sqlc.arg(incluir_inactivos)::boolean)
+      AND strpos(lower(nombre), lower(sqlc.arg(busqueda)::text)) > 0
+)
+SELECT pagina.id,
+       COALESCE(pagina.nombre, '')::text AS nombre,
+       COALESCE(pagina.activo, false)::boolean AS activo,
+       total.cantidad
+FROM (SELECT count(*) AS cantidad FROM filtrado) AS total
+LEFT JOIN (
+    SELECT id, nombre, activo
+    FROM filtrado
+    ORDER BY lower(nombre), id
+    LIMIT sqlc.arg(limite)::integer OFFSET sqlc.arg(desplazamiento)::bigint
+) AS pagina ON true
+ORDER BY lower(pagina.nombre), pagina.id;
