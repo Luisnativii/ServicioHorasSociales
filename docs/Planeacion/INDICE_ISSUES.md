@@ -120,7 +120,7 @@ Configuración académica, territorio, clasificación y coordinadores conforme a
 | [#40](https://github.com/Luisnativii/ServicioHorasSociales/issues/40) | feat(catalogos): persistir tipos y áreas según cardinalidad aprobada | #7, #18 |
 | [#41](https://github.com/Luisnativii/ServicioHorasSociales/issues/41) | chore(catalogos): incorporar las áreas y tipos revisados | #40, #7, #5 |
 | [#42](https://github.com/Luisnativii/ServicioHorasSociales/issues/42) | feat(catalogos): administrar tipos y áreas con validación | #40, #28, #17 |
-| [#43](https://github.com/Luisnativii/ServicioHorasSociales/issues/43) | feat(web): mantener tipos y áreas desde configuración | #42, #41, #32 |
+| [#43](https://github.com/Luisnativii/ServicioHorasSociales/issues/43) | feat(web): mantener tipos y áreas desde configuración | #42, #32 |
 | [#44](https://github.com/Luisnativii/ServicioHorasSociales/issues/44) | feat(catalogos): persistir coordinadores y vínculos académicos | #11, #34, #28 |
 | [#45](https://github.com/Luisnativii/ServicioHorasSociales/issues/45) | feat(web): administrar coordinadores y sus carreras | #44, #36, #32 |
 
