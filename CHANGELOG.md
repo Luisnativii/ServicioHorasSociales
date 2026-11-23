@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(horas): acreditar con idempotencia y consultar el avance separado por naturaleza (#65).
+
 - feat(cierres): retirar, cancelar y finalizar con historial y conservación de horas (#53).
 
 - feat(participaciones): asignar estudiantes desde proyectos o expedientes y consultar su historial (#59).

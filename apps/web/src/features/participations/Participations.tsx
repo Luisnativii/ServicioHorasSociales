@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api, ApiError } from '../../lib/api';
+import CreditHours from '../hours/CreditHours';
 import CloseAction from './CloseAction';
 import { listStudents } from '../students/api';
 
@@ -172,6 +173,7 @@ export default function Participations({ view, id, eligible }: { view: View; id:
             {row.motivo && <p>{row.motivo}</p>}
           </td>
           <td>{row.estado_proyecto === 'ACTIVO' && ['ASIGNADA', 'EN_CURSO'].includes(row.estado) && <>
+            <CreditHours project={row.proyecto_id} enrollment={row.id} student={row.estudiante_id} assigned={row.asignada_en} />
             <CloseAction project={row.proyecto_id} enrollment={row.id} action="retirar" />
             <CloseAction project={row.proyecto_id} enrollment={row.id} action="finalizar" />
           </>}</td>
