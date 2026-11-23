@@ -766,6 +766,120 @@ paths:
           $ref: '#/components/responses/UnsupportedMediaType'
         '503':
           $ref: '#/components/responses/CatalogoNoDisponible'
+  /api/v1/instituciones:
+    get:
+      operationId: listarInstituciones
+      summary: Listar instituciones
+      security:
+        - AdminCookie: []
+      description: Lista instituciones activas por defecto y ordena por nombre e ID.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/BusquedaInstitucion'
+        - $ref: '#/components/parameters/IncluirInactivas'
+      responses:
+        '200':
+          $ref: '#/components/responses/PaginaInstituciones'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/InstitucionesNoDisponible'
+    post:
+      operationId: crearInstitucion
+      summary: Crear una institución
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        $ref: '#/components/requestBodies/DatosInstitucion'
+      responses:
+        '201':
+          $ref: '#/components/responses/InstitucionCreada'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '503':
+          $ref: '#/components/responses/InstitucionesNoDisponible'
+  /api/v1/instituciones/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+    get:
+      operationId: consultarInstitucion
+      summary: Consultar una institución, incluso si está inactiva
+      security:
+        - AdminCookie: []
+      responses:
+        '200':
+          $ref: '#/components/responses/Institucion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/InstitucionesNoDisponible'
+    put:
+      operationId: editarInstitucion
+      summary: Reemplazar el nombre y la sede opcional de una institución
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        $ref: '#/components/requestBodies/DatosInstitucion'
+      responses:
+        '200':
+          $ref: '#/components/responses/Institucion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '503':
+          $ref: '#/components/responses/InstitucionesNoDisponible'
+  /api/v1/instituciones/{id}/desactivar:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+    post:
+      operationId: desactivarInstitucion
+      summary: Desactivar una institución y conservar sus vínculos
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      responses:
+        '200':
+          $ref: '#/components/responses/Institucion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/InstitucionesNoDisponible'
 components:
   securitySchemes:
     CSRFHeader:
@@ -784,6 +898,23 @@ components:
       schema:
         type: string
   requestBodies:
+    DatosInstitucion:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [nombre]
+            properties:
+              nombre:
+                type: string
+                minLength: 1
+                description: Nombre único de hasta 200 caracteres después de recortar espacios exteriores.
+              distrito_id:
+                type: [string, 'null']
+                format: uuid
+                description: UUID del distrito canónico de la sede. Omitirlo o enviar null deja la institución sin sede canónica.
     NombreClasificacion:
       required: true
       content:
@@ -798,6 +929,43 @@ components:
                 minLength: 1
                 description: Nombre de hasta 200 caracteres después de recortar espacios exteriores.
   schemas:
+    Institucion:
+      type: object
+      additionalProperties: false
+      required: [id, nombre, codigo_css, activo, sede, ubicacion_heredada]
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        codigo_css:
+          type: [string, 'null']
+        activo:
+          type: boolean
+        sede:
+          type: [object, 'null']
+          additionalProperties: false
+          required: [distrito_id, nombre]
+          properties:
+            distrito_id:
+              type: string
+              format: uuid
+            nombre:
+              type: string
+        ubicacion_heredada:
+          type: [string, 'null']
+    PaginaInstituciones:
+      type: object
+      additionalProperties: false
+      required: [instituciones, pagina]
+      properties:
+        instituciones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Institucion'
+        pagina:
+          $ref: '#/components/schemas/PageMetadata'
     OpcionClasificacion:
       type: object
       additionalProperties: false
@@ -977,6 +1145,9 @@ components:
               type: string
             request_id:
               type: string
+            field:
+              type: string
+              description: Campo de la solicitud al que corresponde el error, si aplica.
     PageMetadata:
       description: Metadatos del listado. Total cuenta los registros que coinciden con los filtros antes de paginar.
       type: object
@@ -996,6 +1167,13 @@ components:
           format: int64
           minimum: 0
   parameters:
+    BusquedaInstitucion:
+      name: q
+      in: query
+      description: Fragmento literal del nombre o código CSS, sin distinguir mayúsculas.
+      schema:
+        type: string
+        maxLength: 200
     UUIDClasificacion:
       name: id
       in: path
@@ -1090,6 +1268,30 @@ components:
         enum: [asc, desc]
         default: asc
   responses:
+    Institucion:
+      description: Institución vigente o histórica del core.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Institucion'
+    InstitucionCreada:
+      description: Institución creada como activa.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Institucion'
+    PaginaInstituciones:
+      description: Instituciones y metadatos de paginación.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PaginaInstituciones'
+    InstitucionesNoDisponible:
+      description: La API no pudo operar sobre las instituciones del core.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     CoordinadorCarrera:
       description: Nombre opcional de coordinador guardado por el portal.
       content:

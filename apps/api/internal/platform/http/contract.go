@@ -25,6 +25,7 @@ type errorDetail struct {
 	Code      string `json:"code"`
 	Message   string `json:"message"`
 	RequestID string `json:"request_id"`
+	Field     string `json:"field,omitempty"`
 }
 
 var publicErrors = map[string]struct {
@@ -48,6 +49,10 @@ var publicErrors = map[string]struct {
 
 // WriteError uses a closed vocabulary so raw SQL/errors never reach clients.
 func WriteError(w http.ResponseWriter, r *http.Request, code string) {
+	writeFieldError(w, r, code, "")
+}
+
+func writeFieldError(w http.ResponseWriter, r *http.Request, code, field string) {
 	definition, ok := publicErrors[code]
 	if !ok {
 		code = "internal_error"
@@ -55,7 +60,7 @@ func WriteError(w http.ResponseWriter, r *http.Request, code string) {
 	}
 	WriteJSON(w, r, definition.status, struct {
 		Error errorDetail `json:"error"`
-	}{errorDetail{code, definition.message, middleware.GetReqID(r.Context())}})
+	}{errorDetail{code, definition.message, middleware.GetReqID(r.Context()), field}})
 }
 
 func WriteInputError(w http.ResponseWriter, r *http.Request, err error) {
