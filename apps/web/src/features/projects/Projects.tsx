@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { api, ApiError } from '../../lib/api';
 import { listClassification, type ClassificationKind, type ClassificationOption } from '../classification/api';
 import { listInstitutions, type Institution } from '../institutions/api';
+import Participations from '../participations/Participations';
 import TerritorySelector from '../territory/TerritorySelector';
 
 type Contact = { nombre: string; correo: string | null; telefono: string | null; extension: string | null };
@@ -141,6 +142,7 @@ function Detail({ project, edit }: { project: Project; edit: () => void }) {
   return <section className="institution-panel"><h2>{project.titulo}</h2><p>{project.descripcion}</p>
     <dl className="institution-facts">{facts.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value ?? 'Sin registrar'}</dd></div>)}</dl>
     <button type="button" className="shell-secondary" onClick={edit}>Editar proyecto</button>
+    <Participations key={project.id} view="proyecto" id={project.id} eligible={project.estado === 'ACTIVO'} />
   </section>;
 }
 

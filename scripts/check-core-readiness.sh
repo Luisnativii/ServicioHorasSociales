@@ -109,6 +109,7 @@ DELETE FROM horas_sociales.proyecto_clasificacion WHERE proyecto_id IN (SELECT i
 DELETE FROM public.projects WHERE titulo='Proyecto API #50';
 SQL
 db_sql < deploy/core-local/proyectos-permisos.sql
+db_sql < deploy/core-local/participaciones-permisos.sql
 db_sql < deploy/core-local/contacto-institucional.sql
 db_sql < deploy/core-local/estudiantes-vigencias.sql
 db_sql <<'SQL'
@@ -165,6 +166,34 @@ BEGIN
      OR has_table_privilege('hs_core_probe', 'public.projects', 'INSERT, UPDATE, DELETE')
      OR has_table_privilege('hs_core_probe', 'public.auditoria', 'SELECT, UPDATE, DELETE') THEN
     RAISE EXCEPTION 'Privilegios de instituciones inesperados en hs-test-core';
+  END IF;
+END
+$check$;
+COMMIT;
+SQL
+db_sql <<'SQL'
+BEGIN;
+INSERT INTO public.projects (id,institution_id,titulo,descripcion,cupos,estado)
+VALUES ('00000000-0000-4000-8000-000000059001','00000000-0000-4000-8000-000000046002','Proyecto sintético de cupo #59','Prueba de asignación',1,'ACTIVO'),
+       ('00000000-0000-4000-8000-000000059002','00000000-0000-4000-8000-000000046002','Proyecto sintético cerrado #59','Prueba de inscripción histórica',NULL,'FINALIZADO')
+ON CONFLICT (id) DO NOTHING;
+INSERT INTO public.students (id,carnet,nombres,apellidos,correo_institucional,career_id,activo)
+VALUES
+ ('00000000-0000-4000-8000-000000059011','00590011','Estudiante','A #59','a59@uca.edu.sv','00000000-0000-4000-8000-000000035002',true),
+ ('00000000-0000-4000-8000-000000059012','00590012','Estudiante','B #59','b59@uca.edu.sv','00000000-0000-4000-8000-000000035002',true),
+ ('00000000-0000-4000-8000-000000059013','00590013','Estudiante','Inactivo #59','c59@uca.edu.sv','00000000-0000-4000-8000-000000035002',false)
+ON CONFLICT (id) DO NOTHING;
+DELETE FROM public.project_enrollments WHERE project_id='00000000-0000-4000-8000-000000059001';
+INSERT INTO public.project_enrollments(project_id,student_id,estado,asignada_en,cerrada_en)
+VALUES ('00000000-0000-4000-8000-000000059002','00000000-0000-4000-8000-000000059011','FINALIZADA',
+        '2026-01-02T12:00:00Z','2026-02-02T12:00:00Z')
+ON CONFLICT ON CONSTRAINT uq_project_enrollments_student_project DO NOTHING;
+DO $check$
+BEGIN
+  IF has_table_privilege('hs_core_probe','public.project_enrollments','UPDATE, DELETE')
+    OR has_column_privilege('hs_core_probe','public.project_enrollments','estado','INSERT')
+    OR has_column_privilege('hs_core_probe','public.project_enrollments','asignada_en','INSERT') THEN
+    RAISE EXCEPTION 'Permisos de participación exceden el alta';
   END IF;
 END
 $check$;
