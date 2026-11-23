@@ -880,6 +880,136 @@ paths:
           $ref: '#/components/responses/NotFound'
         '503':
           $ref: '#/components/responses/InstitucionesNoDisponible'
+  /api/v1/estudiantes:
+    get:
+      operationId: listarEstudiantes
+      summary: Buscar expedientes por nombre o carnet
+      security:
+        - AdminCookie: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: q
+          in: query
+          schema: {type: string, maxLength: 100}
+        - name: facultad_id
+          in: query
+          schema: {type: string, format: uuid}
+        - name: carrera_id
+          in: query
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Expedientes ordenados por nombre e ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [estudiantes, pagina]
+                properties:
+                  estudiantes:
+                    type: array
+                    items: {$ref: '#/components/schemas/Estudiante'}
+                  pagina:
+                    type: object
+                    required: [page, page_size, total]
+                    properties:
+                      page: {type: integer, minimum: 1}
+                      page_size: {type: integer, minimum: 1, maximum: 100}
+                      total: {type: integer, minimum: 0}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '503': {description: Base de datos no disponible.}
+    post:
+      operationId: crearEstudiante
+      summary: Crear un expediente
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/DatosEstudiante'
+                - required: [nombres, apellidos]
+                  properties:
+                    nombres: {type: string}
+                    apellidos: {type: string}
+      responses:
+        '201':
+          description: Expediente creado.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Estudiante'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+        '503': {description: Base de datos o historial académico no disponible.}
+  /api/v1/estudiantes/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+    get:
+      operationId: consultarEstudiante
+      summary: Consultar expediente e historial académico
+      security:
+        - AdminCookie: []
+      responses:
+        '200':
+          description: Expediente y vigencias registradas.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Estudiante'
+                  - type: object
+                    required: [historial_disponible, vigencias]
+                    properties:
+                      historial_disponible: {type: boolean}
+                      vigencias:
+                        type: array
+                        items:
+                          type: object
+                          required: [carrera, facultad, desde, hasta, motivo]
+                          properties:
+                            carrera: {$ref: '#/components/schemas/ReferenciaAcademica'}
+                            facultad: {$ref: '#/components/schemas/ReferenciaAcademica'}
+                            desde: {type: [string, 'null'], format: date-time, description: Nulo si se desconoce.}
+                            hasta: {type: [string, 'null'], format: date-time, description: Nulo para la vigencia abierta.}
+                            motivo: {type: [string, 'null']}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {description: Base de datos no disponible.}
+    put:
+      operationId: editarEstudiante
+      summary: Actualizar un expediente y registrar el cambio de carrera si corresponde
+      security:
+        - AdminCookie: []
+          CSRFHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DatosEstudiante'}
+      responses:
+        '200':
+          description: Expediente actualizado.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Estudiante'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+        '503': {description: Base de datos o historial académico no disponible.}
 components:
   securitySchemes:
     CSRFHeader:
@@ -952,6 +1082,36 @@ components:
                 minLength: 1
                 description: Nombre de hasta 200 caracteres después de recortar espacios exteriores.
   schemas:
+    ReferenciaAcademica:
+      type: object
+      required: [id, nombre]
+      properties:
+        id: {type: string, format: uuid}
+        nombre: {type: string}
+    Estudiante:
+      type: object
+      required: [id, carnet, nombres, apellidos, nombre_completo, correo_institucional, carrera, facultad, activo]
+      properties:
+        id: {type: string, format: uuid}
+        carnet: {type: string, pattern: '^[0-9]{8}$'}
+        nombres: {type: [string, 'null']}
+        apellidos: {type: [string, 'null']}
+        nombre_completo: {type: string}
+        correo_institucional: {type: string, format: email}
+        carrera: {$ref: '#/components/schemas/ReferenciaAcademica'}
+        facultad: {$ref: '#/components/schemas/ReferenciaAcademica'}
+        activo: {type: boolean}
+    DatosEstudiante:
+      type: object
+      additionalProperties: false
+      required: [carnet, correo_institucional, carrera_id]
+      properties:
+        carnet: {type: string, pattern: '^[0-9]{8}$'}
+        nombres: {type: [string, 'null'], minLength: 1, maxLength: 120}
+        apellidos: {type: [string, 'null'], minLength: 1, maxLength: 120}
+        correo_institucional: {type: string, format: email, pattern: '@uca\.edu\.sv$'}
+        carrera_id: {type: string, format: uuid}
+        motivo_cambio_carrera: {type: string, maxLength: 500, description: Obligatorio al cambiar de carrera.}
     Institucion:
       type: object
       additionalProperties: false

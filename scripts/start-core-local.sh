@@ -30,5 +30,8 @@ SQL
 dc exec -T db sh -c 'exec psql -X -v ON_ERROR_STOP=1 -v app_role=hs_app -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
   < deploy/core-local/contacto-institucional.sql
 
+dc exec -T db sh -c 'exec psql -X -v ON_ERROR_STOP=1 -v app_role=hs_app -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
+  < deploy/core-local/estudiantes-vigencias.sql
+
 dc up -d --build --wait --wait-timeout 180 db api web
 printf 'Portal local: http://127.0.0.1:%s/\n' "${HS_CORE_LOCAL_PORT:-18081}"

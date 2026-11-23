@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(estudiantes): buscar, crear y editar expedientes del core y consultar la historia académica (#55).
+
 - feat(web): gestionar instituciones, su sede y contacto principal desde el portal privado (#49).
 
 - feat(instituciones): consultar y editar el contacto principal conservando el teléfono y la extensión como texto (#48).

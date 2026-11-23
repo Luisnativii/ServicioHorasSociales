@@ -143,7 +143,7 @@ test('successful login response without a usable cookie does not authenticate', 
 
 test('return destination is restricted to implemented private routes', () => {
   for (const route of navigation) assert.equal(authorizedDestination(route.path), route.path);
-  for (const value of ['https://attacker.test', '//attacker.test', '/login', '/estudiantes', '/sistema/estado?to=elsewhere', undefined]) {
+  for (const value of ['https://attacker.test', '//attacker.test', '/login', '/proyectos', '/sistema/estado?to=elsewhere', undefined]) {
     assert.equal(authorizedDestination(value), '/');
   }
 });
