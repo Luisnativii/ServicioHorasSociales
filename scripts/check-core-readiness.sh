@@ -85,6 +85,30 @@ GRANT USAGE ON SCHEMA horas_sociales TO hs_core_probe;
 GRANT SELECT, INSERT, UPDATE ON horas_sociales.coordinador_carrera TO hs_core_probe;
 SQL
 db_sql < deploy/core-local/contacto-institucional.sql
+db_sql < deploy/core-local/estudiantes-vigencias.sql
+db_sql <<'SQL'
+BEGIN;
+INSERT INTO public.careers (id, faculty_id, nombre, activo)
+VALUES ('00000000-0000-4000-8000-000000055002', '00000000-0000-4000-8000-000000035001', 'Programa sintético de expedientes', true)
+ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre
+WHERE careers.nombre IS DISTINCT FROM EXCLUDED.nombre;
+DELETE FROM public.students WHERE carnet IN ('00550001', '00550002');
+-- Un expediente anterior a la captura de vigencias tiene inicio desconocido.
+ALTER TABLE public.students DISABLE TRIGGER trg_student_career_periods;
+INSERT INTO public.students (carnet, nombre_completo, correo_institucional, career_id)
+VALUES ('00550001', 'ARCHIVO, ESTUDIANTE', 'archivo55@uca.edu.sv', '00000000-0000-4000-8000-000000035002');
+ALTER TABLE public.students ENABLE TRIGGER trg_student_career_periods;
+DO $check$
+BEGIN
+  IF has_column_privilege('hs_core_probe', 'public.students', 'dui_hash', 'SELECT, UPDATE')
+     OR has_column_privilege('hs_core_probe', 'public.students', 'dui_cifrado', 'SELECT, UPDATE')
+     OR has_table_privilege('hs_core_probe', 'public.student_career_periods', 'INSERT, UPDATE, DELETE') THEN
+    RAISE EXCEPTION 'Privilegios inesperados para expedientes';
+  END IF;
+END
+$check$;
+COMMIT;
+SQL
 db_sql <<'SQL'
 BEGIN;
 DELETE FROM public.institutions
@@ -133,6 +157,23 @@ dc build api
 dc up -d --no-build --no-deps api api-missing
 dc run --rm --no-deps -T probe
 dc run --rm --no-deps --build -T catalogo-test
+db_sql <<'SQL'
+BEGIN;
+SELECT set_config('app.actor', 'core:synthetic', true);
+UPDATE public.students SET career_id = '00000000-0000-4000-8000-000000035002'
+WHERE carnet = '00550001';
+DO $check$
+BEGIN
+  IF (SELECT count(*) FROM public.student_career_periods h JOIN public.students s ON s.id = h.student_id
+      WHERE s.carnet = '00550001') <> 3
+     OR NOT EXISTS (SELECT 1 FROM public.student_career_periods h JOIN public.students s ON s.id = h.student_id
+      WHERE s.carnet = '00550001' AND h.valid_until IS NULL AND h.actor = 'core:synthetic' AND h.career_id = s.career_id) THEN
+    RAISE EXCEPTION 'No se conservó el historial al escribir desde el core';
+  END IF;
+END
+$check$;
+ROLLBACK;
+SQL
 [ "$(institution_audit_count)" -eq "$((audit_before + 1))" ]
 institution_result=$(db_sql <<'SQL'
 SELECT NOT i.activo AND i.codigo_css = '00046'

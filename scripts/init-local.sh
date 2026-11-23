@@ -19,7 +19,7 @@ bash scripts/dc.sh config --quiet
 if [ ! -s apps/api/go.sum ]; then
   docker run --rm --user "$(id -u):$(id -g)" \
     -e HOME=/tmp -e GOCACHE=/tmp/cache -e GOPATH=/tmp/go -e GOTOOLCHAIN=local \
-    -v "$PWD/apps/api:/src" -w /src golang:1.27.3-bookworm go mod tidy
+    -v "$PWD/apps/api:/src" -w /src golang:1.27.4-bookworm go mod tidy
 fi
 if [ ! -s apps/web/package-lock.json ]; then
   docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \

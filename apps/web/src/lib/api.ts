@@ -1,5 +1,5 @@
 export class ApiError extends Error {
-  constructor(public readonly status: number, public readonly code: string, public readonly retryAfter?: number) {
+  constructor(public readonly status: number, public readonly code: string, public readonly retryAfter?: number, public readonly field?: string) {
     super(status === 401 ? 'Debes iniciar sesión.' : status === 429 ? 'Espera antes de volver a intentarlo.' : 'No se pudo completar la solicitud.');
   }
 }
@@ -58,12 +58,14 @@ export class ApiClient {
 
   private async failure(response: Response): Promise<ApiError> {
     let code = 'http_error';
+    let field: string | undefined;
     try {
       const data = await response.json();
       if (typeof data?.error?.code === 'string') code = data.error.code;
+      if (typeof data?.error?.field === 'string') field = data.error.field;
     } catch { /* Error pages are not JSON; never display their raw body. */ }
     const seconds = Number(response.headers.get('Retry-After'));
-    return new ApiError(response.status, code, response.status === 429 && Number.isFinite(seconds) && seconds > 0 ? seconds : undefined);
+    return new ApiError(response.status, code, response.status === 429 && Number.isFinite(seconds) && seconds > 0 ? seconds : undefined, field);
   }
 
   prepareCSRF(): Promise<void> {
