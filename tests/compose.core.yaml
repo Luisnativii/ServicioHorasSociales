@@ -34,12 +34,62 @@ services:
     environment:
       <<: *core-env
       DATABASE_URL: postgres://hs_core_probe:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+      APP_ORIGIN: http://127.0.0.1:8080
+      JWT_KEY_FILE: /e2e-secrets/jwt
+      PROJECTS_WRITES_ENABLED: "true"
+      ENROLLMENTS_WRITES_ENABLED: "true"
+      CLOSURES_WRITES_ENABLED: "true"
+      HOURS_WRITES_ENABLED: "true"
+    volumes:
+      - e2e-secrets:/e2e-secrets:ro
 
   api-missing:
     <<: *core-api
     environment:
       <<: *core-env
       DATABASE_URL: postgres://hs_core_probe:${POSTGRES_PASSWORD}@db:5432/postgres?sslmode=disable
+
+  web:
+    profiles: [tools]
+    image: hs-web:${APP_VERSION:-0.0.1}-test-core
+    build:
+      context: .
+      dockerfile: deploy/docker/web.Dockerfile
+      target: runtime
+      args: {APP_VERSION: "${APP_VERSION:-0.0.1}"}
+    networks: [data]
+
+  e2e-init:
+    profiles: [tools]
+    image: node:22.23.4-bookworm-slim
+    network_mode: none
+    volumes:
+      - e2e-secrets:/e2e-secrets
+      - ./tests/e2e/init.cjs:/init.cjs:ro
+    command: [node, /init.cjs]
+
+  e2e-admin:
+    profiles: [tools]
+    image: hs-admin:${APP_VERSION:-0.0.1}-test-core
+    build:
+      context: .
+      dockerfile: deploy/docker/api.Dockerfile
+      target: admin-runtime
+    environment:
+      DB_MAX_CONNS: "1"
+      DATABASE_URL: postgres://hs_app:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+    networks: [data]
+    volumes:
+      - e2e-secrets:/e2e-secrets:ro
+
+  e2e:
+    profiles: [tools]
+    build: ./tests/e2e
+    network_mode: "service:web"
+    init: true
+    shm_size: 256mb
+    volumes:
+      - e2e-secrets:/e2e-secrets:ro
 
   catalogo-test:
     profiles: [tools]
@@ -66,3 +116,4 @@ networks:
   data: {internal: true}
 volumes:
   pgdata: {}
+  e2e-secrets: {}

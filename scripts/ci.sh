@@ -13,7 +13,7 @@ cleanup() {
 trap cleanup EXIT
 bash scripts/check-gitflow.sh
 bash scripts/check-test-isolation.sh
-bash scripts/check-core-readiness.sh
+bash scripts/check-core-readiness.sh --e2e
 bash scripts/dc-test.sh build api web migrator admin
 bash scripts/dc-test.sh up -d --wait --wait-timeout 180 db api web
 bash scripts/migrate.sh test
