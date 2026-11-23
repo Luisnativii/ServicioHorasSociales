@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ApiError, NetworkError } from '../../lib/api';
+import CareerCoordinator from './CareerCoordinator';
 import { getCatalogEntry, listCatalog, type CatalogKind } from './api';
 
 const path = '/catalogos/academico';
@@ -103,9 +104,10 @@ export default function AcademicCatalog() {
       </div>}
       {detail.data && <>
         <p>Estado <EntryState active={detail.data.activo} /></p>
-        {relatedFacultyId && 'facultad_activa' in detail.data ? <p>
-          Facultad {faculty.data?.nombre ?? (faculty.isError ? 'no disponible' : 'cargando…')} <EntryState active={detail.data.facultad_activa} />
-        </p> : <Link to={careersLink(detail.data.id, detail.data.activo)}>Ver carreras de esta facultad</Link>}
+        {'facultad_activa' in detail.data ? <>
+          <p>Facultad {faculty.data?.nombre ?? (faculty.isError ? 'no disponible' : 'cargando…')} <EntryState active={detail.data.facultad_activa} /></p>
+          <CareerCoordinator key={detail.data.id} career={detail.data} />
+        </> : <Link to={careersLink(detail.data.id, detail.data.activo)}>Ver carreras de esta facultad</Link>}
       </>}
     </section>}
 

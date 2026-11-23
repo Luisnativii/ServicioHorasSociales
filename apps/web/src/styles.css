@@ -198,3 +198,11 @@ body { margin: 0; }
 .territory-field select { width: 100%; min-height: 44px; padding: 8px; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); }
 .territory-field select:disabled, .territory-field p, .territory-note { color: var(--muted); }
 .territory-note { margin-top: 16px; overflow-wrap: anywhere; }
+
+.career-coordinator { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.career-coordinator h3 { font-weight: 600; }
+.career-coordinator button { margin-top: 12px; }
+.career-coordinator form { display: grid; gap: 8px; max-width: 32rem; margin-top: 12px; }
+.career-coordinator form p { margin: 0; }
+.career-coordinator input { width: 100%; min-height: 44px; padding: 8px; border: 1px solid var(--rule); border-radius: 4px; }
+.career-coordinator-actions { display: flex; flex-wrap: wrap; gap: 8px; }
