@@ -1177,6 +1177,73 @@ paths:
         '413': {$ref: '#/components/responses/PayloadTooLarge'}
         '415': {$ref: '#/components/responses/UnsupportedMediaType'}
         '503': {description: Base de datos o historial académico no disponible.}
+  /api/v1/proyectos/{id}/participaciones:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+    get:
+      operationId: listarParticipacionesProyecto
+      summary: Consultar participaciones del proyecto
+      security: [{AdminCookie: []}]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200': {description: Participaciones ordenadas por fecha de asignación e ID, con paginación.}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {description: Base de datos del core no disponible.}
+    post:
+      operationId: asignarEstudiante
+      summary: Asignar un estudiante activo a un proyecto activo
+      security: [{AdminCookie: [], CSRFHeader: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [estudiante_id]
+              properties:
+                estudiante_id: {type: string, format: uuid}
+                confirmar_exceso_cupo: {type: boolean, default: false, description: Confirmación explícita después del aviso de cupo lleno.}
+      responses:
+        '201':
+          description: Participación creada.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id]
+                properties:
+                  id: {type: string, format: uuid}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409':
+          description: El campo del error distingue estado, duplicado o cupo pendiente de confirmación.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '503': {description: Escrituras deshabilitadas o base de datos del core no disponible.}
+  /api/v1/estudiantes/{id}/participaciones:
+    parameters:
+      - $ref: '#/components/parameters/UUIDCatalogo'
+    get:
+      operationId: listarParticipacionesEstudiante
+      summary: Consultar participaciones del expediente
+      security: [{AdminCookie: []}]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200': {description: Participaciones ordenadas por fecha de asignación e ID, con paginación.}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '503': {description: Base de datos del core no disponible.}
 components:
   securitySchemes:
     CSRFHeader:

@@ -24,6 +24,7 @@ services:
       JWT_KEY_FILE: /run/hs-core-local/jwt.key
       CHECK_CORE_CATALOG: "true"
       PROJECTS_WRITES_ENABLED: "true"
+      ENROLLMENTS_WRITES_ENABLED: "true"
     volumes:
       - jwt:/run/hs-core-local:ro
 

@@ -2,6 +2,8 @@
 
 ## Pendiente de integración
 
+- feat(participaciones): asignar estudiantes desde proyectos o expedientes y consultar su historial (#59).
+
 - feat(proyectos): consultar, registrar y editar proyectos y administrar su modalidad (#50).
 
 - feat(estudiantes): buscar, crear y editar expedientes del core y consultar la historia académica (#55).
