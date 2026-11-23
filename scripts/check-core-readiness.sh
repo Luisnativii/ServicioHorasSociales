@@ -250,7 +250,8 @@ COMMIT;
 SQL
 db_sql <<'SQL'
 BEGIN;
-DELETE FROM horas_sociales.cierre_evento WHERE proyecto_id='00000000-0000-4000-8000-000000065002';
+DELETE FROM horas_sociales.cierre_evento WHERE proyecto_id IN
+  ('00000000-0000-4000-8000-000000065001','00000000-0000-4000-8000-000000065002');
 DELETE FROM horas_sociales.autor_movimiento WHERE movimiento_id IN (
     SELECT id FROM public.hour_movements WHERE enrollment_id IN
       ('00000000-0000-4000-8000-000000065011','00000000-0000-4000-8000-000000065012'));
