@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 dc() { bash scripts/dc-test.sh --core "$@"; }
 db_sql() {
-  dc exec -T db sh -c 'exec psql -X -qAt -v ON_ERROR_STOP=1 -v app_role=hs_core_probe -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+  dc exec -T db sh -c 'exec psql -X -qAt -v ON_ERROR_STOP=1 -v app_role=hs_core_probe -U "$POSTGRES_USER" -d "$POSTGRES_DB" "$@"' sh "$@"
 }
 snapshot() {
   db_sql <<'SQL'
@@ -28,6 +28,7 @@ cleanup() {
 bash scripts/init-test.sh
 dc config --quiet
 trap cleanup EXIT
+dc run --rm --no-deps -T e2e-init
 dc up -d --wait --wait-timeout 150 db
 db_sql <<'SQL'
 BEGIN;
@@ -382,3 +383,62 @@ dc up -d --wait --wait-timeout 90 db
 dc run --rm --no-deps -T probe
 [ "$(snapshot)" = "$before" ] || { echo 'El reinicio cambió los datos de prueba.' >&2; exit 1; }
 echo 'hs-test-core: PostgreSQL se recuperó y readiness volvió a 200.'
+
+
+# Recorrido y mediciones del portal completo solo cuando se solicitan.
+if [ "${1:-}" = --e2e ]; then
+  if [ "$(db_sql <<'SQL'
+SELECT to_regclass('horas_sociales.administrador') IS NOT NULL;
+SQL
+)" != t ]; then
+    sed '/^-- +goose Down/,$d' apps/api/db/migrations/00002_administrador.sql | db_sql
+  fi
+  db_sql <<'SQL'
+\getenv password POSTGRES_PASSWORD
+SELECT format('CREATE ROLE hs_app LOGIN PASSWORD %L', :'password')
+WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname='hs_app') \gexec
+GRANT USAGE ON SCHEMA horas_sociales TO hs_app;
+GRANT SELECT, INSERT ON horas_sociales.administrador TO hs_app;
+GRANT SELECT, INSERT, UPDATE ON horas_sociales.administrador TO hs_core_probe;
+SQL
+  dc build web e2e-admin e2e
+  for suffix in a b; do
+    email="e2e-$suffix@example.test"
+    if [ "$(db_sql -v email="$email" <<'SQL'
+SELECT EXISTS(SELECT FROM horas_sociales.administrador WHERE correo=:'email');
+SQL
+)" != t ]; then
+      dc run --rm --no-deps -T e2e-admin create --email "$email" --password-file "/e2e-secrets/$suffix.password"
+    fi
+  done
+  dc up -d --no-deps web
+  run_id=$(date +%s)$$
+  dc run --rm --no-deps -T -e "HS_E2E_RUN=$run_id" e2e journey
+  db_sql -v run="$run_id" < tests/e2e/cleanup.sql
+  if [ "${HS_TEST_BENCHMARK:-0}" = 1 ]; then
+    printf 'Referencia #80: commit %s, versión %s.\n' "$(git rev-parse --short HEAD)" "$(bash scripts/version.sh)"
+    docker info --format 'Docker: {{.Architecture}}, CPU={{.NCPU}}, memoria={{.MemTotal}} bytes'
+    df -Pk .
+    for service in api web db; do
+      container=$(dc ps -q "$service")
+      image=$(docker inspect --format '{{.Image}}' "$container")
+      printf '%s %s\n' "$service" "$image"
+    done
+    db_sql < tests/e2e/benchmark.sql
+    containers=$(dc ps -q api web db)
+    samples=$(mktemp)
+    (
+      while docker stats --no-stream --format '{{.Name}} | {{.CPUPerc}} | {{.MemUsage}}' $containers >> "$samples"; do
+        sleep 3
+      done
+    ) &
+    monitor=$!
+    rc=0
+    dc run --rm --no-deps -T e2e benchmark || rc=$?
+    kill "$monitor" 2>/dev/null || true
+    wait "$monitor" 2>/dev/null || true
+    cat "$samples"
+    rm -f "$samples"
+    [ "$rc" = 0 ]
+  fi
+fi
