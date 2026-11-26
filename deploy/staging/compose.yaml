@@ -1,0 +1,27 @@
+# Overlay for the isolated recovery rehearsal. Only prebuilt runtime images start here.
+services:
+  db:
+    image: ${HS_STAGING_DB_IMAGE:?}
+    volumes: !override
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -q -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+  api:
+    build: !reset null
+    image: ${HS_STAGING_API_IMAGE:?}
+    pull_policy: never
+    environment:
+      APP_ORIGIN: http://127.0.0.1:8080
+  web:
+    build: !reset null
+    image: ${HS_STAGING_WEB_IMAGE:?}
+    pull_policy: never
+    ports: !reset []
+  migrator:
+    build: !reset null
+    image: ${HS_STAGING_MIGRATOR_IMAGE:?}
+    pull_policy: never
+  admin:
+    build: !reset null
+    image: ${HS_STAGING_ADMIN_IMAGE:?}
+    pull_policy: never

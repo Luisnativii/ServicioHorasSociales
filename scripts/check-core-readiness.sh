@@ -22,6 +22,7 @@ cleanup() {
   result=$?
   trap - EXIT
   if [ "$result" -ne 0 ]; then dc logs --tail=40 api api-missing db >&2 || true; fi
+  dc rm --stop --force web >/dev/null || true
   dc down >/dev/null || true
   exit "$result"
 }
@@ -69,6 +70,13 @@ $check$;
 COMMIT;
 SQL
 db_sql < deploy/core-local/territory/load.sql
+# Earlier benchmark runs can leave synthetic rows on the retained test volume.
+if [ "$(db_sql <<'SQL'
+SELECT EXISTS (SELECT FROM public.students WHERE id = md5('hs-bench80-student-1')::uuid);
+SQL
+)" = t ]; then
+  db_sql < tests/e2e/benchmark-cleanup.sql
+fi
 # Probar el SQL de la migración del portal en el core aislado. El arranque
 # local aplica la misma migración con Goose y su propia cuenta de migrador.
 if [ "$(db_sql <<'SQL'
@@ -411,7 +419,7 @@ SQL
       dc run --rm --no-deps -T e2e-admin create --email "$email" --password-file "/e2e-secrets/$suffix.password"
     fi
   done
-  dc up -d --no-deps web
+  dc up -d --no-deps --force-recreate web
   run_id=$(date +%s)$$
   dc run --rm --no-deps -T -e "HS_E2E_RUN=$run_id" e2e journey
   db_sql -v run="$run_id" < tests/e2e/cleanup.sql
