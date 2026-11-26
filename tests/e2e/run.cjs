@@ -33,10 +33,13 @@ async function selectAny(locator) {
   await locator.selectOption({ index: 1 });
 }
 
-async function journey(browser) {
+async function journey(browser, withReports) {
   stage = 'acceso anónimo';
   const unauthenticated = await request.newContext({ baseURL: origin });
-  assert.equal((await unauthenticated.get('/api/v1/reportes/actividad.xlsx')).status(), 401);
+  assert.equal((await unauthenticated.get('/api/v1/auth/me')).status(), 401);
+  if (withReports) {
+    assert.equal((await unauthenticated.get('/api/v1/reportes/actividad.xlsx')).status(), 401);
+  }
   await unauthenticated.dispose();
   const { context, page, id } = await login(browser, 'a');
   const second = await login(browser, 'b');
@@ -118,26 +121,28 @@ async function journey(browser) {
   await page.getByText('ABANDONADO', { exact: true }).waitFor();
   assert.equal(await button(page, 'Asignar estudiante').count(), 0);
 
-  stage = 'dashboard y descarga';
-  await page.goto('/reportes');
-  await page.getByLabel('Actividad desde', { exact: true }).fill(day);
-  await page.getByLabel('Actividad hasta', { exact: true }).fill(day);
-  await page.locator('select[name=estado]').selectOption('ABANDONADO');
-  await button(page, 'Aplicar filtros').click();
-  await page.getByRole('row').filter({ hasText: title }).waitFor();
-  const query = new URLSearchParams({ desde: day, hasta: day, estado: 'ABANDONADO' });
-  const dashboard = await context.request.get('/api/v1/reportes/actividad?' + query);
-  assert.equal(dashboard.status(), 200);
-  const { resumen } = await dashboard.json();
-  const downloaded = page.waitForEvent('download');
-  await button(page, 'Descargar Excel').click();
-  const download = await downloaded;
-  const archive = await download.path();
-  const summary = execFileSync('unzip', ['-p', archive, 'xl/worksheets/sheet1.xml'], { encoding: 'utf8' });
-  const movements = execFileSync('unzip', ['-p', archive, 'xl/worksheets/sheet2.xml'], { encoding: 'utf8' });
-  assert.ok(movements.includes(carnet));
-  assert.ok(movements.includes(title));
-  assert.ok(summary.includes(`<c r="B6" t="n"><v>${resumen.externas}</v></c>`));
+  if (withReports) {
+    stage = 'dashboard y descarga';
+    await page.goto('/reportes');
+    await page.getByLabel('Actividad desde', { exact: true }).fill(day);
+    await page.getByLabel('Actividad hasta', { exact: true }).fill(day);
+    await page.locator('select[name=estado]').selectOption('ABANDONADO');
+    await button(page, 'Aplicar filtros').click();
+    await page.getByRole('row').filter({ hasText: title }).waitFor();
+    const query = new URLSearchParams({ desde: day, hasta: day, estado: 'ABANDONADO' });
+    const dashboard = await context.request.get('/api/v1/reportes/actividad?' + query);
+    assert.equal(dashboard.status(), 200);
+    const { resumen } = await dashboard.json();
+    const downloaded = page.waitForEvent('download');
+    await button(page, 'Descargar Excel').click();
+    const download = await downloaded;
+    const archive = await download.path();
+    const summary = execFileSync('unzip', ['-p', archive, 'xl/worksheets/sheet1.xml'], { encoding: 'utf8' });
+    const movements = execFileSync('unzip', ['-p', archive, 'xl/worksheets/sheet2.xml'], { encoding: 'utf8' });
+    assert.ok(movements.includes(carnet));
+    assert.ok(movements.includes(title));
+    assert.ok(summary.includes(`<c r="B6" t="n"><v>${resumen.externas}</v></c>`));
+  }
 
   stage = 'cierre de sesión';
   await button(page, 'Cerrar sesión').first().click();
@@ -147,7 +152,8 @@ async function journey(browser) {
   await page.waitForURL(/\/login/);
   assert.equal((await context.request.get('/api/v1/auth/me')).status(), 401);
   await context.close();
-  console.log('Recorrido Chromium aprobado: dos ADMIN, CSRF, instituciones, proyectos, expedientes, asignación, retiro y cierre, horas, reportes, XLSX y logout.');
+  const reports = withReports ? ', reportes y XLSX' : '';
+  console.log('Recorrido Chromium aprobado: dos ADMIN, CSRF, instituciones, proyectos, expedientes, asignación, retiro y cierre, horas' + reports + ' y logout.');
 }
 
 async function benchmark(browser) {
@@ -210,7 +216,15 @@ async function benchmark(browser) {
   const browser = await chromium.launch();
   try {
     if (process.argv[2] === 'benchmark') await benchmark(browser);
-    else await journey(browser);
+    else if (process.argv[2] === 'smoke') {
+      const { context } = await login(browser, 'a');
+      for (const module of ['instituciones', 'estudiantes', 'proyectos']) {
+        stage = 'consulta de ' + module;
+        assert.equal((await context.request.get('/api/v1/' + module)).status(), 200);
+      }
+      await context.close();
+      console.log('Login y consultas de instituciones, estudiantes y proyectos aprobados.');
+    } else await journey(browser, process.argv[2] !== 'journey-without-reports');
   } finally { await browser.close(); }
 })().catch(error => {
   // Do not dump Playwright call logs, cookies or input values.
