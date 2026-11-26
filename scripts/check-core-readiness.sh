@@ -22,7 +22,8 @@ cleanup() {
   result=$?
   trap - EXIT
   if [ "$result" -ne 0 ]; then dc logs --tail=40 api api-missing db >&2 || true; fi
-  dc --profile tools down >/dev/null || true
+  dc rm --stop --force web >/dev/null || true
+  dc down >/dev/null || true
   exit "$result"
 }
 bash scripts/init-test.sh
